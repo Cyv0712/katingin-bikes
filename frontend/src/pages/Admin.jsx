@@ -136,23 +136,28 @@ const Admin = () => {
         throw new Error(errorText);
       }
       
-      // Success! Reset everything
       setShowModal(false);
       setFormData(EMPTY_FORM);
       setImageFiles([]);
       fetchBikes();
     } catch (err) {
       console.error('Failed to add bike:', err);
-      // Only alert if it's not a timeout error (the backend might still succeed)
       if (err.name !== 'TypeError') {
         alert(`Failed to save: ${err.message}`);
       } else {
-        // This is usually a timeout on Render's free tier
         alert('Upload is taking a while. Please refresh the inventory in 1 minute to see if it saved!');
       }
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const setAsThumbnail = (index) => {
+    if (index === 0) return;
+    const newFiles = [...imageFiles];
+    const [selected] = newFiles.splice(index, 1);
+    newFiles.unshift(selected);
+    setImageFiles(newFiles);
   };
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -485,6 +490,34 @@ const Admin = () => {
                       required
                       className="moto-input text-white"
                     />
+                    {imageFiles.length > 0 && (
+                      <div className="d-flex flex-wrap gap-2 mt-3 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        {imageFiles.map((file, idx) => (
+                          <div 
+                            key={idx} 
+                            className="position-relative" 
+                            style={{ cursor: 'pointer', width: '80px', height: '80px' }}
+                            onClick={() => setAsThumbnail(idx)}
+                            title={idx === 0 ? 'Current Thumbnail' : 'Click to set as thumbnail'}
+                          >
+                            <img 
+                              src={URL.createObjectURL(file)} 
+                              alt="preview" 
+                              className={`w-100 h-100 rounded object-fit-cover ${idx === 0 ? 'border border-accent border-2' : 'opacity-50'}`}
+                            />
+                            {idx === 0 ? (
+                              <div className="position-absolute bottom-0 start-0 w-100 bg-accent text-dark text-center" style={{ fontSize: '0.6rem', fontWeight: 900 }}>
+                                THUMBNAIL
+                              </div>
+                            ) : (
+                              <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white opacity-0 hover-opacity-100" style={{ fontSize: '0.6rem', background: 'rgba(0,0,0,0.4)' }}>
+                                SET MAIN
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </Form.Group>
                 </div>
               </div>
