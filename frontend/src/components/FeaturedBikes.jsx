@@ -67,8 +67,9 @@ const FeaturedBikes = () => {
                     </div>
 
                     <div className="p-4 d-flex flex-column flex-grow-1">
-                      <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.brand.toUpperCase()}</span>
-                      <h3 className="moto-heading mb-3" style={{ fontSize: '1.4rem' }}>{bike.model}</h3>
+                      <h3 className="moto-heading mb-3" style={{ fontSize: '1.4rem' }}>
+                        <span className="text-accent">{bike.brand}</span> {bike.model}
+                      </h3>
                       <p className="text-secondary mb-4 flex-grow-1" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
                         {bike.description}
                       </p>

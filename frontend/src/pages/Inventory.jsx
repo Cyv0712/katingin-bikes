@@ -246,13 +246,11 @@ const Inventory = () => {
                     <div className="moto-card d-flex flex-column h-100">
                       <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
                         <img src={getImageUrl(bike)} alt={bike.model} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
-                        <div className="position-absolute top-0 end-0 p-3">
-                          <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700 }}>{bike.brand}</Badge>
-                        </div>
-                      </div>
                       <div className="p-4 d-flex flex-column flex-grow-1">
                         <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
-                        <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>{bike.model}</h4>
+                        <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
+                          <span className="text-accent">{bike.brand}</span> {bike.model} <small className="text-secondary" style={{ fontSize: '0.85rem' }}>{bike.engineSize}</small>
+                        </h4>
 
                         <div className="d-flex gap-3 mb-4">
                           <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>

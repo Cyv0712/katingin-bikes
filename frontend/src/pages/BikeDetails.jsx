@@ -126,12 +126,12 @@ const BikeDetails = () => {
           <Col lg={5}>
             <div className="moto-card p-4 border-0" style={{ background: 'transparent' }}>
               <div className="d-flex justify-content-between align-items-start mb-3">
-                <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.brand.toUpperCase()} // {bike.type.toUpperCase()}</span>
+                <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {bike.engineSize}</span>
                 <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE</Badge>
               </div>
               
               <h1 className="moto-heading mb-4" style={{ fontSize: '2.5rem' }}>
-                {bike.model} <span className="text-accent">{bike.edition}</span>
+                <span className="text-accent">{bike.brand}</span> {bike.model}
               </h1>
 
               <div className="d-flex gap-4 mb-5">
