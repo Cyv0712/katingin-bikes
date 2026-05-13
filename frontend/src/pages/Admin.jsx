@@ -115,7 +115,7 @@ const Admin = () => {
     data.append('brand', brand);
     data.append('model', model);
     const cleanEngineSize = engineSize.toUpperCase().replace('CC', '').trim();
-    data.append('engineSize', `${formatWithCommas(cleanEngineSize)} CC`);
+    data.append('engineSize', formatWithCommas(cleanEngineSize));
     
     Object.keys(formData).forEach((key) => {
       if (!['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key)) {

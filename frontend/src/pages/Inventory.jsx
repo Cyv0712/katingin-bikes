@@ -250,7 +250,7 @@ const Inventory = () => {
                       <div className="p-4 d-flex flex-column flex-grow-1">
                         <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
                         <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
-                          <span className="text-accent">{bike.brand}</span> {bike.model} <small className="text-secondary" style={{ fontSize: '0.85rem' }}>{bike.engineSize}</small>
+                          <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
                         </h4>
 
                         <div className="d-flex gap-3 mb-4">

@@ -131,7 +131,7 @@ const BikeDetails = () => {
               </div>
               
               <h1 className="moto-heading mb-4" style={{ fontSize: '2.5rem' }}>
-                <span className="text-accent">{bike.brand}</span> {bike.model}
+                <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
               </h1>
 
               <div className="d-flex gap-4 mb-5">
