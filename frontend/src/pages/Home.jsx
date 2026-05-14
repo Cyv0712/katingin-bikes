@@ -4,7 +4,11 @@ import FeaturedBikes from '../components/FeaturedBikes';
 import HappyBuyers from '../components/HappyBuyers';
 import AboutUs from '../components/AboutUs';
 
+import { useReveal } from '../hooks/useReveal';
+
 const Home = () => {
+  useReveal();
+  
   return (
     <>
       <HeroSection />

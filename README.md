@@ -1,78 +1,109 @@
-# Katingin Bikes - Premium Bigbike Platform
+# Katingin Bikes 🏍️
 
-A high-performance, cinematic web platform designed for premium motorcycle enthusiasts in the Philippines. This site features a "Dark Showroom" aesthetic, immersive scroll animations, and a transparent inventory management system.
+**Ang Toy Kingdom ng mga Tito.**  
+A premium, high-performance web application designed for a high-end pre-owned motorcycle dealership in Metro Manila. Built with a modern full-stack architecture, Katingin Bikes features an immersive "dark showroom" aesthetic, a robust custom inventory management system, and automated cloud-based media delivery.
 
-![Project Preview](https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1470&auto=format&fit=crop)
+## 🌟 Key Features
 
-## 🏍️ Features
-
-- **Inventory Showcase:** Real-time motorcycle inventory with high-resolution imagery and "Honest Notes" transparency.
-- **Cinematic Experience:** Premium scroll-triggered animations and a "Void Black" design system.
-- **Buyer Community:** Dedicated testimonials portal featuring cinematic "Happy Buyer" stories.
-- **Direct Conversion:** Optimized for the Philippine market with integrated **WhatsApp**, **Viber**, and **Messenger** direct-action buttons.
-- **Admin Dashboard:** Custom-built management system for inventory rotation, sold status toggling, and image uploads.
+- **Immersive User Experience**: Cinematic dark-mode design with smooth scroll-triggered animations (Intersection Observer API) to highlight premium motorcycle photography.
+- **Dynamic Inventory Management**: A secure Admin Dashboard allowing staff to easily add, edit, and remove motorcycle listings.
+- **Automated Media Handling**: Integrated with **Cloudinary v2 SDK**. Features parallel image uploads, automatic thumbnail selection, and zero-waste storage logic (deleting a bike automatically destroys its associated cloud images).
+- **Intelligent Stock Tracking**: Real-time cross-referencing between static showcase data and the live database to display accurate "Available" or "Sold Out" badges.
+- **Traffic Insights**: Built-in **Vercel Web Analytics** integration to track visitor engagement and popular listings.
+- **White-Label Architecture**: Designed with decoupled brand configurations (`brandConfig.js`), allowing the entire platform's identity, colors, and assets to be swapped in minutes.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** React 19, Vite, React-Bootstrap, Lucide Icons, React Router 7.
-- **Backend:** Node.js, Express, MongoDB Atlas.
-- **Media:** Cloudinary for optimized image delivery.
-- **Styling:** Vanilla CSS with a global CSS Variable theme system and Intersection Observer animations.
+### Frontend
+- **React 19** & **Vite**: For lightning-fast local development and optimized production builds.
+- **React Router DOM**: Client-side routing for seamless page transitions.
+- **React Bootstrap**: Responsive grid system and component structure.
+- **Vercel Analytics**: Real-time traffic monitoring.
+
+### Backend & Database
+- **Node.js & Express**: Fast, lightweight REST API architecture.
+- **MongoDB Atlas**: Fully managed cloud database for inventory persistence.
+- **Cloudinary**: Cloud-based media storage and image optimization.
+- **Multer**: Handling multipart/form-data for image uploads.
+
+### Hosting
+- **Frontend**: Hosted on [Vercel](https://vercel.com).
+- **Backend**: Hosted on [Render](https://render.com).
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started Locally
 
-### 1. Prerequisites
-- Node.js (v18+)
-- MongoDB Atlas account
-- Cloudinary account (Optional for local storage)
+### Prerequisites
+- Node.js installed (v18 or higher recommended)
+- MongoDB Atlas account (or local MongoDB instance)
+- Cloudinary account for image storage
 
-### 2. Installation
+### 1. Clone the repository
 ```bash
-# Clone the repository
-git clone https://github.com/Cyv0712/katingin-bikes.git
+git clone https://github.com/yourusername/katingin-bikes.git
+cd katingin-bikes
+```
 
-# Install Frontend dependencies
+### 2. Set up the Backend
+Navigate to the backend directory and install dependencies:
+```bash
+cd backend
+npm install
+```
+
+Create a `.env` file in the `backend` folder and add the following keys:
+```env
+# MongoDB Connection
+MONGO_URI=your_mongodb_atlas_connection_string
+
+# Cloudinary Config
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_FOLDER=katingin-bikes/bikes
+
+# Security
+PORT=5000
+```
+Start the backend server:
+```bash
+node server.js
+```
+
+### 3. Set up the Frontend
+Open a new terminal, navigate to the frontend directory, and install dependencies:
+```bash
 cd frontend
 npm install
-
-# Install Backend dependencies
-cd ../backend
-npm install
 ```
 
-### 3. Environment Setup
-Create a `.env` file in the `/backend` directory:
+Create a `.env` file in the `frontend` folder and add the following keys:
 ```env
-PORT=5001
-MONGO_URI=your_mongodb_connection_string
-CORS_ORIGIN=http://localhost:5174
-CLOUDINARY_FOLDER=katingin-bikes/bikes
+# Point this to your backend server
+VITE_API_URL=http://localhost:5000
+
+# Admin Access Credentials
+VITE_ADMIN_USER=admin
+VITE_ADMIN_PASS=your_secure_password
 ```
-
-### 4. Run Locally
+Start the Vite development server:
 ```bash
-# Start Backend (from /backend)
-node server.js
-
-# Start Frontend (from /frontend)
 npm run dev
 ```
 
 ---
 
-## 🎨 Branding & Customization
+## 🎨 Modifying the Brand (White-Labeling)
 
-The site's identity is centralized for easy updates:
-
-1.  **Identity:** Edit `frontend/src/data/brandConfig.js` to update the Seller Name, Slogan, and "About" narrative.
-2.  **Design System:** Modify `frontend/src/index.css` to update the `--accent-primary` (Katingin Gold: `#D4AF37`) and `--bg-void` colors.
-3.  **Contact Info:** Edit `frontend/src/data/contactInfo.js` with the active social links and mobile numbers.
+To deploy a clone of this showroom for a different dealership:
+1. Open `frontend/src/data/brandConfig.js`.
+2. Update the `name`, `theme.accent` color, `description`, and `images` URLs.
+3. The entire site (including headers, buttons, and footers) will automatically re-theme itself to match the new configuration.
 
 ---
 
-## 📄 License
-Custom license for Katingin Bikes. All rights reserved.
+## 🔒 License
+This is a proprietary codebase built specifically for Katingin Bikes. Unauthorized distribution or copying of this repository is prohibited.
