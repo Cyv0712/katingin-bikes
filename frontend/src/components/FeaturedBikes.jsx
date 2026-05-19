@@ -6,27 +6,50 @@ import { apiUrl } from '../config/api';
 import Reveal from './Reveal';
 
 const FeaturedBikes = () => {
-  const [inventoryModels, setInventoryModels] = useState([]);
+  const [inventory, setInventory] = useState([]);
 
   useEffect(() => {
     // Fetch live inventory to check stock status
     fetch(apiUrl('/api/bikes'))
       .then(res => res.json())
       .then(data => {
-        const inStockOnly = data.filter(bike => bike.status === 'Available' || !bike.status);
-        // Create full identity strings (e.g. "Kawasaki Versys 650")
-        const identitiesInStock = inStockOnly.map(bike => {
-          const cleanCC = bike.engineSize?.replace('CC', '').trim() || '';
-          return `${bike.brand} ${bike.model} ${cleanCC}`.toLowerCase().replace(/\s+/g, ' ').trim();
-        });
-        setInventoryModels(identitiesInStock);
+        setInventory(data || []);
       })
       .catch(err => console.error(err));
   }, []);
 
-  const checkStock = (searchName) => {
-    const target = searchName.toLowerCase().replace(/\s+/g, ' ').trim();
-    return inventoryModels.includes(target);
+  const checkStock = (showcaseBike) => {
+    return inventory.some(bike => {
+      // Check availability status first
+      if (bike.status && bike.status !== 'Available') return false;
+
+      const targetBrand = showcaseBike.brand.toLowerCase().trim();
+      const liveBrand = (bike.brand || '').toLowerCase().trim();
+      if (liveBrand !== targetBrand) return false;
+
+      const liveModel = (bike.model || '').toLowerCase();
+      const liveEngine = (bike.engineSize || '').toLowerCase().replace('cc', '').trim();
+      const combinedLive = `${liveModel} ${liveEngine}`.replace(/[^\w\s]/g, '').trim();
+
+      // Custom-tailored matches for the showcase collection:
+      if (showcaseBike.slug === 'honda-africa-twin') {
+        return combinedLive.includes('africa') && combinedLive.includes('twin');
+      }
+      if (showcaseBike.slug === 'yamaha-tracer-900') {
+        return combinedLive.includes('tracer') && (combinedLive.includes('900') || combinedLive.includes('gt'));
+      }
+      if (showcaseBike.slug === 'kawasaki-versys-650') {
+        return combinedLive.includes('versys') && (combinedLive.includes('650') || combinedLive.includes('600'));
+      }
+
+      // Fallback matching
+      const targetWords = showcaseBike.model.toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .split(/\s+/)
+        .filter(w => w && w !== 'cc');
+      
+      return targetWords.every(word => combinedLive.includes(word));
+    });
   };
 
   return (
@@ -42,7 +65,7 @@ const FeaturedBikes = () => {
         </div>
         <Row className="g-4">
           {showcaseBikes.map((bike, index) => {
-            const inStock = checkStock(bike.searchModel);
+            const inStock = checkStock(bike);
 
             return (
               <Col lg={4} md={6} key={bike.slug}>
@@ -65,6 +88,7 @@ const FeaturedBikes = () => {
                               alt={`${bike.model} angle ${idx + 1}`}
                               className="d-block w-100 h-100"
                               style={{ objectFit: 'cover', objectPosition: 'top' }}
+                              loading="lazy"
                             />
                           </Carousel.Item>
                         ))}

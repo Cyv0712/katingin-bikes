@@ -1,5 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { Phone, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { brandConfig } from '../data/brandConfig';
 import { contactInfo } from '../data/contactInfo';
@@ -20,16 +20,16 @@ const Footer = () => {
               {brandConfig.description}
             </p>
             <div className="d-flex gap-3 mt-4">
-              <a href={contactInfo.facebook} target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href={contactInfo.facebook} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Follow Katingin Bikes on Facebook">
                 <FaFacebookF size={20} />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Follow Katingin Bikes on Instagram">
                 <FaInstagram size={20} />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Subscribe to Katingin Bikes on YouTube">
                 <FaYoutube size={20} />
               </a>
-              <a href={`https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="social-link">
+              <a href={`https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Chat with Katingin Bikes on WhatsApp">
                 <FaWhatsapp size={20} />
               </a>
             </div>

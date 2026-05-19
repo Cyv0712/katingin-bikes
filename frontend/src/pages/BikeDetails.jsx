@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, TriangleAlert, CircleCheck, Settings, Circle, Zap } from 'lucide-react';
+import { ArrowLeft, Calendar, Route, TriangleAlert, CircleCheck, Settings, Circle } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 
 const BikeDetails = () => {
@@ -95,7 +95,7 @@ const BikeDetails = () => {
         <Row className="g-5">
           {/* ── Image Carousel ── */}
           <Col lg={7}>
-            <div className="position-sticky" style={{ top: '120px' }}>
+            <div className="sticky-lg-top-120">
               <div className="moto-card overflow-hidden">
                 {images.length > 1 ? (
                   <Carousel interval={null}>
@@ -104,8 +104,8 @@ const BikeDetails = () => {
                         <img
                           src={getImageUrl(img)}
                           alt={`${bike.model} — photo ${idx + 1}`}
-                          className="d-block w-100"
-                          style={{ height: '550px', objectFit: 'cover' }}
+                          className="d-block w-100 bike-detail-carousel"
+                          style={{ height: 'clamp(260px, 45vw, 550px)', objectFit: 'cover' }}
                         />
                       </Carousel.Item>
                     ))}
@@ -114,8 +114,8 @@ const BikeDetails = () => {
                   <img
                     src={getImageUrl(images[0])}
                     alt={bike.model}
-                    className="img-fluid"
-                    style={{ width: '100%', height: '550px', objectFit: 'cover' }}
+                    className="bike-detail-single-img img-fluid"
+                    style={{ width: '100%', height: 'clamp(260px, 45vw, 550px)', objectFit: 'cover' }}
                   />
                 )}
               </div>
@@ -130,7 +130,7 @@ const BikeDetails = () => {
                 <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE</Badge>
               </div>
               
-              <h1 className="moto-heading mb-4" style={{ fontSize: '2.5rem' }}>
+              <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
                 <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
               </h1>
 
@@ -158,7 +158,7 @@ const BikeDetails = () => {
               <div className="mb-5 p-4 rounded bg-muted" style={{ borderLeft: '4px solid var(--accent-primary)' }}>
                 <small className="text-secondary d-block mb-1" style={{ fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px' }}>CASH PRICE</small>
                 <div className="d-flex align-items-baseline gap-2">
-                   <h2 className="text-primary fw-bold mb-0" style={{ fontSize: '2.5rem' }}>{withPeso(bike.price)}</h2>
+                   <h2 className="text-primary fw-bold mb-0" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>{withPeso(bike.price)}</h2>
                 </div>
               </div>
 

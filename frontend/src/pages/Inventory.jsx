@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Col, Alert, Badge } from 'react-bootstrap';
-import { Tag, Route, Calendar, Filter, Info, Search, X } from 'lucide-react';
+import { Container, Row, Col } from 'react-bootstrap';
+import { Route, Calendar, Filter, Info, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
+import Reveal from '../components/Reveal';
 
 // --- Helper ---
 const parsePrice = (priceStr) => {
@@ -112,95 +113,101 @@ const Inventory = () => {
     <div className="py-5" style={{ minHeight: '100vh' }}>
       <Container style={{ paddingTop: '80px' }}>
         {/* Page Header */}
-        <div className="mb-5 text-center">
-          <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
-          <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>FULL INVENTORY</h1>
-        </div>
+        <Reveal>
+          <div className="mb-5 text-center">
+            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>FULL INVENTORY</h1>
+          </div>
+        </Reveal>
 
         {/* Disclaimer */}
-        <div className="mb-5 p-4" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
-          <div className="d-flex align-items-center">
-            <Info className="text-accent fs-4 me-3 flex-shrink-0" />
-            <div className="text-secondary" style={{ fontSize: '0.95rem' }}>
-              <strong className="text-primary">NOTE:</strong> All stocks and prices are subject to change without prior notice. Contact us via Facebook or WhatsApp to verify availability and actual unit condition.
+        <Reveal delay={1}>
+          <div className="mb-5 p-4" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
+            <div className="d-flex align-items-center">
+              <Info className="text-accent fs-4 me-3 flex-shrink-0" />
+              <div className="text-secondary" style={{ fontSize: '0.95rem' }}>
+                <strong className="text-primary">NOTE:</strong> All stocks and prices are subject to change without prior notice. Contact us via Facebook or WhatsApp to verify availability and actual unit condition.
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
 
         <Row>
           {/* ── Sidebar Filters ── */}
           <Col lg={3} className="mb-4">
-            <div className="moto-card p-4 position-sticky" style={{ top: '100px' }}>
-              <h5 className="mb-4 d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
-                <Filter size={18} className="text-accent" /> FILTERS
-              </h5>
+            <Reveal delay={2}>
+              <div className="moto-card p-4 position-sticky" style={{ top: '100px' }}>
+                <h5 className="mb-4 d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
+                  <Filter size={18} className="text-accent" /> FILTERS
+                </h5>
 
-              {/* Search */}
-              <div className="mb-4">
-                <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>SEARCH</label>
-                <div className="position-relative">
-                  <Search size={14} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
-                    type="text"
-                    className="form-control moto-input w-100"
-                    placeholder="Brand, model..."
-                    value={filters.search}
-                    onChange={(e) => setFilter('search', e.target.value)}
-                    style={{ paddingLeft: '32px' }}
-                  />
-                  {filters.search && (
-                    <X size={14} className="text-secondary position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} onClick={() => setFilter('search', '')} />
-                  )}
+                {/* Search */}
+                <div className="mb-4">
+                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>SEARCH</label>
+                  <div className="position-relative">
+                    <Search size={14} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                      type="text"
+                      className="form-control moto-input w-100"
+                      placeholder="Brand, model..."
+                      value={filters.search}
+                      onChange={(e) => setFilter('search', e.target.value)}
+                      style={{ paddingLeft: '32px' }}
+                    />
+                    {filters.search && (
+                      <X size={14} className="text-secondary position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} onClick={() => setFilter('search', '')} />
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Brand */}
-              <div className="mb-4">
-                <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>BRAND</label>
-                <select className="form-select moto-input" value={filters.brand} onChange={(e) => setFilter('brand', e.target.value)}>
-                  {brands.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </div>
-
-              {/* Type */}
-              <div className="mb-4">
-                <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>TYPE</label>
-                <select className="form-select moto-input" value={filters.type} onChange={(e) => setFilter('type', e.target.value)}>
-                  {types.map((t) => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-4">
-                <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                  PRICE RANGE (₱)
-                </label>
-                <div className="d-flex gap-2">
-                  <input
-                    type="number"
-                    className="form-control moto-input"
-                    placeholder="MIN"
-                    value={filters.priceMin}
-                    onChange={(e) => setFilter('priceMin', e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    className="form-control moto-input"
-                    placeholder="MAX"
-                    value={filters.priceMax}
-                    onChange={(e) => setFilter('priceMax', e.target.value)}
-                  />
+                {/* Brand */}
+                <div className="mb-4">
+                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>BRAND</label>
+                  <select className="form-select moto-input" value={filters.brand} onChange={(e) => setFilter('brand', e.target.value)}>
+                    {brands.map((b) => <option key={b} value={b}>{b}</option>)}
+                  </select>
                 </div>
-              </div>
 
-              <button
-                className="moto-btn moto-btn-outline w-100 mt-2"
-                onClick={clearAllFilters}
-                style={{ fontSize: '0.8rem', padding: '10px' }}
-              >
-                RESET FILTERS
-              </button>
-            </div>
+                {/* Type */}
+                <div className="mb-4">
+                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>TYPE</label>
+                  <select className="form-select moto-input" value={filters.type} onChange={(e) => setFilter('type', e.target.value)}>
+                    {types.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+
+                {/* Price Range */}
+                <div className="mb-4">
+                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
+                    PRICE RANGE (₱)
+                  </label>
+                  <div className="d-flex gap-2">
+                    <input
+                      type="number"
+                      className="form-control moto-input"
+                      placeholder="MIN"
+                      value={filters.priceMin}
+                      onChange={(e) => setFilter('priceMin', e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      className="form-control moto-input"
+                      placeholder="MAX"
+                      value={filters.priceMax}
+                      onChange={(e) => setFilter('priceMax', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="moto-btn moto-btn-outline w-100 mt-2"
+                  onClick={clearAllFilters}
+                  style={{ fontSize: '0.8rem', padding: '10px' }}
+                >
+                  RESET FILTERS
+                </button>
+              </div>
+            </Reveal>
           </Col>
 
           {/* ── Bike Grid ── */}
@@ -243,39 +250,41 @@ const Inventory = () => {
               ) : filteredBikes.length > 0 ? (
                 filteredBikes.map((bike) => (
                   <Col xl={4} md={6} key={bike._id}>
-                    <div className="moto-card d-flex flex-column h-100">
-                      <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
-                        <img src={getImageUrl(bike)} alt={bike.model} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
-                      </div>
-                      <div className="p-4 d-flex flex-column flex-grow-1">
-                        <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
-                        <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
-                          <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
-                        </h4>
+                    <Reveal className="h-100">
+                      <div className="moto-card d-flex flex-column h-100">
+                        <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
+                          <img src={getImageUrl(bike)} alt={bike.model} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div className="p-4 d-flex flex-column flex-grow-1">
+                          <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
+                          <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
+                            <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
+                          </h4>
 
-                        <div className="d-flex gap-3 mb-4">
-                          <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
-                            <Calendar size={14} className="text-accent" />
-                            <span>{bike.year}</span>
+                          <div className="d-flex gap-3 mb-4">
+                            <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
+                              <Calendar size={14} className="text-accent" />
+                              <span>{bike.year}</span>
+                            </div>
+                            <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
+                              <Route size={14} className="text-accent" />
+                              <span>{withUnit(bike.mileage, 'km')}</span>
+                            </div>
                           </div>
-                          <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
-                            <Route size={14} className="text-accent" />
-                            <span>{withUnit(bike.mileage, 'km')}</span>
+
+                          <div className="d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                            <span className="text-accent fw-bold" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
+                            <Link
+                              to={`/bike/${bike._id}`}
+                              className="moto-btn"
+                              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                            >
+                              DETAILS
+                            </Link>
                           </div>
                         </div>
-
-                        <div className="d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                          <span className="text-accent fw-bold" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
-                          <Link
-                            to={`/bike/${bike._id}`}
-                            className="moto-btn"
-                            style={{ padding: '8px 16px', fontSize: '0.8rem' }}
-                          >
-                            DETAILS
-                          </Link>
-                        </div>
                       </div>
-                    </div>
+                    </Reveal>
                   </Col>
                 ))
               ) : (

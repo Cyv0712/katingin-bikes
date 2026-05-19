@@ -1,6 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import { Quote } from 'lucide-react';
-import { brandConfig } from '../data/brandConfig';
 import Reveal from './Reveal';
 
 const buyers = [
@@ -8,21 +7,21 @@ const buyers = [
     id: 1,
     name: "Mark T.",
     bike: "BMW R 1250 GS",
-    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=150&auto=format&fit=crop",
     quote: "Katingin Bikes lived up to their name. The transaction was smooth, and the bike was exactly as described. Best dealership experience."
   },
   {
     id: 2,
     name: "Sarah L.",
     bike: "Ducati Panigale V4",
-    image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=150&auto=format&fit=crop",
     quote: "Transparency from day one. I knew everything about the bike before I even visited the showroom. Incredible service."
   },
   {
     id: 3,
     name: "Jason R.",
     bike: "Kawasaki Z1000",
-    image: "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?q=80&w=150&auto=format&fit=crop",
     quote: "Got my dream bike with zero hassle. They assisted me with the financing and made sure the papers were perfect."
   }
 ];
@@ -53,6 +52,9 @@ const HappyBuyers = () => {
                       alt={buyer.name} 
                       className="rounded-circle me-3" 
                       style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                      loading="lazy"
+                      width="50"
+                      height="50"
                     />
                     <div>
                       <h5 className="moto-heading mb-0" style={{ fontSize: '1rem', textTransform: 'none' }}>{buyer.name}</h5>

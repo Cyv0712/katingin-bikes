@@ -1,0 +1,9 @@
+# robots.txt for Katingin Bikes
+User-agent: *
+Allow: /
+
+# Disallow admin dashboard crawling
+Disallow: /admin
+
+# Sitemap link
+Sitemap: /sitemap.xml

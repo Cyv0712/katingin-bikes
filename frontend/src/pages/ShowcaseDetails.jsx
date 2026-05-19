@@ -16,10 +16,44 @@ const ShowcaseDetails = () => {
       fetch(apiUrl('/api/bikes'))
         .then(res => res.json())
         .then(data => {
-          const matchedBike = data.find(b => b.model.toLowerCase() === bike.searchModel.toLowerCase());
+          const matchedBike = data.find(liveBike => {
+            // Check availability status first
+            if (liveBike.status && liveBike.status !== 'Available') return false;
+
+            const targetBrand = bike.brand.toLowerCase().trim();
+            const liveBrand = (liveBike.brand || '').toLowerCase().trim();
+            if (liveBrand !== targetBrand) return false;
+
+            const liveModel = (liveBike.model || '').toLowerCase();
+            const liveEngine = (liveBike.engineSize || '').toLowerCase().replace('cc', '').trim();
+            const combinedLive = `${liveModel} ${liveEngine}`.replace(/[^\w\s]/g, '').trim();
+
+            // Custom-tailored matches for the showcase collection:
+            if (bike.slug === 'honda-africa-twin') {
+              return combinedLive.includes('africa') && combinedLive.includes('twin');
+            }
+            if (bike.slug === 'yamaha-tracer-900') {
+              return combinedLive.includes('tracer') && (combinedLive.includes('900') || combinedLive.includes('gt'));
+            }
+            if (bike.slug === 'kawasaki-versys-650') {
+              return combinedLive.includes('versys') && (combinedLive.includes('650') || combinedLive.includes('600'));
+            }
+
+            // Fallback matching
+            const targetWords = bike.model.toLowerCase()
+              .replace(/[^\w\s]/g, '')
+              .split(/\s+/)
+              .filter(w => w && w !== 'cc');
+            
+            return targetWords.every(word => combinedLive.includes(word));
+          });
+
           if (matchedBike) {
             setInStock(true);
             setInventoryId(matchedBike._id);
+          } else {
+            setInStock(false);
+            setInventoryId(null);
           }
         })
         .catch(err => console.error(err));
@@ -79,7 +113,7 @@ const ShowcaseDetails = () => {
                       src={imgSrc} 
                       alt={`${bike.model} detail ${idx + 1}`} 
                       className="d-block w-100 rounded" 
-                      style={{ height: '600px', objectFit: 'cover' }} 
+                      style={{ height: 'clamp(260px, 45vw, 600px)', objectFit: 'cover' }} 
                     />
                   </Carousel.Item>
                 ))}
@@ -90,7 +124,7 @@ const ShowcaseDetails = () => {
           <Col lg={6}>
             <div className="p-2">
               <span className="text-secondary mb-2 d-block" style={{ letterSpacing: '2px', fontSize: '0.9rem', fontWeight: 600 }}>{bike.brand.toUpperCase()} HALL OF FAME</span>
-              <h1 className="moto-heading mb-3" style={{ fontSize: '4rem' }}>{bike.model}</h1>
+              <h1 className="moto-heading mb-3" style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}>{bike.model}</h1>
               <h4 className="text-accent mb-5 font-italic" style={{ fontSize: '1.2rem', fontStyle: 'italic' }}>"{bike.tagline}"</h4>
               
               {renderList(bike.description)}

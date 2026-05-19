@@ -1,22 +1,16 @@
 import { Navbar, Nav, Container } from 'react-bootstrap';
-import { Activity } from 'lucide-react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useRef } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 
 import { brandConfig } from '../data/brandConfig';
 
 const NavigationBar = () => {
-  const { pathname, hash } = useLocation();
-
-  const getSectionLinkClass = (sectionHash) =>
-    `nav-link ${pathname === '/' && hash === sectionHash ? 'active' : ''}`;
 
   return (
     <Navbar expand="lg" fixed="top" className="moto-nav" variant="dark">
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-3" style={{ fontWeight: 800, fontSize: '1.4rem' }}>
           <img 
-            src="/static_data/Katingin_logo.png" 
+            src="/static_data/Katingin_logo.webp" 
             alt="Katingin Bikes Logo" 
             style={{ height: '40px', width: 'auto', borderRadius: '4px' }} 
           />
@@ -27,7 +21,7 @@ const NavigationBar = () => {
             style={{ height: '14px', width: 'auto', borderRadius: '2px', opacity: 0.85, marginLeft: '4px' }}
           />
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Toggle aria-controls="basic-navbar-nav" aria-label="Toggle Navigation Bar" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>HOME</NavLink>

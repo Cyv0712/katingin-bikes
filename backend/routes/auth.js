@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { authLimiter } = require('../middleware/rateLimiter');
 
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const { password } = req.body;
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'; // Fallback for dev
 

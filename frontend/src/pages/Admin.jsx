@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Container, Table, Button, Form, Modal, Row, Col, Badge } from 'react-bootstrap';
+import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
 import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert } from 'lucide-react';
 import { apiUrl } from '../config/api';
 
@@ -20,7 +20,6 @@ const formatWithCommas = (val) => {
 
 const EMPTY_FORM = {
   combinedIdentity: '', // Format: BRAND MODEL ENGINE_SIZE
-  edition: '',
   type: '', year: '', mileage: '', price: '',
   description: '', issues: '', engineConfig: '',
   power: '', transmission: '', fuelCapacity: '',
@@ -51,6 +50,7 @@ const Admin = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isAuthenticated) fetchBikes();
   }, [isAuthenticated]);
 
@@ -83,6 +83,14 @@ const Admin = () => {
     setPassword('');
   };
 
+  const handleUnauthorized = () => {
+    sessionStorage.removeItem('adminAuth');
+    sessionStorage.removeItem('adminToken');
+    setIsAuthenticated(false);
+    setPassword('');
+    alert('Session expired. Please log in again.');
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
@@ -113,22 +121,33 @@ const Admin = () => {
     let model = '';
     let engineSize = '';
 
-    if (parts.length >= 3) {
+    if (parts.length > 0) {
       brand = parts[0];
-      engineSize = parts[parts.length - 1];
-      model = parts.slice(1, -1).join(' ');
-    } else if (parts.length === 2) {
-      brand = parts[0];
-      model = parts[1];
-    } else if (parts.length === 1) {
-      brand = parts[0];
+      
+      const modelParts = [];
+      let foundEngineSize = false;
+      
+      for (let i = 1; i < parts.length; i++) {
+        const part = parts[i];
+        // Checks if the part is numeric (e.g., "1100", "700", or containing "cc" like "1100cc")
+        const isNumber = /^\d+(cc)?$/i.test(part);
+        
+        if (isNumber && !foundEngineSize) {
+          engineSize = part;
+          foundEngineSize = true;
+        } else {
+          modelParts.push(part);
+        }
+      }
+      
+      model = modelParts.join(' ');
     }
 
     const data = new FormData();
     data.append('brand', brand);
     data.append('model', model);
     const cleanEngineSize = engineSize.toUpperCase().replace('CC', '').trim();
-    data.append('engineSize', formatWithCommas(cleanEngineSize));
+    data.append('engineSize', cleanEngineSize);
     
     Object.keys(formData).forEach((key) => {
       if (!['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key)) {
@@ -151,6 +170,10 @@ const Admin = () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText);
@@ -192,12 +215,16 @@ const Admin = () => {
     if (!bikeToDelete) return;
     try {
       const token = sessionStorage.getItem('adminToken');
-      await fetch(apiUrl(`/api/bikes/${bikeToDelete}`), { 
+      const res = await fetch(apiUrl(`/api/bikes/${bikeToDelete}`), { 
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
       setShowDeleteModal(false);
       setBikeToDelete(null);
       fetchBikes();
@@ -210,12 +237,16 @@ const Admin = () => {
     if (window.confirm('Mark this bike as sold?')) {
       try {
         const token = sessionStorage.getItem('adminToken');
-        await fetch(apiUrl(`/api/bikes/${id}/sold`), { 
+        const res = await fetch(apiUrl(`/api/bikes/${id}/sold`), { 
           method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+        if (res.status === 401) {
+          handleUnauthorized();
+          return;
+        }
         fetchBikes();
       } catch (err) {
         console.error(err);
@@ -347,8 +378,9 @@ const Admin = () => {
           </Form.Group>
         </div>
 
-        <div className="moto-card overflow-hidden p-0 border-0">
-          <Table responsive variant="dark" className="mb-0" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <div className="admin-table-wrapper">
+          <div className="moto-card overflow-hidden p-0 border-0">
+            <Table responsive variant="dark" className="mb-0" style={{ backgroundColor: 'var(--bg-card)' }}>
             <thead style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)' }}>
               <tr>
                 <th className="py-3 ps-4 text-accent" style={{ fontWeight: 600 }}>BRAND</th>
@@ -412,6 +444,7 @@ const Admin = () => {
               )}
             </tbody>
           </Table>
+          </div>
         </div>
 
         {/* Add Bike Modal */}
@@ -438,24 +471,9 @@ const Admin = () => {
                     />
                   </Form.Group>
                 </div>
-                <div className="col-md-12">
-                  <Form.Group>
-                    <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                      Edition (Optional)
-                    </label>
-                    <Form.Control
-                      placeholder="e.g. R Edition, HP Edition"
-                      name="edition"
-                      className="moto-input"
-                      value={formData.edition}
-                      onChange={handleInputChange}
-                    />
-                  </Form.Group>
-                </div>
-
                 {/* ── Rest of the Form ── */}
                 {Object.keys(formData).map((key) => {
-                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity', 'edition'].includes(key);
+                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key);
                   if (isHidden) return null;
 
                   const isRequired = ['type', 'year', 'mileage', 'price'].includes(key);

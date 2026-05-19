@@ -27,6 +27,10 @@ if (!fs.existsSync(uploadDir)) {
 // Serve static uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rate Limiting
+const { globalLimiter } = require('./middleware/rateLimiter');
+app.use('/api', globalLimiter);
+
 // Routes
 const bikesRouter = require('./routes/bikes');
 const authRouter = require('./routes/auth');

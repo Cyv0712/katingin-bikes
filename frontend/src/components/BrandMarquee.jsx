@@ -1,18 +1,17 @@
-import React from 'react';
 import Reveal from './Reveal';
 
 const BrandMarquee = () => {
   const logos = [
-    { name: 'Ducati', src: '/static_data/ducati_logo.png' },
-    { name: 'BMW Motorrad', src: '/static_data/bmw-seeklogo.png' },
-    { name: 'Kawasaki', src: '/static_data/kawasaki_logo.png' },
-    { name: 'Honda', src: '/static_data/honda-png-logo-32839.png' },
-    { name: 'Yamaha', src: '/static_data/yamaha_logo.png' },
-    { name: 'Triumph', src: '/static_data/triumph_logo.png' },
-    { name: 'KTM', src: '/static_data/ktm_logo.png' },
-    { name: 'Suzuki', src: '/static_data/suzuki_logo.png' },
-    { name: 'Aprilia', src: '/static_data/aprilia-3-logo-png-transparent.png' },
-    { name: 'Harley Davidson', src: '/static_data/harley-davidson-logo-png-16295.png' }
+    { name: 'Ducati', src: '/static_data/ducati_logo.webp' },
+    { name: 'BMW Motorrad', src: '/static_data/bmw-seeklogo.webp' },
+    { name: 'Kawasaki', src: '/static_data/kawasaki_logo.webp' },
+    { name: 'Honda', src: '/static_data/honda-png-logo-32839.webp' },
+    { name: 'Yamaha', src: '/static_data/yamaha_logo.webp' },
+    { name: 'Triumph', src: '/static_data/triumph_logo.webp' },
+    { name: 'KTM', src: '/static_data/ktm_logo.webp' },
+    { name: 'Suzuki', src: '/static_data/suzuki_logo.webp' },
+    { name: 'Aprilia', src: '/static_data/aprilia-3-logo-png-transparent.webp' },
+    { name: 'Harley Davidson', src: '/static_data/harley-davidson-logo-png-16295.webp' }
   ];
 
   return (

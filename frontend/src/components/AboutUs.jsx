@@ -1,6 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap';
 import { ShieldCheck, ClipboardCheck, FileText } from 'lucide-react';
-import { brandConfig } from '../data/brandConfig';
 import Reveal from './Reveal';
 
 const AboutUs = () => {

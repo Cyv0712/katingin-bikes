@@ -1,8 +1,8 @@
 import { Container, Row, Col } from 'react-bootstrap';
-import { Phone, Mail, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { Mail, Clock } from 'lucide-react';
 import { FaFacebookF, FaWhatsapp } from 'react-icons/fa';
 import { contactInfo } from '../data/contactInfo';
-import { brandConfig } from '../data/brandConfig';
+import Reveal from '../components/Reveal';
 
 const Contact = () => {
   return (
@@ -17,10 +17,12 @@ const Contact = () => {
         }}
       >
         <Container>
-          <span className="text-accent mb-2 d-block" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
-            GET IN TOUCH
-          </span>
-          <h1 className="moto-heading mb-0" style={{ fontSize: '3.5rem' }}>CONNECT WITH US</h1>
+          <Reveal>
+            <span className="text-accent mb-2 d-block" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
+              GET IN TOUCH
+            </span>
+            <h1 className="moto-heading mb-0" style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)' }}>CONNECT WITH US</h1>
+          </Reveal>
         </Container>
       </section>
 
@@ -37,46 +39,52 @@ const Contact = () => {
 
           <Row className="g-4 justify-content-center mb-5">
             <Col md={4}>
-              <a 
-                href={`https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}`} 
-                target="_blank" 
-                rel="noreferrer"
-                className="moto-card p-4 text-center text-decoration-none d-block h-100"
-              >
-                <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: '#25D366', width: '60px', height: '60px' }}>
-                  <FaWhatsapp size={32} />
-                </div>
-                <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>WHATSAPP / VIBER</h4>
-                <p className="text-secondary mb-4">{contactInfo.phone}</p>
-                <div className="text-accent small fw-bold mt-auto">SEND A MESSAGE</div>
-              </a>
+              <Reveal delay={1} className="h-100">
+                <a 
+                  href={`https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="moto-card p-4 text-center text-decoration-none d-block h-100"
+                >
+                  <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: '#25D366', width: '60px', height: '60px' }}>
+                    <FaWhatsapp size={32} />
+                  </div>
+                  <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>WHATSAPP / VIBER</h4>
+                  <p className="text-secondary mb-4">{contactInfo.phone}</p>
+                  <div className="text-accent small fw-bold mt-auto">SEND A MESSAGE</div>
+                </a>
+              </Reveal>
             </Col>
 
             <Col md={4}>
-              <a 
-                href={contactInfo.facebook} 
-                target="_blank" 
-                rel="noreferrer"
-                className="moto-card p-4 text-center text-decoration-none d-block h-100"
-              >
-                <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: '#0084FF', width: '60px', height: '60px' }}>
-                  <FaFacebookF size={30} />
-                </div>
-                <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>MESSENGER</h4>
-                <p className="text-secondary mb-4">Official Page</p>
-                <div className="text-accent small fw-bold mt-auto">CHAT WITH US</div>
-              </a>
+              <Reveal delay={2} className="h-100">
+                <a 
+                  href={contactInfo.facebook} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="moto-card p-4 text-center text-decoration-none d-block h-100"
+                >
+                  <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: '#0084FF', width: '60px', height: '60px' }}>
+                    <FaFacebookF size={30} />
+                  </div>
+                  <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>MESSENGER</h4>
+                  <p className="text-secondary mb-4">Official Page</p>
+                  <div className="text-accent small fw-bold mt-auto">CHAT WITH US</div>
+                </a>
+              </Reveal>
             </Col>
 
             <Col md={4}>
-              <div className="moto-card p-4 text-center h-100">
-                <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: 'var(--accent-primary)', width: '60px', height: '60px' }}>
-                  <Mail size={30} />
+              <Reveal delay={3} className="h-100">
+                <div className="moto-card p-4 text-center h-100">
+                  <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: 'var(--accent-primary)', width: '60px', height: '60px' }}>
+                    <Mail size={30} />
+                  </div>
+                  <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>EMAIL US</h4>
+                  <p className="text-secondary mb-4">{contactInfo.email}</p>
+                  <div className="text-accent small fw-bold mt-auto" style={{ fontSize: '0.7rem' }}>FOR FINANCING REQUIREMENTS ONLY</div>
                 </div>
-                <h4 className="moto-heading mb-2" style={{ fontSize: '1.2rem' }}>EMAIL US</h4>
-                <p className="text-secondary mb-4">{contactInfo.email}</p>
-                <div className="text-accent small fw-bold mt-auto" style={{ fontSize: '0.7rem' }}>FOR FINANCING REQUIREMENTS ONLY</div>
-              </div>
+              </Reveal>
             </Col>
           </Row>
 

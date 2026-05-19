@@ -2,6 +2,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { Bike, Wrench, Shield, Handshake } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { brandConfig } from '../data/brandConfig';
+import Reveal from '../components/Reveal';
 
 const About = () => {
   return (
@@ -18,15 +19,17 @@ const About = () => {
         }}
       >
         <Container>
-          <span className="text-accent mb-3 d-block" style={{ letterSpacing: '6px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
-            {brandConfig.aboutHeroSubtitle}
-          </span>
-          <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)' }}>
-            {brandConfig.aboutHeroTitle}
-          </h1>
-          <p className="lead text-secondary mx-auto" style={{ maxWidth: '800px', fontSize: '1.2rem', borderLeft: '2px solid var(--accent-primary)', paddingLeft: '20px', lineHeight: '1.8' }}>
-            {brandConfig.aboutHeroDescription}
-          </p>
+          <Reveal>
+            <span className="text-accent mb-3 d-block" style={{ letterSpacing: '6px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
+              {brandConfig.aboutHeroSubtitle}
+            </span>
+            <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(2rem, 8vw, 4.5rem)' }}>
+              {brandConfig.aboutHeroTitle}
+            </h1>
+            <p className="lead text-secondary mx-auto" style={{ maxWidth: '800px', fontSize: 'clamp(0.95rem, 2.5vw, 1.2rem)', borderLeft: '2px solid var(--accent-primary)', paddingLeft: '20px', lineHeight: '1.8' }}>
+              {brandConfig.aboutHeroDescription}
+            </p>
+          </Reveal>
         </Container>
       </section>
 
@@ -35,35 +38,39 @@ const About = () => {
         <Container>
           <Row className="align-items-center gy-5">
             <Col lg={6}>
-              <div className="pe-lg-5">
-                <h2 className="moto-heading mb-4" style={{ fontSize: '2.5rem' }}>
-                  THE <span className="text-accent">STORY</span>
-                </h2>
-                {brandConfig.storyParagraphs.map((para, idx) => (
-                  <p key={idx} className="text-secondary mb-4" style={{ lineHeight: '1.8', fontSize: '1.05rem' }}>
-                    {para}
-                  </p>
-                ))}
-                <div className="mt-4 p-4 moto-card" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', borderLeft: '4px solid var(--accent-primary)' }}>
-                  <div className="d-flex align-items-center gap-3">
-                    <Handshake className="text-accent" size={32} />
-                    <p className="mb-0 text-primary" style={{ fontSize: '1.1rem', fontStyle: 'italic', fontWeight: 600 }}>"{brandConfig.quote}"</p>
+              <Reveal>
+                <div className="pe-lg-5">
+                  <h2 className="moto-heading mb-4" style={{ fontSize: '2.5rem' }}>
+                    THE <span className="text-accent">STORY</span>
+                  </h2>
+                  {brandConfig.storyParagraphs.map((para, idx) => (
+                    <p key={idx} className="text-secondary mb-4" style={{ lineHeight: '1.8', fontSize: '1.05rem' }}>
+                      {para}
+                    </p>
+                  ))}
+                  <div className="mt-4 p-4 moto-card about-quote-card" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', borderLeft: '4px solid var(--accent-primary)' }}>
+                    <div className="d-flex align-items-center gap-3">
+                      <Handshake className="text-accent" size={32} />
+                      <p className="mb-0 text-primary" style={{ fontSize: '1.1rem', fontStyle: 'italic', fontWeight: 600 }}>"{brandConfig.quote}"</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             </Col>
             <Col lg={6}>
-              <div className="position-relative p-2 d-flex justify-content-center">
-                <div className="moto-card overflow-hidden p-0 border-0" style={{ maxWidth: '85%' }}>
-                  <img
-                    src={brandConfig.images.storyImage}
-                    alt={brandConfig.name}
-                    className="img-fluid rounded"
-                    style={{ filter: 'grayscale(0.3) contrast(1.1)', transition: 'all 0.5s ease' }}
-                  />
-                  <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(45deg, var(--accent-primary) 0%, transparent 5%, transparent 95%, var(--accent-primary) 100%)', opacity: 0.1, pointerEvents: 'none' }}></div>
+              <Reveal delay={2}>
+                <div className="position-relative p-2 d-flex justify-content-center">
+                  <div className="moto-card overflow-hidden p-0 border-0" style={{ maxWidth: '85%' }}>
+                    <img
+                      src={brandConfig.images.storyImage}
+                      alt={brandConfig.name}
+                      className="img-fluid rounded"
+                      style={{ filter: 'grayscale(0.3) contrast(1.1)', transition: 'all 0.5s ease' }}
+                    />
+                    <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(45deg, var(--accent-primary) 0%, transparent 5%, transparent 95%, var(--accent-primary) 100%)', opacity: 0.1, pointerEvents: 'none' }}></div>
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             </Col>
           </Row>
         </Container>
@@ -88,13 +95,15 @@ const About = () => {
               { icon: Shield, title: "SEAMLESS ACQUISITION", desc: "We handle the heavy lifting. From documentation to transparent pricing, we make acquiring your dream bike as smooth as the ride itself." }
             ].map((item, i) => (
                <Col md={4} key={i}>
-                 <div className="moto-card p-4 h-100 text-center">
-                   <div className="d-inline-flex align-items-center justify-content-center mb-4 bg-muted rounded-circle" style={{ width: '80px', height: '80px', color: 'var(--accent-primary)' }}>
-                     <item.icon size={36} strokeWidth={1.5} />
+                 <Reveal delay={i + 1} className="h-100">
+                   <div className="moto-card p-4 h-100 text-center">
+                     <div className="d-inline-flex align-items-center justify-content-center mb-4 bg-muted rounded-circle" style={{ width: '80px', height: '80px', color: 'var(--accent-primary)' }}>
+                       <item.icon size={36} strokeWidth={1.5} />
+                     </div>
+                     <h4 className="moto-heading mb-3" style={{ fontSize: '1.2rem' }}>{item.title}</h4>
+                     <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{item.desc}</p>
                    </div>
-                   <h4 className="moto-heading mb-3" style={{ fontSize: '1.2rem' }}>{item.title}</h4>
-                   <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{item.desc}</p>
-                 </div>
+                 </Reveal>
                </Col>
              ))}
           </Row>
@@ -114,15 +123,17 @@ const About = () => {
               { img: brandConfig.images.experienceCard3, title: "THE COMMUNITY", desc: "More than a showroom. We are a hub for riders who share a passion for the open road." }
             ].map((card, i) => (
                <Col md={6} lg={4} key={i}>
-                 <div className="moto-card overflow-hidden h-100 p-0">
-                   <div style={{ height: '240px', overflow: 'hidden' }}>
-                     <img src={card.img} alt={card.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                 <Reveal delay={i + 1} className="h-100">
+                   <div className="moto-card overflow-hidden h-100 p-0">
+                     <div style={{ height: '240px', overflow: 'hidden' }}>
+                       <img src={card.img} alt={card.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
+                     </div>
+                     <div className="p-4 bg-muted h-100">
+                       <h5 className="moto-heading mb-3" style={{ fontSize: '1.1rem' }}>{card.title}</h5>
+                       <p className="text-secondary mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>{card.desc}</p>
+                     </div>
                    </div>
-                   <div className="p-4 bg-muted h-100">
-                     <h5 className="moto-heading mb-3" style={{ fontSize: '1.1rem' }}>{card.title}</h5>
-                     <p className="text-secondary mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>{card.desc}</p>
-                   </div>
-                 </div>
+                 </Reveal>
                </Col>
              ))}
           </Row>
