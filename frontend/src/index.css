@@ -560,6 +560,7 @@ section {
   height: auto;
   border-radius: 8px;
   margin-bottom: 18px;
+  opacity: 0; /* Hide initially to prevent FOUC/glitch before GSAP initializes */
 }
 
 .splash-title {
@@ -576,6 +577,7 @@ section {
   font-weight: 900;
   letter-spacing: 4px;
   line-height: 1.1;
+  opacity: 0; /* Hide initially to prevent FOUC/glitch before GSAP initializes */
 }
 
 .splash-title-main {
