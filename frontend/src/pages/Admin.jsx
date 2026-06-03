@@ -163,7 +163,8 @@ const Admin = () => {
     data.append('brand', brand);
     data.append('model', model);
     const cleanEngineSize = engineSize.toUpperCase().replace('CC', '').trim();
-    data.append('engineSize', cleanEngineSize);
+    const formattedEngineSize = cleanEngineSize ? `${cleanEngineSize} cc` : '';
+    data.append('engineSize', formattedEngineSize);
     
     Object.keys(formData).forEach((key) => {
       if (!['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key)) {
@@ -198,7 +199,8 @@ const Admin = () => {
       setShowModal(false);
       setFormData(EMPTY_FORM);
       setImageFiles([]);
-      fetchBikes();
+      await fetchBikes();
+      showSuccess('New unit was successfully added to inventory.');
     } catch (err) {
       console.error('Failed to add bike:', err);
       if (err.name !== 'TypeError') {

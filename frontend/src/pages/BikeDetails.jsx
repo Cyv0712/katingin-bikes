@@ -138,7 +138,7 @@ const BikeDetails = () => {
                           src={getImageUrl(img)}
                           alt={`${bike.model} — photo ${idx + 1}`}
                           className="d-block w-100 bike-detail-carousel"
-                          style={{ height: 'clamp(260px, 45vw, 550px)', objectFit: 'cover' }}
+                          style={{ height: 'clamp(260px, 45vw, 550px)', objectFit: 'contain', backgroundColor: '#000' }}
                         />
                       </Carousel.Item>
                     ))}
@@ -148,7 +148,7 @@ const BikeDetails = () => {
                     src={getImageUrl(images[0])}
                     alt={bike.model}
                     className="bike-detail-single-img img-fluid"
-                    style={{ width: '100%', height: 'clamp(260px, 45vw, 550px)', objectFit: 'cover' }}
+                    style={{ width: '100%', height: 'clamp(260px, 45vw, 550px)', objectFit: 'contain', backgroundColor: '#000' }}
                   />
                 )}
               </div>
@@ -159,12 +159,12 @@ const BikeDetails = () => {
           <Col lg={5}>
             <div className="moto-card p-4 border-0" style={{ background: 'transparent' }}>
               <div className="d-flex justify-content-between align-items-start mb-3">
-                <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {bike.engineSize}</span>
+                <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {withUnit(bike.engineSize, 'cc')}</span>
                 <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE</Badge>
               </div>
               
               <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
-                <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize?.replace('CC', '').trim()}
+                <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize ? withUnit(bike.engineSize, 'cc') : ''}
               </h1>
 
               <div className="d-flex flex-wrap gap-4 mb-5">
@@ -212,7 +212,7 @@ const BikeDetails = () => {
                 <h5 className="moto-heading mb-3" style={{ fontSize: '1rem' }}><Settings className="text-accent me-2" size={20} /> SPECIFICATIONS</h5>
                 <Row className="g-3">
                   {[
-                    { label: 'ENGINE',        value: bike.engineSize },
+                    { label: 'ENGINE',        value: withUnit(bike.engineSize, 'cc') },
                     { label: 'CONFIGURATION', value: bike.engineConfig },
                     { label: 'POWER',         value: withUnit(bike.power, 'HP') },
                     { label: 'TRANSMISSION',  value: bike.transmission },
