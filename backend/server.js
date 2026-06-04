@@ -51,6 +51,11 @@ const authRouter = require('./routes/auth');
 app.use('/api/bikes', bikesRouter);
 app.use('/api/auth', authRouter);
 
+// Root Route
+app.get('/', (req, res) => {
+  res.status(200).send('Katingin Bikes Backend API is running successfully!');
+});
+
 // Health check — Render needs an open port quickly; don't wait for Mongo.
 app.get('/health', (req, res) => {
   const dbOk = mongoose.connection.readyState === 1;

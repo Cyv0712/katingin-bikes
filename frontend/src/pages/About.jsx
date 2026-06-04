@@ -13,7 +13,7 @@ const About = () => {
         <meta name="description" content="Discover Katingin Bikes. Learn about our roots, our commitment to transparency, verified quality inspecton, and clean papers." />
         <meta property="og:title" content="About Us | Katingin Bikes" />
         <meta property="og:description" content="Learn about our roots, story, and commitment to transparency." />
-        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.webp" />
+        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/about" />
       </Helmet>
       {/* ── 1. Hero Section ── */}

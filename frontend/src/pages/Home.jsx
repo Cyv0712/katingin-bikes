@@ -13,7 +13,7 @@ const Home = () => {
     "@context": "https://schema.org",
     "@type": "MotorcycleDealer",
     "name": "Katingin Bikes",
-    "image": "https://katinginbikes.com/static_data/Katingin_logo.webp",
+    "image": "https://katinginbikes.com/static_data/Katingin_logo.png",
     "url": "https://katinginbikes.com",
     "telephone": "09435509357",
     "address": {
@@ -43,7 +43,7 @@ const Home = () => {
         <meta name="description" content="Trusted dealer of premium, fresh, pre-owned big bikes and motorcycles in Metro Manila. Complete papers, transparent deals, and superb aftersales." />
         <meta property="og:title" content="Katingin Bikes | Premium Pre-Owned Big Bikes" />
         <meta property="og:description" content="Trusted dealer of premium, fresh, pre-owned big bikes and motorcycles in Metro Manila. Complete papers and honest deals." />
-        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.webp" />
+        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">

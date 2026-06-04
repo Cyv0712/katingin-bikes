@@ -117,7 +117,7 @@ const Inventory = () => {
         <meta name="description" content="Browse our collection of fresh, pre-owned adventure, naked, sport, and touring big bikes. Complete papers, verified quality, and honest deals." />
         <meta property="og:title" content="Full Inventory | Katingin Bikes" />
         <meta property="og:description" content="Browse our catalog of fresh, pre-owned big bikes and premium motorcycles in Metro Manila." />
-        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.webp" />
+        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
       </Helmet>
       <Container style={{ paddingTop: '80px' }}>

@@ -46,7 +46,7 @@ const Contact = () => {
         <meta name="description" content="Connect with Katingin Bikes. Reach out directly via Viber, Facebook Messenger, or Email for big bike availability and financing inquiries." />
         <meta property="og:title" content="Contact Us | Katingin Bikes" />
         <meta property="og:description" content="Reach out to us directly via Viber, Facebook Messenger, or Email." />
-        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.webp" />
+        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/contact" />
       </Helmet>
       {/* ── 1. Hero Section ── */}
