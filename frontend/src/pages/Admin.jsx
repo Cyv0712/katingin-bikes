@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
-import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff } from 'lucide-react';
-import { apiUrl } from '../config/api';
+import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil } from 'lucide-react';
+import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 
 // Parse price strings like "₱450,000" → 450000
 const parsePrice = (priceStr) => {
@@ -42,6 +42,8 @@ const Admin = () => {
   const [successModal, setSuccessModal] = useState({ show: false, message: '' });
   const [showSoldModal, setShowSoldModal] = useState(false);
   const [bikeToMarkSold, setBikeToMarkSold] = useState(null);
+  const [editingBike, setEditingBike] = useState(null);
+  const [currentImages, setCurrentImages] = useState([]);
 
   const showSuccess = (message) => {
     setSuccessModal({ show: true, message });
@@ -189,10 +191,18 @@ const Admin = () => {
     
     imageFiles.forEach((file) => data.append('images', file));
 
+    // If editing and no new files were selected, send the updated order of current images
+    if (editingBike && imageFiles.length === 0) {
+      currentImages.forEach((img) => data.append('existingImages', img));
+    }
+
     try {
       const token = sessionStorage.getItem('adminToken');
-      const res = await fetch(apiUrl('/api/bikes'), { 
-        method: 'POST', 
+      const url = editingBike ? apiUrl(`/api/bikes/${editingBike._id}`) : apiUrl('/api/bikes');
+      const method = editingBike ? 'PUT' : 'POST';
+
+      const res = await fetch(url, { 
+        method: method, 
         body: data,
         headers: {
           'Authorization': `Bearer ${token}`
@@ -210,8 +220,9 @@ const Admin = () => {
       setShowModal(false);
       setFormData(EMPTY_FORM);
       setImageFiles([]);
+      setEditingBike(null);
       await fetchBikes();
-      showSuccess('New unit was successfully added to inventory.');
+      showSuccess(editingBike ? 'Unit details were successfully updated.' : 'New unit was successfully added to inventory.');
     } catch (err) {
       console.error('Failed to add bike:', err);
       if (err.name !== 'TypeError') {
@@ -222,6 +233,40 @@ const Admin = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEditClick = (bike) => {
+    setEditingBike(bike);
+    setCurrentImages(bike.images || []);
+    const cleanEngine = bike.engineSize ? bike.engineSize.toLowerCase().replace('cc', '').trim() : '';
+    const cleanMileage = bike.mileage ? String(bike.mileage).replace(/[^0-9]/g, '') : '';
+    const cleanPrice = bike.price ? String(bike.price).replace(/[^0-9]/g, '') : '';
+
+    setFormData({
+      combinedIdentity: `${bike.brand} ${bike.model} ${cleanEngine}`.trim(),
+      type: bike.type || '',
+      year: bike.year || '',
+      mileage: cleanMileage,
+      price: cleanPrice,
+      description: bike.description || '',
+      engineConfig: bike.engineConfig || '',
+      power: bike.power || '',
+      transmission: bike.transmission || '',
+      fuelCapacity: bike.fuelCapacity || '',
+      brand: bike.brand || '',
+      model: bike.model || '',
+      engineSize: bike.engineSize || ''
+    });
+    setImageFiles([]);
+    setShowModal(true);
+  };
+
+  const setAsCurrentThumbnail = (index) => {
+    if (index === 0) return;
+    const newImages = [...currentImages];
+    const [selected] = newImages.splice(index, 1);
+    newImages.unshift(selected);
+    setCurrentImages(newImages);
   };
 
   const setAsThumbnail = (index) => {
@@ -375,7 +420,16 @@ const Admin = () => {
             >
               <LogOut size={16} className="me-2" /> LOGOUT
             </button>
-            <button onClick={() => setShowModal(true)} className="moto-btn" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            <button 
+              onClick={() => {
+                setEditingBike(null);
+                setFormData(EMPTY_FORM);
+                setImageFiles([]);
+                setShowModal(true);
+              }} 
+              className="moto-btn" 
+              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+            >
               <Plus size={16} className="me-2" /> ADD NEW UNIT
             </button>
           </div>
@@ -464,6 +518,9 @@ const Admin = () => {
                       <td className="py-3 text-accent fw-bold">{bike.price}</td>
                       <td className="py-3 pe-4">
                         <div className="d-flex justify-content-center gap-2">
+                          <button className="p-1" style={{ background: 'none', border: 'none', color: '#60a5fa' }} onClick={() => handleEditClick(bike)} title="Edit Unit">
+                            <Pencil size={18} />
+                          </button>
                           <button className="p-1 text-accent" style={{ background: 'none', border: 'none' }} onClick={() => handleMarkAsSold(bike._id)} title="Mark as Sold">
                             <Check size={18} />
                           </button>
@@ -504,10 +561,12 @@ const Admin = () => {
           </div>
         </div>
 
-        {/* Add Bike Modal */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        {/* Add/Edit Bike Modal */}
+        <Modal show={showModal} onHide={() => { setShowModal(false); setEditingBike(null); }} size="lg" centered>
           <Modal.Header className="border-0 p-4 pb-0 bg-dark text-white" closeVariant="white">
-            <Modal.Title className="moto-heading" style={{ fontSize: '1.4rem' }}>ADD NEW UNIT</Modal.Title>
+            <Modal.Title className="moto-heading" style={{ fontSize: '1.4rem' }}>
+              {editingBike ? 'EDIT MOTORCYCLE UNIT' : 'ADD NEW UNIT'}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body className="p-4 bg-dark text-white">
             <Form onSubmit={handleSubmit}>
@@ -593,7 +652,7 @@ const Admin = () => {
                       onChange={handleFileChange}
                       multiple
                       accept="image/*"
-                      required
+                      required={!editingBike}
                       className="moto-input text-white"
                     />
                     {imageFiles.length > 0 && (
@@ -624,6 +683,39 @@ const Admin = () => {
                         ))}
                       </div>
                     )}
+                    {editingBike && currentImages && currentImages.length > 0 && imageFiles.length === 0 && (
+                      <div className="mt-3">
+                        <small className="text-secondary d-block mb-2" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px' }}>
+                          CURRENT IMAGES (Click an image to set as thumbnail. Uploading new files will replace these):
+                        </small>
+                        <div className="d-flex flex-wrap gap-2 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.05)' }}>
+                          {currentImages.map((imgUrl, idx) => (
+                            <div 
+                              key={idx} 
+                              className="position-relative" 
+                              style={{ cursor: 'pointer', width: '80px', height: '80px' }}
+                              onClick={() => setAsCurrentThumbnail(idx)}
+                              title={idx === 0 ? 'Current Thumbnail' : 'Click to set as thumbnail'}
+                            >
+                              <img 
+                                src={toAbsoluteUploadUrl(imgUrl)} 
+                                alt="current" 
+                                className={`w-100 h-100 rounded object-fit-cover ${idx === 0 ? 'border border-accent border-2' : 'opacity-50'}`}
+                              />
+                              {idx === 0 ? (
+                                <div className="position-absolute bottom-0 start-0 w-100 bg-accent text-dark text-center" style={{ fontSize: '0.6rem', fontWeight: 900 }}>
+                                  THUMBNAIL
+                                </div>
+                              ) : (
+                                <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white opacity-0 hover-opacity-100" style={{ fontSize: '0.6rem', background: 'rgba(0,0,0,0.4)' }}>
+                                  SET MAIN
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </Form.Group>
                 </div>
               </div>
@@ -632,7 +724,7 @@ const Admin = () => {
                 className="moto-btn w-100 mt-5 py-3"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'SAVING...' : 'SAVE UNIT'}
+                {isSubmitting ? 'SAVING...' : (editingBike ? 'SAVE CHANGES' : 'SAVE UNIT')}
               </button>
             </Form>
           </Modal.Body>

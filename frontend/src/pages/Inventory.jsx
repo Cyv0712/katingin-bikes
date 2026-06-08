@@ -80,16 +80,19 @@ const Inventory = () => {
   );
 
   const filteredBikes = useMemo(() => {
-    const searchTerm = filters.search.toLowerCase();
+    const searchTerm = filters.search.toLowerCase().trim();
+    const searchWords = searchTerm.split(/\s+/).filter(Boolean);
     const priceMin = filters.priceMin !== '' ? parseFloat(filters.priceMin) : null;
     const priceMax = filters.priceMax !== '' ? parseFloat(filters.priceMax) : null;
 
     return bikesData.filter((bike) => {
       const matchesSearch =
-        !searchTerm ||
-        bike.brand?.toLowerCase().includes(searchTerm) ||
-        bike.model?.toLowerCase().includes(searchTerm) ||
-        bike.type?.toLowerCase().includes(searchTerm);
+        searchWords.length === 0 ||
+        searchWords.every((word) =>
+          bike.brand?.toLowerCase().includes(word) ||
+          bike.model?.toLowerCase().includes(word) ||
+          bike.type?.toLowerCase().includes(word)
+        );
       const matchesBrand = filters.brand === 'All' || bike.brand === filters.brand;
       const matchesType = filters.type === 'All' || bike.type === filters.type;
       const bikePrice = parsePrice(bike.price);

@@ -68,6 +68,10 @@ router.post('/', authMiddleware, upload.array('images', 20), async (req, res) =>
 // Update a bike — accepts multiple images
 router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) => {
   try {
+    console.log('PUT ROUTE RECEIVED:');
+    console.log('Files count:', req.files?.length);
+    console.log('req.body:', req.body);
+    
     const existing = await Bike.findById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Bike not found' });
 
@@ -76,6 +80,11 @@ router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) 
     if (req.files?.length) {
       await deleteBikeImages(existing.images);
       bikeData.images = await persistUploadedImages(req.files);
+    } else if (req.body.existingImages) {
+      const imagesArray = Array.isArray(req.body.existingImages) 
+        ? req.body.existingImages 
+        : [req.body.existingImages];
+      bikeData.images = imagesArray;
     }
 
     const updatedBike = await Bike.findByIdAndUpdate(req.params.id, bikeData, { new: true });
