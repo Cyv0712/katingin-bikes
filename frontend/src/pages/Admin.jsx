@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
-import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil } from 'lucide-react';
+import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 
 // Parse price strings like "₱450,000" → 450000
@@ -44,6 +44,7 @@ const Admin = () => {
   const [bikeToMarkSold, setBikeToMarkSold] = useState(null);
   const [editingBike, setEditingBike] = useState(null);
   const [currentImages, setCurrentImages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const showSuccess = (message) => {
     setSuccessModal({ show: true, message });
@@ -348,6 +349,21 @@ const Admin = () => {
     return { count, totalInventoryValue, totalIncome, availableBikes, soldBikes };
   }, [bikes]);
 
+  const filteredBikes = useMemo(() => {
+    const list = view === 'Available' ? stats.availableBikes : stats.soldBikes;
+    const searchTerm = searchQuery.toLowerCase().trim();
+    if (!searchTerm) return list;
+
+    const searchWords = searchTerm.split(/\s+/).filter(Boolean);
+    return list.filter((bike) =>
+      searchWords.every((word) =>
+        bike.brand?.toLowerCase().includes(word) ||
+        bike.model?.toLowerCase().includes(word) ||
+        bike.type?.toLowerCase().includes(word)
+      )
+    );
+  }, [view, stats, searchQuery]);
+
   // ── Login Screen ──
   if (!isAuthenticated) {
     return (
@@ -470,23 +486,38 @@ const Admin = () => {
           ))}
         </Row>
 
-        {/* View Selector */}
+        {/* View Selector & Search */}
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 mt-5">
           <h4 className="moto-heading mb-0" style={{ fontSize: '1.4rem' }}>
              <Database size={20} className="text-accent me-2" /> 
              {view === 'Available' ? 'ACTIVE INVENTORY' : 'SOLD UNITS'}
           </h4>
-          <Form.Group style={{ width: '100%', maxWidth: '250px' }}>
-             <small className="text-secondary fw-bold d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>VIEW STATUS</small>
-             <Form.Select 
-              value={view} 
-              onChange={(e) => setView(e.target.value)}
-              className="moto-input"
-            >
-              <option value="Available">Active Inventory</option>
-              <option value="Sold">Sold Units</option>
-            </Form.Select>
-          </Form.Group>
+          <div className="d-flex flex-column flex-sm-row gap-3 align-items-sm-end" style={{ width: '100%', maxWidth: '500px' }}>
+            <Form.Group className="flex-grow-1">
+              <small className="text-secondary fw-bold d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>SEARCH INVENTORY</small>
+              <div className="position-relative">
+                <Search size={16} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <Form.Control
+                  type="text"
+                  placeholder="Search brand, model, type..."
+                  className="moto-input moto-input-with-icon"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </Form.Group>
+            <Form.Group style={{ minWidth: '180px' }}>
+               <small className="text-secondary fw-bold d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>VIEW STATUS</small>
+               <Form.Select 
+                value={view} 
+                onChange={(e) => setView(e.target.value)}
+                className="moto-input"
+              >
+                <option value="Available">Active Inventory</option>
+                <option value="Sold">Sold Units</option>
+              </Form.Select>
+            </Form.Group>
+          </div>
         </div>
 
         <div className="admin-table-wrapper">
@@ -503,20 +534,22 @@ const Admin = () => {
               </tr>
             </thead>
             <tbody>
-              {view === 'Available' ? (
-                stats.availableBikes.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center text-muted py-5">No available units in inventory.</td>
-                  </tr>
-                ) : (
-                  stats.availableBikes.map((bike) => (
-                    <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td className="py-3 ps-4">{bike.brand}</td>
-                      <td className="py-3">{bike.model}</td>
-                      <td className="py-3">{bike.type.toUpperCase()}</td>
-                      <td className="py-3">{bike.year}</td>
-                      <td className="py-3 text-accent fw-bold">{bike.price}</td>
-                      <td className="py-3 pe-4">
+              {filteredBikes.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center text-muted py-5">
+                    {searchQuery ? 'No matching units found.' : `No ${view === 'Available' ? 'available' : 'sold'} units in inventory.`}
+                  </td>
+                </tr>
+              ) : (
+                filteredBikes.map((bike) => (
+                  <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td className="py-3 ps-4">{bike.brand}</td>
+                    <td className="py-3">{bike.model}</td>
+                    <td className="py-3">{bike.type ? bike.type.toUpperCase() : '—'}</td>
+                    <td className="py-3">{bike.year || '—'}</td>
+                    <td className={`py-3 fw-bold ${view === 'Available' ? 'text-accent' : 'text-muted'}`}>{bike.price}</td>
+                    <td className="py-3 pe-4">
+                      {view === 'Available' ? (
                         <div className="d-flex justify-content-center gap-2">
                           <button className="p-1" style={{ background: 'none', border: 'none', color: '#60a5fa' }} onClick={() => handleEditClick(bike)} title="Edit Unit">
                             <Pencil size={18} />
@@ -528,33 +561,16 @@ const Admin = () => {
                             <Trash size={18} />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                )
-              ) : (
-                stats.soldBikes.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="text-center text-muted py-5">No sold units found.</td>
-                  </tr>
-                ) : (
-                  stats.soldBikes.map((bike) => (
-                    <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td className="py-3 ps-4">{bike.brand}</td>
-                      <td className="py-3">{bike.model}</td>
-                      <td className="py-3">{bike.type ? bike.type.toUpperCase() : '—'}</td>
-                      <td className="py-3">{bike.year || '—'}</td>
-                      <td className="py-3 text-muted fw-bold">{bike.price}</td>
-                      <td className="py-3 pe-4">
+                      ) : (
                         <div className="d-flex justify-content-center">
                           <button className="p-1 text-destructive" style={{ background: 'none', border: 'none' }} onClick={() => handleDelete(bike._id)} title="Delete Unit">
                             <Trash size={18} />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))
-                )
+                      )}
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </Table>
