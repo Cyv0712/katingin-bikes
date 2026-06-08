@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
 const recentSubmissions = new Map();
 
 // Create a bike — accepts multiple images
-router.post('/', authMiddleware, upload.array('images', 10), async (req, res) => {
+router.post('/', authMiddleware, upload.array('images', 20), async (req, res) => {
   try {
     const bikeData = { ...req.body };
     
@@ -66,7 +66,7 @@ router.post('/', authMiddleware, upload.array('images', 10), async (req, res) =>
 });
 
 // Update a bike — accepts multiple images
-router.put('/:id', authMiddleware, upload.array('images', 10), async (req, res) => {
+router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) => {
   try {
     const existing = await Bike.findById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Bike not found' });
