@@ -21,7 +21,7 @@ const formatWithCommas = (val) => {
 const EMPTY_FORM = {
   combinedIdentity: '', // Format: BRAND MODEL ENGINE_SIZE
   type: '', year: '', mileage: '', price: '',
-  description: '', issues: '', engineConfig: '',
+  description: '', engineConfig: '',
   power: '', transmission: '', fuelCapacity: '',
   brand: '', model: '', engineSize: '' // These will be auto-populated
 };
@@ -118,7 +118,7 @@ const Admin = () => {
     }
 
     // 2. Character Limit Validation (50 chars for short fields)
-    const longFields = ['description', 'issues'];
+    const longFields = ['description'];
     if (!longFields.includes(name) && value.length > 50) {
       return; // Cap at 50 characters
     }
@@ -133,6 +133,12 @@ const Admin = () => {
     setIsSubmitting(true);
 
     const parts = formData.combinedIdentity.trim().split(/\s+/);
+    if (!formData.combinedIdentity.trim() || parts.length < 2) {
+      alert("Please enter both the brand and model/engine size (e.g. 'HONDA REBEL' or 'KTM 390').");
+      setIsSubmitting(false);
+      return;
+    }
+
     let brand = '';
     let model = '';
     let engineSize = '';
@@ -157,6 +163,11 @@ const Admin = () => {
       }
       
       model = modelParts.join(' ');
+
+      // Fallback: If no distinct model name word was found, use engineSize as the model
+      if (!model && engineSize) {
+        model = engineSize;
+      }
     }
 
     const data = new FormData();
@@ -530,7 +541,6 @@ const Admin = () => {
                     mileage: 'e.g. 15000 (just the number)',
                     price: 'e.g. 850000 (just the number)',
                     description: 'Detailed overview of the bike...',
-                    issues: 'Press Shift+Enter to separate into bullets',
                     engineConfig: 'e.g. Inline-4, Boxer, V-Twin',
                     power: 'e.g. 136 (in HP)',
                     transmission: 'e.g. 6-Speed Manual',
@@ -543,7 +553,6 @@ const Admin = () => {
                     mileage: 'Mileage',
                     price: 'Price',
                     description: 'Description',
-                    issues: 'Issues',
                     engineConfig: 'Engine Config',
                     power: 'Power',
                     transmission: 'Transmission',
@@ -557,17 +566,17 @@ const Admin = () => {
                           {labelMapping[key] || key} {isRequired && <span className="text-accent">*</span>}
                         </label>
                         <Form.Control
-                          as={key === 'description' || key === 'issues' ? 'textarea' : 'input'}
+                          as={key === 'description' ? 'textarea' : 'input'}
                           name={key}
                           className="moto-input"
                           value={formData[key]}
                           onChange={handleInputChange}
                           required={isRequired}
                           placeholder={placeholders[key] || ''}
-                          rows={key === 'description' || key === 'issues' ? 3 : undefined}
+                          rows={key === 'description' ? 3 : undefined}
                           type={['year'].includes(key) ? 'number' : 'text'}
                         />
-                        {(key === 'description' || key === 'issues') && (
+                        {key === 'description' && (
                           <div className="d-flex justify-content-center align-items-center gap-2 mt-2 text-white-50" style={{ fontSize: '0.75rem' }}>
                              Press <kbd style={{ backgroundColor: '#333', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', border: '1px solid #444' }}>Shift</kbd> + <kbd style={{ backgroundColor: '#333', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', border: '1px solid #444' }}>Enter</kbd> to move to next bullet
                           </div>

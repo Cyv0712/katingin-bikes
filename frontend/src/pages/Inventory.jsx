@@ -266,7 +266,11 @@ const Inventory = () => {
                         <div className="p-4 d-flex flex-column flex-grow-1">
                           <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
                           <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
-                            <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize ? bike.engineSize.toLowerCase().replace('cc', '').trim() : ''}
+                            <span className="text-accent">{bike.brand}</span> {bike.model} {(() => {
+                              const cleanEngine = bike.engineSize ? bike.engineSize.toLowerCase().replace('cc', '').trim() : '';
+                              const hasEngineSizeInModel = (bike.model || '').toLowerCase().includes(cleanEngine);
+                              return bike.engineSize && !hasEngineSizeInModel ? cleanEngine : '';
+                            })()}
                           </h4>
 
                           <div className="d-flex gap-3 mb-4">

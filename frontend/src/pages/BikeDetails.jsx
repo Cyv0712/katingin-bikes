@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, TriangleAlert, CircleCheck, Settings, Circle } from 'lucide-react';
+import { ArrowLeft, Calendar, Route, CircleCheck, Settings, Circle } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 
@@ -164,7 +164,11 @@ const BikeDetails = () => {
               </div>
               
               <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
-                <span className="text-accent">{bike.brand}</span> {bike.model} {bike.engineSize ? withUnit(bike.engineSize, 'cc') : ''}
+                <span className="text-accent">{bike.brand}</span> {bike.model} {(() => {
+                  const cleanEngine = bike.engineSize ? bike.engineSize.toLowerCase().replace('cc', '').trim() : '';
+                  const hasEngineSizeInModel = (bike.model || '').toLowerCase().includes(cleanEngine);
+                  return bike.engineSize && !hasEngineSizeInModel ? cleanEngine : '';
+                })()}
               </h1>
 
               <div className="d-flex flex-wrap gap-4 mb-5">
@@ -226,14 +230,6 @@ const BikeDetails = () => {
                     </Col>
                   ))}
                 </Row>
-              </div>
-
-              {/* Honest Notes */}
-              <div className="p-4 rounded" style={{ backgroundColor: 'rgba(220, 53, 69, 0.05)', border: '1px solid rgba(220, 53, 69, 0.2)' }}>
-                <h5 className="text-destructive mb-3 d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
-                  <TriangleAlert size={20} /> HONEST NOTES
-                </h5>
-                {renderIssues(bike.issues)}
               </div>
             </div>
           </Col>
