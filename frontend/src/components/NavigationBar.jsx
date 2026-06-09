@@ -26,8 +26,9 @@ const NavigationBar = () => {
           <Nav className="ms-auto">
             <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>HOME</NavLink>
             <NavLink to="/inventory" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>INVENTORY</NavLink>
+            <NavLink to="/financing" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>FINANCING</NavLink>
             {/* <NavLink to="/buyers" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>BUYERS</NavLink> */}
-            <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>ABOUT</NavLink>
+            {/* <NavLink to="/about" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>ABOUT</NavLink> */}
             <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>CONTACT</NavLink>
             <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>ADMIN</NavLink>
           </Nav>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
-import { Trash, Plus, Bike, Banknote, TrendingUp, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search } from 'lucide-react';
+import { Trash, Plus, Bike, Banknote, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 
 // Parse price strings like "₱450,000" → 450000
@@ -21,8 +21,7 @@ const formatWithCommas = (val) => {
 const EMPTY_FORM = {
   combinedIdentity: '', // Format: BRAND MODEL ENGINE_SIZE
   type: '', year: '', mileage: '', price: '',
-  description: '', engineConfig: '',
-  power: '', transmission: '', fuelCapacity: '',
+  description: '',
   brand: '', model: '', engineSize: '' // These will be auto-populated
 };
 
@@ -114,7 +113,7 @@ const Admin = () => {
     const { name, value } = e.target;
     
     // 1. Negative Number Validation
-    const numericFields = ['year', 'mileage', 'price', 'power', 'fuelCapacity'];
+    const numericFields = ['year', 'mileage', 'price'];
     if (numericFields.includes(name)) {
       const numValue = parseFloat(value.replace(/[^0-9.-]/g, ''));
       if (numValue < 0) return; // Prevent negative numbers
@@ -250,10 +249,6 @@ const Admin = () => {
       mileage: cleanMileage,
       price: cleanPrice,
       description: bike.description || '',
-      engineConfig: bike.engineConfig || '',
-      power: bike.power || '',
-      transmission: bike.transmission || '',
-      fuelCapacity: bike.fuelCapacity || '',
       brand: bike.brand || '',
       model: bike.model || '',
       engineSize: bike.engineSize || ''
@@ -466,14 +461,8 @@ const Admin = () => {
               value: `₱${stats.totalInventoryValue.toLocaleString()}`,
               sub: 'Inventory Liquidity',
             },
-            {
-              icon: <TrendingUp size={28} className="text-primary" />,
-              label: 'REVENUE COLLECTED',
-              value: `₱${stats.totalIncome.toLocaleString()}`,
-              sub: 'Historical Sales',
-            },
           ].map((card) => (
-            <Col md={4} key={card.label}>
+            <Col md={6} key={card.label}>
               <div className="moto-card p-4 h-100">
                 <div className="d-flex justify-content-between align-items-start mb-4">
                   {card.icon}
@@ -615,11 +604,7 @@ const Admin = () => {
                     year: 'e.g. 2023',
                     mileage: 'e.g. 15000 (just the number)',
                     price: 'e.g. 850000 (just the number)',
-                    description: 'Detailed overview of the bike...',
-                    engineConfig: 'e.g. Inline-4, Boxer, V-Twin',
-                    power: 'e.g. 136 (in HP)',
-                    transmission: 'e.g. 6-Speed Manual',
-                    fuelCapacity: 'e.g. 20 (in Liters)'
+                    description: 'Detailed overview of the bike...'
                   };
 
                   const labelMapping = {
@@ -627,11 +612,7 @@ const Admin = () => {
                     year: 'Year',
                     mileage: 'Mileage',
                     price: 'Price',
-                    description: 'Description',
-                    engineConfig: 'Engine Config',
-                    power: 'Power',
-                    transmission: 'Transmission',
-                    fuelCapacity: 'Fuel Capacity'
+                    description: 'Description'
                   };
 
                   return (

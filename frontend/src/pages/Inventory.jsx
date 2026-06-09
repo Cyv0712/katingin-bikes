@@ -138,7 +138,7 @@ const Inventory = () => {
             <div className="d-flex align-items-center">
               <Info className="text-accent fs-4 me-3 flex-shrink-0" />
               <div className="text-secondary" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-primary">NOTE:</strong> All stocks and prices are subject to change without prior notice. Contact us via Facebook or WhatsApp to verify availability and actual unit condition.
+                <strong className="text-primary">NOTE:</strong> All stocks and prices are subject to change without prior notice. Contact us via Facebook or Viber to verify availability and actual unit condition.
               </div>
             </div>
           </div>

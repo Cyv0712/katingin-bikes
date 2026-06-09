@@ -13,10 +13,12 @@ const Home = lazy(() => import('./pages/Home'));
 const Inventory = lazy(() => import('./pages/Inventory'));
 const BikeDetails = lazy(() => import('./pages/BikeDetails'));
 const ShowcaseDetails = lazy(() => import('./pages/ShowcaseDetails'));
-const About = lazy(() => import('./pages/About'));
+// const About = lazy(() => import('./pages/About'));
 // const Buyers = lazy(() => import('./pages/Buyers'));
+const Financing = lazy(() => import('./pages/Financing'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Admin = lazy(() => import('./pages/Admin'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
@@ -62,9 +64,11 @@ function App() {
             <Route path="/inventory" element={<AnimatedPage><Inventory /></AnimatedPage>} />
             <Route path="/bike/:id" element={<AnimatedPage><BikeDetails /></AnimatedPage>} />
             <Route path="/showcase/:slug" element={<AnimatedPage><ShowcaseDetails /></AnimatedPage>} />
-            <Route path="/about" element={<AnimatedPage><About /></AnimatedPage>} />
+            {/* <Route path="/about" element={<AnimatedPage><About /></AnimatedPage>} /> */}
             {/* <Route path="/buyers" element={<AnimatedPage><Buyers /></AnimatedPage>} /> */}
+            <Route path="/financing" element={<AnimatedPage><Financing /></AnimatedPage>} />
             <Route path="/contact" element={<AnimatedPage><Contact /></AnimatedPage>} />
+            <Route path="/privacy-policy" element={<AnimatedPage><PrivacyPolicy /></AnimatedPage>} />
             <Route path="/admin" element={<AnimatedPage><Admin /></AnimatedPage>} />
             {/* Wildcard 404 Route */}
             <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, CircleCheck, Settings, Circle } from 'lucide-react';
+import { ArrowLeft, Calendar, Route, CircleCheck, Circle } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 
@@ -199,8 +199,16 @@ const BikeDetails = () => {
                 </div>
               </div>
 
-              <Link to="/contact" className="moto-btn w-100 mb-5 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
+              <Link to="/contact" className="moto-btn w-100 mb-3 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
                 INQUIRE NOW
+              </Link>
+
+              <Link 
+                to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`} 
+                className="moto-btn moto-btn-outline w-100 mb-5 py-3 text-decoration-none" 
+                style={{ fontSize: '1rem' }}
+              >
+                APPLY FOR FINANCING
               </Link>
 
               {/* Overview */}
@@ -209,27 +217,6 @@ const BikeDetails = () => {
                 <div className="description-container">
                   {renderIssues(bike.description)}
                 </div>
-              </div>
-
-              {/* Technical Specs */}
-              <div className="mb-5">
-                <h5 className="moto-heading mb-3" style={{ fontSize: '1rem' }}><Settings className="text-accent me-2" size={20} /> SPECIFICATIONS</h5>
-                <Row className="g-3">
-                  {[
-                    { label: 'ENGINE',        value: withUnit(bike.engineSize, 'cc') },
-                    { label: 'CONFIGURATION', value: bike.engineConfig },
-                    { label: 'POWER',         value: withUnit(bike.power, 'HP') },
-                    { label: 'TRANSMISSION',  value: bike.transmission },
-                    { label: 'FUEL CAPACITY', value: withUnit(bike.fuelCapacity, 'L') },
-                  ].map(({ label, value }) => (
-                    <Col md={6} key={label}>
-                      <div className="p-3 rounded bg-muted h-100">
-                        <small className="text-secondary d-block mb-1" style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '1px' }}>{label}</small>
-                        <span className="text-primary fw-bold" style={{ fontSize: '0.9rem' }}>{value || '—'}</span>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
               </div>
             </div>
           </Col>

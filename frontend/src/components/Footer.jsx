@@ -5,7 +5,7 @@ import { brandConfig } from '../data/brandConfig';
 import { contactInfo } from '../data/contactInfo';
 
 // Import FontAwesome versions for specific brand logos that Lucide lacks
-import { FaWhatsapp, FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa';
+import { FaViber, FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Footer = () => {
   return (
@@ -29,8 +29,8 @@ const Footer = () => {
               <a href="#" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Subscribe to Katingin Bikes on YouTube">
                 <FaYoutube size={20} />
               </a>
-              <a href={`https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Chat with Katingin Bikes on WhatsApp">
-                <FaWhatsapp size={20} />
+              <a href={`viber://chat?number=%2B${contactInfo.viber.replace(/^0/, '63')}`} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Chat with Katingin Bikes on Viber">
+                <FaViber size={20} />
               </a>
             </div>
           </Col>
@@ -42,6 +42,7 @@ const Footer = () => {
               <li><Link to="/inventory" className="text-secondary text-decoration-none hover-accent">Inventory</Link></li>
               {/* <li><Link to="/buyers" className="text-secondary text-decoration-none hover-accent">Happy Buyers</Link></li> */}
               <li><Link to="/contact" className="text-secondary text-decoration-none hover-accent">Contact Us</Link></li>
+              <li><Link to="/privacy-policy" className="text-secondary text-decoration-none hover-accent">Privacy Policy</Link></li>
             </ul>
           </Col>
           
