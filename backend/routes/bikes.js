@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
@@ -8,6 +12,66 @@ const authMiddleware = require('../middleware/auth');
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+// Ensure cache directory exists for storing optimized images locally
+const cacheDir = path.join(__dirname, '..', 'cache');
+if (!fs.existsSync(cacheDir)) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+}
+
+// Image proxy route - optimizes Cloudinary images on the fly on our server
+router.get('/image-proxy', async (req, res) => {
+  try {
+    const imageUrl = req.query.url;
+    if (!imageUrl) {
+      return res.status(400).send('URL parameter is required');
+    }
+
+    // Validate that it's a Cloudinary URL to prevent SSRF
+    if (!imageUrl.includes('res.cloudinary.com')) {
+      return res.status(400).send('Invalid image source');
+    }
+
+    // Generate a unique filename based on the MD5 hash of the URL
+    const urlHash = crypto.createHash('md5').update(imageUrl).digest('hex');
+    const cachedFilePath = path.join(cacheDir, `${urlHash}.webp`);
+
+    // Check if the optimized image is already in our local disk cache
+    if (fs.existsSync(cachedFilePath)) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+      res.set('Content-Type', 'image/webp');
+      return res.sendFile(cachedFilePath);
+    }
+
+    // Fetch the raw image from Cloudinary
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      return res.status(response.status).send('Failed to fetch image');
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const imageBuffer = Buffer.from(arrayBuffer);
+
+    // Optimize the image using sharp (resize to max 1200px and compress to WebP)
+    const optimizedBuffer = await sharp(imageBuffer)
+      .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    // Save to local disk cache asynchronously
+    fs.writeFile(cachedFilePath, optimizedBuffer, (err) => {
+      if (err) console.error('Failed to write image cache:', err);
+    });
+
+    // Set aggressive cache control and correct mime type
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    res.set('Content-Type', 'image/webp');
+    res.send(optimizedBuffer);
+  } catch (err) {
+    console.error('Image proxy error:', err);
+    res.status(500).send('Error processing image');
+  }
 });
 
 // Get all bikes

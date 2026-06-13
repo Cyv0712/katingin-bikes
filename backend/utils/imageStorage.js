@@ -1,6 +1,19 @@
 const path = require('path');
 const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
+const sharp = require('sharp');
+
+async function optimizeImageBuffer(buffer) {
+  try {
+    return await sharp(buffer)
+      .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+  } catch (err) {
+    console.error('Image optimization failed, using original buffer:', err.message);
+    return buffer;
+  }
+}
 
 function isCloudinaryConfigured() {
   return !!(
@@ -53,8 +66,17 @@ function publicIdFromCloudinaryUrl(url) {
 
 async function uploadBufferToCloudinary(file) {
   const folder = process.env.CLOUDINARY_FOLDER || 'katingin-bikes/bikes';
-  const mime = file.mimetype || 'image/jpeg';
-  const dataUri = `data:${mime};base64,${file.buffer.toString('base64')}`;
+  
+  let optimizedBuffer;
+  let mime = 'image/webp';
+  try {
+    optimizedBuffer = await optimizeImageBuffer(file.buffer);
+  } catch (err) {
+    optimizedBuffer = file.buffer;
+    mime = file.mimetype || 'image/jpeg';
+  }
+  
+  const dataUri = `data:${mime};base64,${optimizedBuffer.toString('base64')}`;
   
   // Create a unique filename
   const fileName = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
@@ -82,10 +104,20 @@ async function writeBufferToDisk(file) {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
+
+  let optimizedBuffer;
+  let ext = '.webp';
+  try {
+    optimizedBuffer = await optimizeImageBuffer(file.buffer);
+  } catch (err) {
+    optimizedBuffer = file.buffer;
+    ext = path.extname(file.originalname || '.jpg');
+  }
+
   const filename =
-    Date.now() + '-' + Math.round(Math.random() * 1e6) + path.extname(file.originalname || '.jpg');
+    Date.now() + '-' + Math.round(Math.random() * 1e6) + ext;
   const dest = path.join(uploadDir, filename);
-  fs.writeFileSync(dest, file.buffer);
+  fs.writeFileSync(dest, optimizedBuffer);
   return `/uploads/${filename}`;
 }
 
