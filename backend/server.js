@@ -5,6 +5,11 @@ const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
+const dns = require('dns');
+
+// Force Node.js to resolve IPv4 addresses first. This prevents ETIMEDOUT fetch errors
+// in container/cloud environments (like Render) that do not have fully routed IPv6 networks.
+dns.setDefaultResultOrder('ipv4first');
 
 dotenv.config();
 
