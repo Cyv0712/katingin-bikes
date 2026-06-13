@@ -31,7 +31,6 @@ async function warmImageCache() {
       return;
     }
 
-    console.log(`[Cache Warmer] Found ${urlsToWarm.length} images. Checking cache status...`);
     const cacheDir = path.join(__dirname, '..', 'cache');
 
     // Ensure cache directory exists
@@ -56,7 +55,6 @@ async function warmImageCache() {
         continue;
       }
 
-      console.log(`[Cache Warmer] [${i + 1}/${urlsToWarm.length}] Cache miss. Warming up: ${cleanUrl}`);
       try {
         const imageBuffer = await downloadImage(cleanUrl);
 
@@ -67,7 +65,6 @@ async function warmImageCache() {
 
         await fs.promises.writeFile(cachedFilePath, optimizedBuffer);
         warmedCount++;
-        console.log(`[Cache Warmer] Successfully cached: ${urlHash}.webp`);
       } catch (err) {
         console.error(`[Cache Warmer] Error warming image ${cleanUrl}:`, err.message);
       }
@@ -76,7 +73,9 @@ async function warmImageCache() {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    console.log(`[Cache Warmer] Cache warming completed. Warmed: ${warmedCount}, Skipped (already cached): ${skippedCount}`);
+    if (warmedCount > 0) {
+      console.log(`[Cache Warmer] Cache warming completed. Warmed: ${warmedCount}, Skipped (already cached): ${skippedCount}`);
+    }
   } catch (err) {
     console.error('[Cache Warmer] Fatal error during cache warming:', err);
   }
