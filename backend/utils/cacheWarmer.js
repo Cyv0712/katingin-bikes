@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
 const Bike = require('../models/Bike');
+const { downloadImage } = require('./download');
 
 /**
  * Background service that scans the database and pre-optimizes/caches all listing images
@@ -57,14 +58,7 @@ async function warmImageCache() {
 
       console.log(`[Cache Warmer] [${i + 1}/${urlsToWarm.length}] Cache miss. Warming up: ${cleanUrl}`);
       try {
-        const response = await fetch(cleanUrl);
-        if (!response.ok) {
-          console.warn(`[Cache Warmer] Failed to fetch raw image: ${response.statusText}`);
-          continue;
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-        const imageBuffer = Buffer.from(arrayBuffer);
+        const imageBuffer = await downloadImage(cleanUrl);
 
         const optimizedBuffer = await sharp(imageBuffer)
           .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })

@@ -109,3 +109,50 @@ This guide outlines the recent high-performance, security, SEO, and structural u
 * **Files to create (in `frontend/public/`):**
   * **`robots.txt`:** Allow indexation of `/`, `/inventory`, etc. Disallow `/admin` routes.
   * **`sitemap.xml`:** Map key navigation endpoints with priority weighting.
+
+---
+
+## 🖼️ 7. Image Optimization Proxy & Cache Warmer
+* **Goal:** Use Cloudinary purely for file storage (0 dynamic transformation credits), minimize bandwidth, and achieve instant page loads without a first-load cold start.
+* **Files to modify/create:**
+  * **`backend/server.js`:**
+    * Add global DNS resolution preference at the very top to prevent Happy Eyeballs IPv6 timeout bugs in cloud containers (like Render):
+      ```javascript
+      const dns = require('dns');
+      dns.setDefaultResultOrder('ipv4first');
+      ```
+    * Trigger the cache warmer service in the MongoDB connection success callback.
+  * **`backend/utils/cacheWarmer.js` [NEW]:**
+    * Background script that queries the database for active listing images on startup, checks if they exist in `backend/cache/`, and optimizes any missing ones to WebP sequentially with a 500ms throttle delay.
+  * **`backend/utils/imageStorage.js`:**
+    * Import `sharp` and create an `optimizeImageBuffer(buffer)` helper (max dimensions 1200x1200px, WebP format, quality 80).
+    * Optimize buffer in-memory inside `uploadBufferToCloudinary` and `writeBufferToDisk` before writing.
+  * **`backend/routes/bikes.js`:**
+    * Set up a `/image-proxy` GET endpoint.
+    * Checks if the requested Cloudinary URL exists as an optimized `.webp` file inside `backend/cache/` (using an MD5 hash of the URL as filename).
+    * If cached, streams it instantly using `res.sendFile()`.
+    * If not cached, downloads it once, optimizes it, caches it to disk, and serves it.
+    * Sets cache headers: `Cache-Control: public, max-age=31536000, immutable`.
+  * **`frontend/src/config/api.js`:**
+    * Update `toAbsoluteUploadUrl(path)` to detect `res.cloudinary.com` URLs, strip out any legacy transformation segments (e.g. `/f_auto,q_auto/`), and return the proxied URL:
+      ```javascript
+      return apiUrl(`/api/bikes/image-proxy?url=${encodeURIComponent(cleanPath)}`);
+      ```
+
+---
+
+## ✉️ 8. Resend Email Integration (Bypassing Render SMTP Block)
+* **Goal:** Send inquiry emails from Render's free tier, which blocks all outbound SMTP ports (25, 465, 587).
+* **Files to modify:**
+  * **`backend/routes/inquiries.js`:**
+    * Remove `nodemailer` import and SMTP transport setup.
+    * Fetch Resend credentials from environment variables (`RESEND_API_KEY`, `INQUIRY_RECEIVER_EMAIL`, `RESEND_SENDER_EMAIL`).
+    * Send the HTML email via a native `fetch()` POST request to Resend's HTTP API: `https://api.resend.com/emails` (operating over unblocked port 443).
+  * **`backend/.env`:**
+    * Add variables:
+      ```env
+      RESEND_API_KEY=re_your_api_key
+      RESEND_SENDER_EMAIL=onboarding@resend.dev (or verified domain address)
+      INQUIRY_RECEIVER_EMAIL=your_signup_email@gmail.com
+      ```
+

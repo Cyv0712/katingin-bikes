@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
+const { downloadImage } = require('../utils/download');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -45,13 +46,13 @@ router.get('/image-proxy', async (req, res) => {
     }
 
     // Fetch the raw image from Cloudinary
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      return res.status(response.status).send('Failed to fetch image');
+    let imageBuffer;
+    try {
+      imageBuffer = await downloadImage(imageUrl);
+    } catch (fetchErr) {
+      console.error(`Failed to download image: ${fetchErr.message}`);
+      return res.status(502).send('Failed to fetch image');
     }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const imageBuffer = Buffer.from(arrayBuffer);
 
     // Optimize the image using sharp (resize to max 1200px and compress to WebP)
     const optimizedBuffer = await sharp(imageBuffer)

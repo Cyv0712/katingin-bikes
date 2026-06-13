@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
+import { Container, Row, Col, Badge, Carousel, Spinner } from 'react-bootstrap';
 import { ArrowLeft, Calendar, Route, CircleCheck, Circle } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
@@ -9,6 +9,12 @@ const BikeDetails = () => {
   const { id } = useParams();
   const [bike, setBike] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadedMap, setLoadedMap] = useState({});
+  const [singleImageLoaded, setSingleImageLoaded] = useState(false);
+
+  const handleImageLoad = (idx) => {
+    setLoadedMap((prev) => ({ ...prev, [idx]: true }));
+  };
 
   useEffect(() => {
     fetch(apiUrl(`/api/bikes/${id}`))
@@ -134,22 +140,44 @@ const BikeDetails = () => {
                   <Carousel interval={null}>
                     {images.map((img, idx) => (
                       <Carousel.Item key={idx}>
-                        <img
-                          src={getImageUrl(img)}
-                          alt={`${bike.model} — photo ${idx + 1}`}
-                          className="d-block w-100 bike-detail-carousel"
-                          style={{ height: 'clamp(260px, 45vw, 550px)', objectFit: 'contain', backgroundColor: '#000' }}
-                        />
+                        <div style={{ position: 'relative', height: 'clamp(260px, 45vw, 550px)', backgroundColor: '#000' }}>
+                          {!loadedMap[idx] && (
+                            <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 2 }}>
+                              <div className="text-center">
+                                <Spinner animation="border" size="sm" variant="accent" className="mb-2" />
+                                <div className="text-secondary font-monospace" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>LOADING_IMAGES...</div>
+                              </div>
+                            </div>
+                          )}
+                          <img
+                            src={getImageUrl(img)}
+                            alt={`${bike.model} — photo ${idx + 1}`}
+                            className="d-block w-100 h-100 bike-detail-carousel"
+                            style={{ objectFit: 'contain' }}
+                            onLoad={() => handleImageLoad(idx)}
+                          />
+                        </div>
                       </Carousel.Item>
                     ))}
                   </Carousel>
                 ) : (
-                  <img
-                    src={getImageUrl(images[0])}
-                    alt={bike.model}
-                    className="bike-detail-single-img img-fluid"
-                    style={{ width: '100%', height: 'clamp(260px, 45vw, 550px)', objectFit: 'contain', backgroundColor: '#000' }}
-                  />
+                  <div style={{ position: 'relative', height: 'clamp(260px, 45vw, 550px)', backgroundColor: '#000' }}>
+                    {!singleImageLoaded && (
+                      <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 2 }}>
+                        <div className="text-center">
+                          <Spinner animation="border" size="sm" variant="accent" className="mb-2" />
+                          <div className="text-secondary font-monospace" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>LOADING_IMAGE...</div>
+                        </div>
+                      </div>
+                    )}
+                    <img
+                      src={getImageUrl(images[0])}
+                      alt={bike.model}
+                      className="bike-detail-single-img img-fluid"
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      onLoad={() => setSingleImageLoaded(true)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
