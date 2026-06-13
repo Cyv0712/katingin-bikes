@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
 
 const LOGO_URL = 'https://www.katinginbikes.com/static_data/Katingin_logo.webp';
 
@@ -36,28 +35,16 @@ router.post('/', async (req, res) => {
     // Note: Inquiry data is NO LONGER saved to the database to comply with 
     // the Data Privacy Act explicit minimal storage directive. Data is ONLY emailed.
 
-    // 2. Automated Email System
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT, 10) || 465;
-    const smtpSecure = process.env.SMTP_SECURE !== 'false'; // Default true for 465
-    const receiverEmail = process.env.INQUIRY_RECEIVER_EMAIL || smtpUser;
+    // 2. Automated Email System via Resend (HTTP API)
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const receiverEmail = process.env.INQUIRY_RECEIVER_EMAIL;
+    // Resend's free tier default sender is onboarding@resend.dev
+    const senderEmail = process.env.RESEND_SENDER_EMAIL || 'onboarding@resend.dev';
 
-    if (smtpUser && smtpPass && receiverEmail) {
+    if (resendApiKey && receiverEmail) {
       try {
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpSecure,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass
-          }
-        });
-
         const mailOptions = {
-          from: `"Katingin Bikes" <${smtpUser}>`,
+          from: `Katingin Bikes <${senderEmail}>`,
           to: receiverEmail,
           subject: `🔔 New Financing Inquiry: ${unitInterested} — ${name}`,
           html: `
@@ -76,7 +63,7 @@ router.post('/', async (req, res) => {
 
                 <!-- Info Table -->
                 <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
-                  <tr>
+                   <tr>
                     <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #888888; text-transform: uppercase; width: 38%;">Applicant Name</td>
                     <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 15px; color: #ffffff; font-weight: 600;">${name}</td>
                   </tr>
@@ -116,14 +103,28 @@ router.post('/', async (req, res) => {
           `
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`[SMTP] Inquiry email successfully dispatched to ${receiverEmail} for applicant ${name}.`);
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${resendApiKey}`
+          },
+          body: JSON.stringify(mailOptions)
+        });
+
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          throw new Error(`Resend API response status ${emailResponse.status}: ${errorText}`);
+        }
+
+        const emailResult = await emailResponse.json();
+        console.log(`[Resend] Inquiry email successfully dispatched to ${receiverEmail}. ID: ${emailResult.id}`);
       } catch (mailErr) {
-        console.error('[SMTP] Failed to send inquiry email notification:', mailErr);
+        console.error('[Resend] Failed to send inquiry email notification:', mailErr);
         return res.status(500).json({ message: 'Failed to send inquiry email. Please try again later.' });
       }
     } else {
-      console.warn('[SMTP] Inquiries email not configured. Missing SMTP_USER, SMTP_PASS, or INQUIRY_RECEIVER_EMAIL.');
+      console.warn('[Resend] Inquiries email not configured. Missing RESEND_API_KEY or INQUIRY_RECEIVER_EMAIL.');
       return res.status(500).json({ message: 'Email system not configured on the server.' });
     }
 

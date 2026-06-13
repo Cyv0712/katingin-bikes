@@ -80,6 +80,11 @@ app.listen(PORT, host, () => {
   console.log(`Server listening on http://${host}:${PORT}`);
   mongoose
     .connect(MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => {
+      console.log('Connected to MongoDB');
+      // Run background cache warming
+      const { warmImageCache } = require('./utils/cacheWarmer');
+      warmImageCache();
+    })
     .catch((err) => console.error('Failed to connect to MongoDB', err));
 });
