@@ -43,9 +43,12 @@ router.post('/', async (req, res) => {
 
     if (resendApiKey && receiverEmail) {
       try {
+        // Split by comma and trim to support one or more recipient emails
+        const recipients = receiverEmail.split(',').map(email => email.trim()).filter(Boolean);
+
         const mailOptions = {
           from: `Katingin Bikes <${senderEmail}>`,
-          to: receiverEmail,
+          to: recipients,
           subject: `🔔 New Financing Inquiry: ${unitInterested} — ${name}`,
           html: `
             <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 620px; margin: 0 auto; background-color: #111111; border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a;">
