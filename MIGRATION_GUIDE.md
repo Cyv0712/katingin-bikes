@@ -121,7 +121,14 @@ This guide outlines the recent high-performance, security, SEO, and structural u
       const dns = require('dns');
       dns.setDefaultResultOrder('ipv4first');
       ```
-    * *(Optional/VPS Only)* Trigger the cache warmer service in the MongoDB connection success callback. Note: Keep this disabled on ephemeral cloud hosts (like Render Free tier) to prevent high-bandwidth credit usage when the container frequently restarts.
+    * **Trigger Cache Warmer:** Trigger the cache warmer service in the MongoDB connection success callback. *Note: If hosting on a free ephemeral container (like Render Free tier), this is highly recommended only if you use a service like UptimeRobot to keep the website from sleeping. Since UptimeRobot keeps the container awake, the server only restarts once per day (during Render's automatic 24h recycling), meaning the cache warm-up runs only once daily. This secures instant image loading for all users at a minimal cost of ~1.8 credits/month.*
+      ```javascript
+      mongoose.connect(MONGO_URI).then(() => {
+        console.log('Connected to MongoDB');
+        const { warmImageCache } = require('./utils/cacheWarmer');
+        warmImageCache().catch(err => console.error('[Startup] Cache warmer error:', err));
+      });
+      ```
   * **`backend/utils/download.js` [NEW]:**
     * Downloader utility using Node's native `https` module to download images. This respects the custom DNS setting and avoids the Undici IPv6 timeout bug.
   * **`backend/utils/cacheWarmer.js` [NEW/OPTIONAL]:**
@@ -157,4 +164,123 @@ This guide outlines the recent high-performance, security, SEO, and structural u
       RESEND_SENDER_EMAIL=onboarding@resend.dev (or verified domain address)
       INQUIRY_RECEIVER_EMAIL=your_signup_email@gmail.com
       ```
+
+---
+
+## 🛠️ 9. Advanced Admin Operations (Edit, Sold, & Delete)
+* **Goal:** Provide secure, full-lifecycle operations on inventory listings, ensuring automatic cleanup of media files on disk and Cloudinary to safeguard storage capacity and bandwidth limits.
+* **Files to modify/create:**
+  * **`backend/routes/bikes.js`:**
+    * **`PUT /:id` (Edit Route):** Checks if the listing exists. If new files are uploaded, delete existing images using `deleteBikeImages` and upload new ones. If no files are uploaded, look for `req.body.existingImages` to retain the current image/thumbnail order:
+      ```javascript
+      if (req.files?.length) {
+        await deleteBikeImages(existing.images);
+        bikeData.images = await persistUploadedImages(req.files);
+      } else if (req.body.existingImages) {
+        bikeData.images = Array.isArray(req.body.existingImages) ? req.body.existingImages : [req.body.existingImages];
+      }
+      ```
+    * **`PATCH /:id/sold` (Sold Route):** To keep the database lightweight and comply with storage limits, mark the status as `'Sold'`, delete all associated listing images, and unset all detailed specification fields using MongoDB's `$unset` operator:
+      ```javascript
+      await deleteBikeImages(bike.images);
+      const updatedBike = await Bike.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: { status: 'Sold' },
+          $unset: {
+            edition: 1, type: 1, year: 1, mileage: 1, description: 1, issues: 1,
+            engineSize: 1, engineConfig: 1, power: 1, transmission: 1, fuelCapacity: 1, images: 1
+          }
+        },
+        { new: true }
+      );
+      ```
+    * **`DELETE /:id` (Delete Route):** Delete all uploaded image files in storage and remove the listing document from the database.
+  * **`frontend/src/pages/Admin.jsx`:**
+    * **Combined Identity Parser:** Instead of filling brand, model, and engine size in separate inputs, parse them on submission from a single `combinedIdentity` string (e.g. `KAWASAKI Z 1000 1000cc`):
+      * Brand: First word.
+      * Engine Size: Numeric word or word ending in "cc" (converted to upper case `CC` and formatted as `X cc`).
+      * Model: Remaining words joined together.
+    * **Input Safeguards:** Validate on input change. If numeric fields (`year`, `mileage`, `price`) are less than `0`, reject. Limit text fields (excluding description) to a maximum of 50 characters.
+    * **Thumbnail Manager:** Display preview cards of uploaded files (or current images). Clicking any card moves it to index `0` of the array to designate it as the primary thumbnail.
+    * **Confirmation Modals:** Wrap delete and sold actions inside secure React-Bootstrap `<Modal>` prompts.
+
+---
+
+## 📋 10. Financing Inquiry System & Privacy-Compliant Emails
+* **Goal:** Collect user applications for financing options and dispatch them to one or more admin email addresses without storing sensitive user details in the database to satisfy the Data Privacy Act.
+* **Files to modify/create:**
+  * **`frontend/src/pages/Financing.jsx` [NEW]:**
+    * Fetch active available units on mount (`status === 'Available'`) to populate a dynamic dropdown selector.
+    * Read `?bikeName=` query parameter to auto-select a motorcycle model if the user clicked from a specific inventory profile.
+    * Limit contact number inputs to a maximum of 20 characters and require confirmation of a privacy policy consent checkbox before enabling the submit button.
+  * **`backend/routes/inquiries.js` [NEW]:**
+    * **Multi-Recipient Email Support:** Parse a comma-separated list of recipient emails from environment variables:
+      ```javascript
+      const recipients = receiverEmail.split(',').map(email => email.trim()).filter(Boolean);
+      ```
+    * **Input Escaper:** Escape incoming strings to prevent HTML injection inside email layouts:
+      ```javascript
+      const escapeHtml = (unsafe) => unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      ```
+    * **Zero-Persistence Routing:** Do not write submission data to MongoDB. Only validate, sanitize, build the HTML email template, and transmit it via a POST fetch to Resend's API.
+
+---
+
+## 📲 11. Device-Aware Deep Links & App Detection Fallbacks
+* **Goal:** Provide immediate, device-tailored contact channels that open native apps on mobile and fallback gracefully on desktop.
+* **Files to modify/create:**
+  * **`frontend/src/pages/Contact.jsx`:**
+    * **Gmail Redirect:** Detect mobile users. On mobile, fire a standard `mailto:` link. On desktop, bypass external mail clients and redirect to the web-based Gmail composer in a new tab:
+      ```javascript
+      const emailLink = isMobile
+        ? `mailto:${contactInfo.email}`
+        : `https://mail.google.com/mail/?view=cm&fs=1&to=${contactInfo.email}`;
+      ```
+    * **Viber Detection Fallback:** On mobile and desktop, trigger deep link schema `viber://chat/?number=...`. Open the link inside a new window (`about:blank`) first. If the page is still loading the app protocol after 2-seconds (meaning Viber is not installed), redirect the user to the official Viber installer page:
+      ```javascript
+      const handleViberClick = (e) => {
+        e.preventDefault();
+        const newTab = window.open('about:blank', '_blank');
+        if (!newTab) return;
+        newTab.location.href = viberLink;
+        setTimeout(() => {
+          try {
+            if (!newTab.closed && (newTab.location.href === 'about:blank' || newTab.location.href.startsWith('viber://'))) {
+              newTab.location.href = 'https://www.viber.com/en/download/';
+            }
+          } catch (err) {}
+        }, 2000);
+      };
+      ```
+
+---
+
+## 🎭 12. Session-Aware Splash Screen & Scroll Control
+* **Goal:** Render a cinematic entry animation on first landing while preventing unnecessary load lag on standard refreshes and cleaning up animation references to prevent memory leaks.
+* **Files to modify/create:**
+  * **`frontend/src/App.jsx`:**
+    * **Bypass State Check:** Initialize the splash display state using a function that reads `sessionStorage` to verify if the user has already loaded the site in their current tab session:
+      ```javascript
+      const [showSplash, setShowSplash] = useState(() => !sessionStorage.getItem('hasSeenSplash'));
+      ```
+    * **Scroll Lock:** Lock body scrolling while the splash is playing:
+      ```javascript
+      useEffect(() => {
+        document.body.style.overflow = showSplash ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+      }, [showSplash]);
+      ```
+    * **Session Registry:** Set `sessionStorage.setItem('hasSeenSplash', 'true')` when the splash triggers its completion callback.
+  * **`frontend/src/components/SplashScreen.jsx`:**
+    * **Memory Leak Cleanup:** Wrap GSAP animations inside `gsap.context()` and return its `revert()` cleanup command in the unmount callback:
+      ```javascript
+      useEffect(() => {
+        const ctx = gsap.context(() => {
+          // GSAP timeline sequences
+        }, containerRef);
+        return () => ctx.revert();
+      }, [onComplete]);
+      ```
+
 
