@@ -112,7 +112,7 @@ This guide outlines the recent high-performance, security, SEO, and structural u
 
 ---
 
-## 🖼️ 7. Image Optimization Proxy & Cache Warmer
+## 🖼️ 7. Image Optimization Proxy & On-Demand Caching
 * **Goal:** Use Cloudinary purely for file storage (0 dynamic transformation credits), minimize bandwidth, and achieve instant page loads without a first-load cold start.
 * **Files to modify/create:**
   * **`backend/server.js`:**
@@ -121,9 +121,11 @@ This guide outlines the recent high-performance, security, SEO, and structural u
       const dns = require('dns');
       dns.setDefaultResultOrder('ipv4first');
       ```
-    * Trigger the cache warmer service in the MongoDB connection success callback.
-  * **`backend/utils/cacheWarmer.js` [NEW]:**
-    * Background script that queries the database for active listing images on startup, checks if they exist in `backend/cache/`, and optimizes any missing ones to WebP sequentially with a 500ms throttle delay.
+    * *(Optional/VPS Only)* Trigger the cache warmer service in the MongoDB connection success callback. Note: Keep this disabled on ephemeral cloud hosts (like Render Free tier) to prevent high-bandwidth credit usage when the container frequently restarts.
+  * **`backend/utils/download.js` [NEW]:**
+    * Downloader utility using Node's native `https` module to download images. This respects the custom DNS setting and avoids the Undici IPv6 timeout bug.
+  * **`backend/utils/cacheWarmer.js` [NEW/OPTIONAL]:**
+    * Background script that queries the database for active listing images on startup, checks if they exist in `backend/cache/`, and optimizes any missing ones to WebP sequentially with a 500ms throttle delay. (Only run this if hosting on a platform with persistent disk storage).
   * **`backend/utils/imageStorage.js`:**
     * Import `sharp` and create an `optimizeImageBuffer(buffer)` helper (max dimensions 1200x1200px, WebP format, quality 80).
     * Optimize buffer in-memory inside `uploadBufferToCloudinary` and `writeBufferToDisk` before writing.
@@ -131,7 +133,7 @@ This guide outlines the recent high-performance, security, SEO, and structural u
     * Set up a `/image-proxy` GET endpoint.
     * Checks if the requested Cloudinary URL exists as an optimized `.webp` file inside `backend/cache/` (using an MD5 hash of the URL as filename).
     * If cached, streams it instantly using `res.sendFile()`.
-    * If not cached, downloads it once, optimizes it, caches it to disk, and serves it.
+    * If not cached, downloads it once using the `downloadImage` helper, optimizes it, caches it to disk, and serves it.
     * Sets cache headers: `Cache-Control: public, max-age=31536000, immutable`.
   * **`frontend/src/config/api.js`:**
     * Update `toAbsoluteUploadUrl(path)` to detect `res.cloudinary.com` URLs, strip out any legacy transformation segments (e.g. `/f_auto,q_auto/`), and return the proxied URL:

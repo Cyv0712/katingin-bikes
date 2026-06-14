@@ -82,9 +82,6 @@ app.listen(PORT, host, () => {
     .connect(MONGO_URI)
     .then(() => {
       console.log('Connected to MongoDB');
-      // Run background cache warming
-      const { warmImageCache } = require('./utils/cacheWarmer');
-      warmImageCache();
     })
     .catch((err) => console.error('Failed to connect to MongoDB', err));
 });
