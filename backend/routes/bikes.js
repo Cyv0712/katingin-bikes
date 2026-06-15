@@ -101,31 +101,46 @@ const recentSubmissions = new Map();
 
 // Create a bike — accepts multiple images
 router.post('/', authMiddleware, upload.array('images', 20), async (req, res) => {
+  const bikeData = { ...req.body };
+  
+  // Create a unique fingerprint for this submission
+  const fingerprint = `${bikeData.brand}-${bikeData.model}-${bikeData.price}-${bikeData.mileage}`;
+  const now = Date.now();
+  
+  if (recentSubmissions.has(fingerprint)) {
+    const lastTime = recentSubmissions.get(fingerprint);
+    if (now - lastTime < 30000) { // 30 second window
+      console.log('Duplicate submission detected, ignoring retry:', fingerprint);
+      return res.status(200).json({ message: 'Duplicate submission ignored' });
+    }
+  }
+  
+  recentSubmissions.set(fingerprint, now);
+
   try {
-    const bikeData = { ...req.body };
+    const bikeName = `${bikeData.brand || ''} ${bikeData.model || ''}`.trim() || 'Unknown Bike';
     
-    // Create a unique fingerprint for this submission
-    const fingerprint = `${bikeData.brand}-${bikeData.model}-${bikeData.price}-${bikeData.mileage}`;
-    const now = Date.now();
-    
-    if (recentSubmissions.has(fingerprint)) {
-      const lastTime = recentSubmissions.get(fingerprint);
-      if (now - lastTime < 30000) { // 30 second window
-        console.log('Duplicate submission detected, ignoring retry:', fingerprint);
-        return res.status(200).json({ message: 'Duplicate submission ignored' });
+    // 1. Save document with empty images array first to trigger Mongoose validators
+    const bike = new Bike({ ...bikeData, images: [] });
+    await bike.save();
+
+    // 2. Only proceed to upload images if database validation/save succeeds
+    if (req.files?.length) {
+      try {
+        const uploadedImages = await persistUploadedImages(req.files, bikeName);
+        bike.images = uploadedImages;
+        await bike.save();
+      } catch (uploadErr) {
+        // Rollback: Delete the database record if Cloudinary uploads fail
+        await Bike.findByIdAndDelete(bike._id);
+        throw uploadErr;
       }
     }
-    
-    recentSubmissions.set(fingerprint, now);
 
-    if (req.files?.length) {
-      bikeData.images = await persistUploadedImages(req.files);
-    }
-
-    const bike = new Bike(bikeData);
-    const newBike = await bike.save();
-    res.status(201).json(newBike);
+    res.status(201).json(bike);
   } catch (err) {
+    // Clear the duplicate submission fingerprint so the user can immediately retry
+    recentSubmissions.delete(fingerprint);
     res.status(400).json({ message: err.message });
   }
 });
@@ -133,27 +148,41 @@ router.post('/', authMiddleware, upload.array('images', 20), async (req, res) =>
 // Update a bike — accepts multiple images
 router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) => {
   try {
-    console.log('PUT ROUTE RECEIVED:');
-    console.log('Files count:', req.files?.length);
-    console.log('req.body:', req.body);
-    
     const existing = await Bike.findById(req.params.id);
     if (!existing) return res.status(404).json({ message: 'Bike not found' });
 
     const bikeData = { ...req.body };
+    const originalImages = existing.images || [];
+    const bikeName = `${bikeData.brand || existing.brand} ${bikeData.model || existing.model}`.trim();
 
+    // 1. Update specs and validate first, keeping original images intact
+    existing.set({
+      ...bikeData,
+      images: originalImages
+    });
+    await existing.save(); // validation runs here
+
+    // 2. Handle image replacements or reordering
     if (req.files?.length) {
-      await deleteBikeImages(existing.images);
-      bikeData.images = await persistUploadedImages(req.files);
+      try {
+        const uploadedImages = await persistUploadedImages(req.files, bikeName);
+        existing.images = uploadedImages;
+        await existing.save();
+        
+        // Only delete the old images from Cloudinary after the new ones are successfully saved
+        await deleteBikeImages(originalImages);
+      } catch (uploadErr) {
+        throw uploadErr;
+      }
     } else if (req.body.existingImages) {
       const imagesArray = Array.isArray(req.body.existingImages) 
         ? req.body.existingImages 
         : [req.body.existingImages];
-      bikeData.images = imagesArray;
+      existing.images = imagesArray;
+      await existing.save();
     }
 
-    const updatedBike = await Bike.findByIdAndUpdate(req.params.id, bikeData, { new: true });
-    res.json(updatedBike);
+    res.json(existing);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

@@ -64,7 +64,7 @@ function publicIdFromCloudinaryUrl(url) {
   }
 }
 
-async function uploadBufferToCloudinary(file) {
+async function uploadBufferToCloudinary(file, bikeName = 'Unknown Bike') {
   const folder = process.env.CLOUDINARY_FOLDER || 'katingin-bikes/bikes';
   
   let optimizedBuffer;
@@ -81,7 +81,7 @@ async function uploadBufferToCloudinary(file) {
   // Create a unique filename
   const fileName = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
   
-  console.log('--- Cloudinary Upload Start ---');
+  console.log(`--- Cloudinary Upload Start for [${bikeName}] ---`);
   console.log('Target Path:', `${folder}/${fileName}`);
   
   try {
@@ -91,11 +91,12 @@ async function uploadBufferToCloudinary(file) {
       resource_type: 'image',
       overwrite: true
     });
-    console.log('Upload Success! URL:', result.secure_url);
+    console.log(`Upload Success for [${bikeName}]! URL:`, result.secure_url);
     return result.secure_url;
   } catch (err) {
-    console.error('Cloudinary Upload FAILED:', err.message);
-    throw err;
+    const errMsg = err.error?.message || err.message || err;
+    console.error(`Cloudinary Upload FAILED for [${bikeName}]:`, errMsg);
+    throw new Error(errMsg);
   }
 }
 
@@ -125,10 +126,10 @@ async function writeBufferToDisk(file) {
  * @param {Express.Multer.File[]} files
  * @returns {Promise<string[]>}
  */
-async function persistUploadedImages(files) {
+async function persistUploadedImages(files, bikeName = 'Unknown Bike') {
   if (!files?.length) return [];
   if (isCloudinaryConfigured()) {
-    return Promise.all(files.map((f) => uploadBufferToCloudinary(f)));
+    return Promise.all(files.map((f) => uploadBufferToCloudinary(f, bikeName)));
   }
   const urls = [];
   for (const file of files) {
