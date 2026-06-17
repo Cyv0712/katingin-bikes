@@ -653,5 +653,36 @@ This guide outlines the recent high-performance, security, SEO, and structural u
   });
   ```
 
+---
+
+## 🌐 14. Cloudflare CDN Integration for 10k+ Traffic Stability
+* **Goal:** Offload image-proxy and asset traffic from the backend server to Cloudflare's Edge network, keeping server CPU/memory flat under high concurrency (10,000+ visitors) and preventing 429 rate limit blocks.
+* **Step 1: Point Domain Nameservers to Cloudflare**
+  * Sign up for a free account at [cloudflare.com](https://www.cloudflare.com) and add your custom domain.
+  * Log in to your domain registrar (e.g. GoDaddy, Namecheap) and update the nameservers to point to the custom nameservers Cloudflare provides.
+  * Wait for DNS propagation (approx. 5-15 mins).
+* **Step 2: Proxy DNS Records (Orange Cloud)**
+  * Go to the **DNS** settings page in Cloudflare.
+  * For the DNS records pointing to your backend (e.g., `api.yourdomain.com` or `your-backend.onrender.com` mapped to a custom subdomain) and your frontend, ensure the **Proxy Status** is toggled to **Proxied** (Orange Cloud icon).
+* **Step 3: Add Cache Rules for the Image Proxy API**
+  * By default, Cloudflare does not cache responses from endpoints inside `/api/` because they are treated as dynamic.
+  * Navigate to **Caching** > **Cache Rules** in your Cloudflare dashboard and click **Create Rule**.
+  * **Rule Name:** `Cache Image Proxy`
+  * **When incoming requests match... (Matching Criteria):**
+    * *Field:* `URI Path`
+    * *Operator:* `starts with`
+    * *Value:* `/api/bikes/image-proxy`
+  * **Then... (Cache Eligibility):**
+    * Select **Eligible for cache**.
+  * **Edge Cache TTL:**
+    * Select **Respect origin cache-control headers** (our backend already sets `Cache-Control: public, max-age=31536000, immutable`, which tells Cloudflare to cache it at the edge for 1 year).
+  * Click **Deploy**.
+* **Step 4: Verify Express Proxy Trust**
+  * Because traffic now runs through Cloudflare, all incoming requests will originate from Cloudflare's IP range. To prevent `express-rate-limit` from blocking legitimate users (thinking all requests come from the same visitor), ensure `backend/server.js` has the trust proxy middleware enabled:
+    ```javascript
+    app.set('trust proxy', 1); // Trust first proxy (Cloudflare/Render) to extract client's true IP
+    ```
+
+
 
 
