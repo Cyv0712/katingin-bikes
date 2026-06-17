@@ -121,18 +121,20 @@ This guide outlines the recent high-performance, security, SEO, and structural u
       const dns = require('dns');
       dns.setDefaultResultOrder('ipv4first');
       ```
-    * **Trigger Cache Warmer:** Trigger the cache warmer service in the MongoDB connection success callback. *Note: If hosting on a free ephemeral container (like Render Free tier), this is highly recommended only if you use a service like UptimeRobot to keep the website from sleeping. Since UptimeRobot keeps the container awake, the server only restarts once per day (during Render's automatic 24h recycling), meaning the cache warm-up runs only once daily. This secures instant image loading for all users at a minimal cost of ~1.8 credits/month.*
+    * **Trigger Cache Warmer:** Trigger the cache warmer service in the MongoDB connection success callback, wrapping it in a `setTimeout` of 30 seconds to prevent CPU/memory spikes during early port-binding/health-check phases:
       ```javascript
       mongoose.connect(MONGO_URI).then(() => {
         console.log('Connected to MongoDB');
-        const { warmImageCache } = require('./utils/cacheWarmer');
-        warmImageCache().catch(err => console.error('[Startup] Cache warmer error:', err));
+        setTimeout(() => {
+          const { warmImageCache } = require('./utils/cacheWarmer');
+          warmImageCache().catch(err => console.error('[Startup] Cache warmer error:', err));
+        }, 30000);
       });
       ```
   * **`backend/utils/download.js` [NEW]:**
     * Downloader utility using Node's native `https` module to download images. This respects the custom DNS setting and avoids the Undici IPv6 timeout bug.
   * **`backend/utils/cacheWarmer.js` [NEW/OPTIONAL]:**
-    * Background script that queries the database for active listing images on startup, checks if they exist in `backend/cache/`, and optimizes any missing ones to WebP sequentially with a 500ms throttle delay. (Only run this if hosting on a platform with persistent disk storage).
+    * Background script that queries the database for active listing images on startup, limits the query to the **15 most recent listings** to avoid CPU choking, checks if they exist in `backend/cache/`, disables `sharp`'s internal memory cache (`sharp.cache(false)`), and optimizes any missing ones to WebP sequentially with a **1500ms throttle delay** to ensure memory usage stays well under 150MB.
   * **`backend/utils/imageStorage.js`:**
     * Import `sharp` and create an `optimizeImageBuffer(buffer)` helper (max dimensions 1200x1200px, WebP format, quality 80).
     * Optimize buffer in-memory inside `uploadBufferToCloudinary` and `writeBufferToDisk` before writing.

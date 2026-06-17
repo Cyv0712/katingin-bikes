@@ -5,6 +5,9 @@ const sharp = require('sharp');
 const Bike = require('../models/Bike');
 const { downloadImage } = require('./download');
 
+// Disable sharp's memory cache to prevent Out-Of-Memory (OOM) crashes on low-resource environments (like Render Free tier)
+sharp.cache(false);
+
 /**
  * Background service that scans the database and pre-optimizes/caches all listing images
  * so that clients never experience slow "first load" times.
@@ -12,7 +15,8 @@ const { downloadImage } = require('./download');
 async function warmImageCache() {
   console.log('[Cache Warmer] Starting background image cache warm-up...');
   try {
-    const bikes = await Bike.find().sort({ createdAt: -1 });
+    // Only pre-cache the 15 most recent listings (covers homepage and first page of inventory)
+    const bikes = await Bike.find().sort({ createdAt: -1 }).limit(15);
     const urlsToWarm = [];
 
     // Collect all Cloudinary image URLs from available listings
@@ -69,8 +73,8 @@ async function warmImageCache() {
         console.error(`[Cache Warmer] Error warming image ${cleanUrl}:`, err.message);
       }
 
-      // 500ms throttle delay to keep CPU usage low
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // 1500ms throttle delay to allow garbage collection and keep CPU load low
+      await new Promise((resolve) => setTimeout(resolve, 1500));
     }
 
     if (warmedCount > 0) {
