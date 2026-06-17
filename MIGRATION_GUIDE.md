@@ -631,4 +631,25 @@ This guide outlines the recent high-performance, security, SEO, and structural u
       }, [onComplete]);
       ```
 
+---
+
+## 🚦 13. Eased Global Rate Limiting
+* **Goal:** Increase the global request threshold to prevent concurrent image proxy requests from triggering false-positive "429 Too Many Requests" blocks for active visitors.
+* **File to modify/create:** `backend/middleware/rateLimiter.js`
+* **Changes:** Set the `max` requests limit of the `globalLimiter` from `100` to `1500` per 15-minute window:
+  ```javascript
+  const rateLimit = require('express-rate-limit');
+
+  const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1500, // eased to handle bulk dynamic asset/image proxy loading
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      message: 'Too many requests from this IP, please try again after 15 minutes'
+    }
+  });
+  ```
+
+
 
