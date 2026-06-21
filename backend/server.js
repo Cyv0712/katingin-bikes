@@ -43,8 +43,11 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-// Serve static uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static uploaded files with 1-year immutable caching
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '365d',
+  immutable: true
+}));
 
 // Rate Limiting
 const { globalLimiter } = require('./middleware/rateLimiter');
