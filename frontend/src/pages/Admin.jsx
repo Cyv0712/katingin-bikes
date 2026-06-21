@@ -154,11 +154,11 @@ const Admin = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
+        credentials: 'include'
       });
       const data = await res.json();
       if (res.ok) {
         sessionStorage.setItem('adminAuth', 'true');
-        sessionStorage.setItem('adminToken', data.token);
         setIsAuthenticated(true);
       } else {
         alert(`ACCESS DENIED: ${data.message || 'Incorrect credentials.'}`);
@@ -169,16 +169,22 @@ const Admin = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch(apiUrl('/api/auth/logout'), {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (err) {
+      console.error('Logout request failed:', err);
+    }
     sessionStorage.removeItem('adminAuth');
-    sessionStorage.removeItem('adminToken');
     setIsAuthenticated(false);
     setPassword('');
   };
 
   const handleUnauthorized = () => {
     sessionStorage.removeItem('adminAuth');
-    sessionStorage.removeItem('adminToken');
     setIsAuthenticated(false);
     setPassword('');
     alert('Session expired. Please log in again.');
@@ -277,16 +283,13 @@ const Admin = () => {
     }
 
     try {
-      const token = sessionStorage.getItem('adminToken');
       const url = editingBike ? apiUrl(`/api/bikes/${editingBike._id}`) : apiUrl('/api/bikes');
       const method = editingBike ? 'PUT' : 'POST';
 
       const res = await fetch(url, { 
         method: method, 
         body: data,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
       if (res.status === 401) {
         handleUnauthorized();
@@ -364,12 +367,9 @@ const Admin = () => {
   const confirmDelete = async () => {
     if (!bikeToDelete) return;
     try {
-      const token = sessionStorage.getItem('adminToken');
       const res = await fetch(apiUrl(`/api/bikes/${bikeToDelete}`), { 
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
       if (res.status === 401) {
         handleUnauthorized();
@@ -393,12 +393,9 @@ const Admin = () => {
   const confirmMarkAsSold = async () => {
     if (!bikeToMarkSold) return;
     try {
-      const token = sessionStorage.getItem('adminToken');
       const res = await fetch(apiUrl(`/api/bikes/${bikeToMarkSold}/sold`), { 
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        credentials: 'include'
       });
       if (res.status === 401) {
         handleUnauthorized();

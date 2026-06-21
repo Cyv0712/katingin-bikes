@@ -192,11 +192,7 @@ const BikeDetails = () => {
               </div>
               
               <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
-                <span className="text-accent">{bike.brand}</span> {bike.model} {(() => {
-                  const cleanEngine = bike.engineSize ? bike.engineSize.toLowerCase().replace('cc', '').trim() : '';
-                  const hasEngineSizeInModel = (bike.model || '').toLowerCase().includes(cleanEngine);
-                  return bike.engineSize && !hasEngineSizeInModel ? cleanEngine : '';
-                })()}
+                <span className="text-accent">{bike.brand}</span> {bike.model}
               </h1>
 
               <div className="d-flex flex-wrap gap-4 mb-5">

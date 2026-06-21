@@ -33,10 +33,29 @@ router.post('/login', authLimiter, (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('adminToken', token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
     res.json({ token });
   } else {
     res.status(401).json({ message: 'Invalid credentials' });
   }
+});
+
+router.post('/logout', (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('adminToken', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax'
+  });
+  res.json({ success: true, message: 'Logged out successfully' });
 });
 
 module.exports = router;
