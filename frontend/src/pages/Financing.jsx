@@ -64,6 +64,10 @@ const Financing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!consentChecked) {
+      setErrorMsg('You must agree to the Privacy Policy and check the consent box before submitting your application.');
+      return;
+    }
     if (isSubmitting) return;
 
     setIsSubmitting(true);
@@ -289,7 +293,7 @@ const Financing = () => {
                           <button
                             type="submit"
                             className="moto-btn w-100 py-3"
-                            disabled={isSubmitting || loadingBikes || availableBikes.length === 0 || !consentChecked}
+                            disabled={isSubmitting || loadingBikes || availableBikes.length === 0}
                           >
                             {isSubmitting ? (
                               <>

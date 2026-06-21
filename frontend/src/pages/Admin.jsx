@@ -18,6 +18,81 @@ const formatWithCommas = (val) => {
   return Number(cleanNum).toLocaleString();
 };
 
+// Fallback engine size mapping for common models when not explicitly provided (e.g. "ZX6R" -> 600cc)
+const getEngineSizeFromModel = (model) => {
+  if (!model) return '';
+  const cleanModel = model.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  const mappings = {
+    'zx6r': '600',
+    'zx25r': '250',
+    'mt10': '1000',
+    'zx10r': '1000',
+    'r1': '1000',
+    'r6': '600',
+    'r3': '300',
+    'mt09': '900',
+    'mt07': '700',
+    'mt03': '300',
+    'z1000': '1000',
+    'z900': '900',
+    'z800': '800',
+    'z650': '650',
+    'z400': '400',
+    'cb650r': '650',
+    'cb1000r': '1000',
+    'cbr1000rr': '1000',
+    'cbr600rr': '600',
+    'cbr650r': '650',
+    'cbr500r': '500',
+    'gsxr1000': '1000',
+    'gsxr750': '750',
+    'gsxr600': '600',
+    's1000rr': '1000',
+    's1000r': '1000',
+    'm1000rr': '1000',
+    'f850gs': '850',
+    'f750gs': '750',
+    'r1200gs': '1200',
+    'r1250gs': '1250',
+    'r1300gs': '1300',
+    'tmax': '560',
+    'xmax': '300',
+    'nmax': '155',
+    'gts300': '300',
+  };
+
+  if (mappings[cleanModel]) {
+    return mappings[cleanModel];
+  }
+
+  // Regex fallbacks
+  let match = cleanModel.match(/^zx(\d+)r$/);
+  if (match) {
+    const num = parseInt(match[1]);
+    if (num === 6) return '600';
+    if (num === 10) return '1000';
+    if (num === 4) return '400';
+    return match[1];
+  }
+
+  match = cleanModel.match(/^gs(\d+)$/);
+  if (match) return match[1];
+
+  match = cleanModel.match(/(?:cbr|gsxr|gsf|yzf|ninja|z|mt|vulcan|cb|rebel|duke|rc|adventure|monsters|panigale|scrambler|multistrada|hypermotard)(\d+)/);
+  if (match) {
+    const num = parseInt(match[1]);
+    if (num === 10) return '1000';
+    if (num === 9) return '900';
+    if (num === 7) return '700';
+    if (num === 6) return '600';
+    if (num === 3) return '300';
+    return String(num);
+  }
+
+  return '';
+};
+
 const EMPTY_FORM = {
   combinedIdentity: '', // Format: BRAND MODEL ENGINE_SIZE
   type: '', year: '', mileage: '', price: '',
@@ -169,6 +244,11 @@ const Admin = () => {
       // Fallback: If no distinct model name word was found, use engineSize as the model
       if (!model && engineSize) {
         model = engineSize;
+      }
+
+      // Fallback engine size extraction from model name if not explicitly specified
+      if (!engineSize && model) {
+        engineSize = getEngineSizeFromModel(model);
       }
     }
 
