@@ -55,5 +55,62 @@ export const showcaseBikes = [
       'Adjustable Windshield',
       'Slim and Lightweight Chassis'
     ]
+  },
+  {
+    slug: 'honda-cb650r',
+    brand: 'Honda',
+    model: 'CB650R',
+    searchModel: 'Honda CB650R',
+    images: [
+      '/static_data/cbr650_1.webp',
+      '/static_data/cbr650_2.webp',
+      '/static_data/cbr650_3.webp'
+    ],
+    tagline: 'Neo Sports Café Attitude',
+    description: 'Compact, minimalist styling meets a screaming inline-four engine. The Honda CB650R delivers smooth power, sharp handling, and premium features for the ultimate modern naked bike experience.',
+    features: [
+      '649cc Liquid-Cooled Inline-4',
+      'Neo Sports Café Design',
+      'Selectable Torque Control (HSTC)',
+      'Showa SFF-BP USD Forks'
+    ]
+  },
+  {
+    slug: 'ducati-monster-937',
+    brand: 'Ducati',
+    model: 'Monster 937',
+    searchModel: 'Ducati Monster 937',
+    images: [
+      '/static_data/ducatimonster937+_1.jpg',
+      '/static_data/ducatimonster937+_2.jpg',
+      '/static_data/ducatimonster937+_3.jpg'
+    ],
+    tagline: 'Pure Riding Fun',
+    description: 'Lightweight, compact, and packed with electronics. The Monster 937 carries the legendary Ducati spirit with a punchy Testastretta engine and an agile aluminum front frame.',
+    features: [
+      '937cc Testastretta 11° L-Twin',
+      'Ducati Quick Shift (DQS) Up/Down',
+      'Cornering ABS & Traction Control',
+      '4.3" Color TFT Display'
+    ]
+  },
+  {
+    slug: 'bmw-gs-rallye',
+    brand: 'BMW',
+    model: 'R 1250 GS Rallye',
+    searchModel: 'BMW R 1250 GS Rallye',
+    images: [
+      '/static_data/bmwgs_1.jpg',
+      '/static_data/bmwgs_2.jpg',
+      '/static_data/bmwgs_3.jpg'
+    ],
+    tagline: 'Boundless Adventure, Sporty Style',
+    description: 'Ready for any terrain with sporty Rallye styling. Equipped with the powerful Boxer engine featuring ShiftCam technology and premium electronic suspension for cross-country exploration.',
+    features: [
+      '1,254cc Boxer Twin with ShiftCam',
+      'Dynamic ESA Electronic Suspension',
+      'Riding Modes Pro & Dynamic Traction',
+      'Cross-Spoke Wheels'
+    ]
   }
 ];

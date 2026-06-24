@@ -39,6 +39,15 @@ const ShowcaseDetails = () => {
             if (bike.slug === 'kawasaki-versys-650') {
               return combinedLive.includes('versys') && (combinedLive.includes('650') || combinedLive.includes('600'));
             }
+            if (bike.slug === 'honda-cb650r') {
+              return combinedLive.includes('cb650r') || (combinedLive.includes('cb') && combinedLive.includes('650'));
+            }
+            if (bike.slug === 'ducati-monster-937') {
+              return combinedLive.includes('monster') && (combinedLive.includes('937') || combinedLive.includes('900') || combinedLive.includes('821') || combinedLive.includes('797'));
+            }
+            if (bike.slug === 'bmw-gs-rallye') {
+              return combinedLive.includes('gs') && (combinedLive.includes('rallye') || combinedLive.includes('1250') || combinedLive.includes('1200'));
+            }
 
             // Fallback matching
             const targetWords = bike.model.toLowerCase()

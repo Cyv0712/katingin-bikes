@@ -7,6 +7,7 @@ import Reveal from './Reveal';
 
 const FeaturedBikes = () => {
   const [inventory, setInventory] = useState([]);
+  const [activeImages, setActiveImages] = useState({});
 
   useEffect(() => {
     // Fetch live inventory to check stock status
@@ -41,6 +42,15 @@ const FeaturedBikes = () => {
       if (showcaseBike.slug === 'kawasaki-versys-650') {
         return combinedLive.includes('versys') && (combinedLive.includes('650') || combinedLive.includes('600'));
       }
+      if (showcaseBike.slug === 'honda-cb650r') {
+        return combinedLive.includes('cb650r') || (combinedLive.includes('cb') && combinedLive.includes('650'));
+      }
+      if (showcaseBike.slug === 'ducati-monster-937') {
+        return combinedLive.includes('monster') && (combinedLive.includes('937') || combinedLive.includes('900') || combinedLive.includes('821') || combinedLive.includes('797'));
+      }
+      if (showcaseBike.slug === 'bmw-gs-rallye') {
+        return combinedLive.includes('gs') && (combinedLive.includes('rallye') || combinedLive.includes('1250') || combinedLive.includes('1200'));
+      }
 
       // Fallback matching
       const targetWords = showcaseBike.model.toLowerCase()
@@ -52,10 +62,19 @@ const FeaturedBikes = () => {
     });
   };
 
+  const handleThumbnailClick = (slug, index, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveImages(prev => ({
+      ...prev,
+      [slug]: index
+    }));
+  };
+
   return (
-    <section id="inventory" className="section-padding">
+    <section id="inventory" className="section-padding" style={{ paddingTop: '60px' }}>
       <Container>
-        <div className="text-center mb-5">
+        <div className="text-center mb-5 pb-2">
            <Reveal>
              <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR SHOWROOM</span>
              <h2 className="moto-heading mb-0">
@@ -63,60 +82,104 @@ const FeaturedBikes = () => {
              </h2>
            </Reveal>
         </div>
-        <Row className="g-4">
-          {showcaseBikes.map((bike, index) => {
-            const inStock = checkStock(bike);
 
-            return (
-              <Col lg={4} md={6} key={bike.slug}>
-                <Reveal delay={(index % 3) + 1} className="h-100">
-                  <div className="moto-card d-flex flex-column h-100">
-                    <div className="position-absolute top-0 end-0 p-3" style={{ zIndex: 10 }}>
-                      {inStock ? (
-                        <Badge className="bg-success" style={{ fontSize: '0.75rem', padding: '6px 12px', fontWeight: 600 }}>AVAILABLE</Badge>
-                      ) : (
-                        <Badge className="bg-danger" style={{ fontSize: '0.75rem', padding: '6px 12px', fontWeight: 600 }}>SOLD OUT</Badge>
-                      )}
-                    </div>
+        <Reveal className="position-relative">
+          <Carousel 
+            controls={false}
+            interval={2000} 
+            fade={true} 
+            pause="hover" 
+            className="featured-carousel"
+          >
+            {showcaseBikes.map((bike) => {
+              const inStock = checkStock(bike);
+              const activeIndex = activeImages[bike.slug] ?? 0;
 
-                    <div className="bike-img-wrapper" style={{ height: '400px', overflow: 'hidden' }}>
-                      <Carousel interval={null} slide={true} className="h-100">
-                        {bike.images.map((imgSrc, idx) => (
-                          <Carousel.Item key={idx} className="h-100">
-                            <img
-                              src={imgSrc}
-                              alt={`${bike.model} angle ${idx + 1}`}
-                              className="d-block w-100 h-100"
-                              style={{ objectFit: 'cover', objectPosition: 'top' }}
-                              loading="lazy"
-                            />
-                          </Carousel.Item>
-                        ))}
-                      </Carousel>
-                    </div>
+              return (
+                <Carousel.Item key={bike.slug}>
+                  <div className="featured-carousel-card">
+                    <Row className="g-4 align-items-center">
+                      {/* Left Column: Bike Details (Col 3) */}
+                      <Col lg={3} className="order-2 order-lg-1">
+                        <div className="pe-lg-3 text-center text-lg-start">
+                          <div className="d-flex align-items-center justify-content-center justify-content-lg-start gap-3 mb-2">
+                            {inStock ? (
+                              <Badge className="bg-success" style={{ fontSize: '0.7rem', padding: '5px 10px', fontWeight: 600 }}>AVAILABLE</Badge>
+                            ) : (
+                              <Badge className="bg-danger" style={{ fontSize: '0.7rem', padding: '5px 10px', fontWeight: 600 }}>SOLD OUT</Badge>
+                            )}
+                          </div>
 
-                    <div className="p-4 d-flex flex-column flex-grow-1">
-                      <h3 className="moto-heading mb-3" style={{ fontSize: '1.4rem' }}>
-                        <span className="text-accent">{bike.brand}</span> {bike.model}
-                      </h3>
-                      <p className="text-secondary mb-4 flex-grow-1" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                        {bike.description}
-                      </p>
-                      <div className="pt-3">
-                        <Link 
-                          to={`/showcase/${bike.slug}`} 
-                          className="moto-btn moto-btn-outline w-100"
-                        >
-                          VIEW FULL DETAILS
-                        </Link>
-                      </div>
-                    </div>
+                          <h3 className="moto-heading mb-3" style={{ fontSize: '1.8rem', lineHeight: '1.2' }}>
+                            <span className="text-accent">{bike.brand}</span> <br /> {bike.model}
+                          </h3>
+
+                          <div className="featured-specs-list justify-content-center justify-content-lg-start mb-4">
+                            {bike.features.map((feature, idx) => (
+                              <span key={idx} className="featured-spec-badge" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="pt-1 d-flex flex-column align-items-center align-items-lg-start gap-2">
+                            <Link 
+                              to={`/showcase/${bike.slug}`} 
+                              className="moto-btn py-2 px-4 text-decoration-none"
+                              style={{ width: 'fit-content', fontSize: '0.8rem' }}
+                            >
+                              EXPLORE UNIT
+                            </Link>
+                            <Link 
+                              to="/inventory" 
+                              className="text-accent text-decoration-none mt-2 d-inline-flex align-items-center gap-1"
+                              style={{ fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px' }}
+                            >
+                              VIEW FULL INVENTORY &rarr;
+                            </Link>
+                          </div>
+                        </div>
+                      </Col>
+
+                      {/* Right Column: Dynamic Image Gallery (Col 9) */}
+                      <Col lg={9} className="order-1 order-lg-2">
+                        <div className="featured-gallery-main" style={{ position: 'relative', overflow: 'hidden' }}>
+                          <img
+                            src={bike.images[activeIndex]}
+                            alt=""
+                            className="featured-gallery-bg"
+                          />
+                          <img
+                            src={bike.images[activeIndex]}
+                            alt={`${bike.model} angle ${activeIndex + 1}`}
+                            className="featured-gallery-fg"
+                            loading="eager"
+                          />
+                        </div>
+
+                        <div className="featured-gallery-thumbnails">
+                          {bike.images.map((imgSrc, idx) => (
+                            <div 
+                              key={idx}
+                              className={`featured-gallery-thumb ${idx === activeIndex ? 'active' : ''}`}
+                              onClick={(e) => handleThumbnailClick(bike.slug, idx, e)}
+                            >
+                              <img 
+                                src={imgSrc} 
+                                alt={`${bike.model} thumb ${idx + 1}`}
+                                className="w-100 h-100 object-fit-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </Col>
+                    </Row>
                   </div>
-                </Reveal>
-              </Col>
-            );
-          })}
-        </Row>
+                </Carousel.Item>
+              );
+            })}
+          </Carousel>
+        </Reveal>
       </Container>
     </section>
   );

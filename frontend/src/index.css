@@ -761,3 +761,129 @@ section {
     transform: translateY(-2px);
   }
 }
+
+/* ── Featured Bikes Carousel Card ── */
+.featured-carousel-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 40px;
+}
+
+/* Image gallery on the right */
+.featured-gallery-main {
+  width: 100%;
+  height: 520px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: #000;
+  position: relative;
+}
+
+.featured-gallery-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(15px) brightness(0.4);
+  transform: scale(1.08); /* Avoid white edges from blur */
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+}
+
+.featured-gallery-fg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+/* Thumbnail wrapper */
+.featured-gallery-thumbnails {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.featured-gallery-thumb {
+  width: 80px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.featured-gallery-thumb:hover {
+  opacity: 1;
+  border-color: rgba(212, 175, 55, 0.5);
+}
+
+.featured-gallery-thumb.active {
+  opacity: 1;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Specifications pills inside the carousel */
+.featured-specs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 24px 0;
+}
+
+.featured-spec-badge {
+  background-color: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Custom indicator dots for the main carousel */
+.featured-carousel {
+  position: relative;
+}
+
+.featured-carousel .carousel-indicators {
+  bottom: -40px;
+}
+
+.featured-carousel .carousel-indicators [data-bs-target] {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+  border: none;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.featured-carousel .carousel-indicators .active {
+  background-color: var(--accent-primary);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Adjust responsiveness */
+@media (max-width: 991px) {
+  .featured-carousel-card {
+    padding: 24px;
+  }
+  .featured-gallery-main {
+    height: 280px;
+  }
+}

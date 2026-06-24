@@ -8,16 +8,17 @@ const NavigationBar = () => {
   return (
     <Navbar expand="lg" fixed="top" className="moto-nav" variant="dark">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-3" style={{ fontWeight: 800, fontSize: '1.4rem' }}>
+        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2 gap-sm-3" style={{ fontWeight: 800, fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)' }}>
           <img 
             src="/static_data/Katingin_logo.webp" 
             alt="Katingin Bikes Logo" 
-            style={{ height: '40px', width: 'auto', borderRadius: '4px' }} 
+            style={{ height: 'clamp(32px, 8vw, 40px)', width: 'auto', borderRadius: '4px', transform: 'translateY(2px)' }} 
           />
           <span style={{ fontFamily: 'Montserrat, sans-serif', letterSpacing: '-0.5px' }}>{brandConfig.name} <span className="text-accent">{brandConfig.brandSuffix}</span></span>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg"
             alt="Philippines"
+            className="d-none d-sm-inline-block"
             style={{ height: '14px', width: 'auto', borderRadius: '2px', opacity: 0.85, marginLeft: '4px' }}
           />
         </Navbar.Brand>

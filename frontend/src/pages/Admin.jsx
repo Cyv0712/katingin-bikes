@@ -97,7 +97,12 @@ const EMPTY_FORM = {
   combinedIdentity: '', // Format: BRAND MODEL ENGINE_SIZE
   type: '', year: '', mileage: '', price: '',
   description: '',
-  brand: '', model: '', engineSize: '' // These will be auto-populated
+  brand: '', model: '', engineSize: '', // These will be auto-populated
+  isFinanceable: false,
+  minDownpayment: '',
+  monthly12: '',
+  monthly24: '',
+  monthly36: ''
 };
 
 const Admin = () => {
@@ -194,7 +199,7 @@ const Admin = () => {
     const { name, value } = e.target;
     
     // 1. Negative Number Validation
-    const numericFields = ['year', 'mileage', 'price'];
+    const numericFields = ['year', 'mileage', 'price', 'minDownpayment', 'monthly12', 'monthly24', 'monthly36'];
     if (numericFields.includes(name)) {
       const numValue = parseFloat(value.replace(/[^0-9.-]/g, ''));
       if (numValue < 0) return; // Prevent negative numbers
@@ -268,7 +273,11 @@ const Admin = () => {
     Object.keys(formData).forEach((key) => {
       if (!['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key)) {
         let value = formData[key];
-        if (['price', 'mileage'].includes(key)) {
+        // Clear financing values if the unit is not financeable
+        if (!formData.isFinanceable && ['minDownpayment', 'monthly12', 'monthly24', 'monthly36'].includes(key)) {
+          value = '';
+        }
+        if (['price', 'mileage', 'minDownpayment', 'monthly12', 'monthly24', 'monthly36'].includes(key)) {
           value = formatWithCommas(value);
         }
         data.append(key, value);
@@ -334,7 +343,12 @@ const Admin = () => {
       description: bike.description || '',
       brand: bike.brand || '',
       model: bike.model || '',
-      engineSize: bike.engineSize || ''
+      engineSize: bike.engineSize || '',
+      isFinanceable: bike.isFinanceable || false,
+      minDownpayment: bike.minDownpayment ? String(bike.minDownpayment).replace(/[^0-9]/g, '') : '',
+      monthly12: bike.monthly12 ? String(bike.monthly12).replace(/[^0-9]/g, '') : '',
+      monthly24: bike.monthly24 ? String(bike.monthly24).replace(/[^0-9]/g, '') : '',
+      monthly36: bike.monthly36 ? String(bike.monthly36).replace(/[^0-9]/g, '') : ''
     });
     setImageFiles([]);
     setShowModal(true);
@@ -671,7 +685,7 @@ const Admin = () => {
                 </div>
                 {/* ── Rest of the Form ── */}
                 {Object.keys(formData).map((key) => {
-                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity'].includes(key);
+                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity', 'isFinanceable', 'minDownpayment', 'monthly12', 'monthly24', 'monthly36'].includes(key);
                   if (isHidden) return null;
 
                   const isRequired = ['type', 'year', 'mileage', 'price'].includes(key);
@@ -718,6 +732,92 @@ const Admin = () => {
                     </div>
                   );
                 })}
+
+                {/* ── Financing Settings ── */}
+                <div className="col-md-12 mt-2">
+                  <hr className="border-secondary my-3" />
+                  <Form.Group className="mb-2">
+                    <Form.Check 
+                      type="switch"
+                      id="isFinanceable-switch"
+                      label="Available for Financing"
+                      name="isFinanceable"
+                      checked={formData.isFinanceable}
+                      onChange={(e) => setFormData({ ...formData, isFinanceable: e.target.checked })}
+                      className="text-accent fw-bold"
+                    />
+                  </Form.Group>
+                </div>
+
+                {formData.isFinanceable && (
+                  <>
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                          Minimum Downpayment <span className="text-accent">*</span>
+                        </label>
+                        <Form.Control
+                          type="text"
+                          name="minDownpayment"
+                          className="moto-input"
+                          value={formData.minDownpayment}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="e.g. 150000 (just the number)"
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                          12 Months Monthly Payment <span className="text-accent">*</span>
+                        </label>
+                        <Form.Control
+                          type="text"
+                          name="monthly12"
+                          className="moto-input"
+                          value={formData.monthly12}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="e.g. 45000 (just the number)"
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                          24 Months Monthly Payment <span className="text-accent">*</span>
+                        </label>
+                        <Form.Control
+                          type="text"
+                          name="monthly24"
+                          className="moto-input"
+                          value={formData.monthly24}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="e.g. 25000 (just the number)"
+                        />
+                      </Form.Group>
+                    </div>
+                    <div className="col-md-6">
+                      <Form.Group>
+                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                          36 Months Monthly Payment <span className="text-accent">*</span>
+                        </label>
+                        <Form.Control
+                          type="text"
+                          name="monthly36"
+                          className="moto-input"
+                          value={formData.monthly36}
+                          onChange={handleInputChange}
+                          required
+                          placeholder="e.g. 18000 (just the number)"
+                        />
+                      </Form.Group>
+                    </div>
+                  </>
+                )}
+
                 <div className="col-md-12">
                   <Form.Group>
                     <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>UNIT IMAGES</label>

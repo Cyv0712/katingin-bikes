@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Badge, Carousel, Spinner } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, CircleCheck, Circle } from 'lucide-react';
+import { ArrowLeft, Calendar, Route, CircleCheck, Circle, Info } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 
@@ -140,9 +140,9 @@ const BikeDetails = () => {
                   <Carousel interval={null}>
                     {images.map((img, idx) => (
                       <Carousel.Item key={idx}>
-                        <div style={{ position: 'relative', height: 'clamp(260px, 45vw, 550px)', backgroundColor: '#000' }}>
+                        <div className="featured-gallery-main" style={{ height: 'clamp(260px, 45vw, 550px)' }}>
                           {!loadedMap[idx] && (
-                            <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 2 }}>
+                            <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 3 }}>
                               <div className="text-center">
                                 <Spinner animation="border" size="sm" variant="accent" className="mb-2" />
                                 <div className="text-secondary font-monospace" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>LOADING_IMAGES...</div>
@@ -151,9 +151,13 @@ const BikeDetails = () => {
                           )}
                           <img
                             src={getImageUrl(img)}
+                            alt={`${bike.model} — background glow`}
+                            className="featured-gallery-bg"
+                          />
+                          <img
+                            src={getImageUrl(img)}
                             alt={`${bike.model} — photo ${idx + 1}`}
-                            className="d-block w-100 h-100 bike-detail-carousel"
-                            style={{ objectFit: 'contain' }}
+                            className="featured-gallery-fg"
                             onLoad={() => handleImageLoad(idx)}
                           />
                         </div>
@@ -161,9 +165,9 @@ const BikeDetails = () => {
                     ))}
                   </Carousel>
                 ) : (
-                  <div style={{ position: 'relative', height: 'clamp(260px, 45vw, 550px)', backgroundColor: '#000' }}>
+                  <div className="featured-gallery-main" style={{ height: 'clamp(260px, 45vw, 550px)' }}>
                     {!singleImageLoaded && (
-                      <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 2 }}>
+                      <div className="d-flex align-items-center justify-content-center position-absolute w-100 h-100" style={{ top: 0, left: 0, background: '#111', zIndex: 3 }}>
                         <div className="text-center">
                           <Spinner animation="border" size="sm" variant="accent" className="mb-2" />
                           <div className="text-secondary font-monospace" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>LOADING_IMAGE...</div>
@@ -172,9 +176,13 @@ const BikeDetails = () => {
                     )}
                     <img
                       src={getImageUrl(images[0])}
+                      alt={`${bike.model} — background glow`}
+                      className="featured-gallery-bg"
+                    />
+                    <img
+                      src={getImageUrl(images[0])}
                       alt={bike.model}
-                      className="bike-detail-single-img img-fluid"
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      className="featured-gallery-fg"
                       onLoad={() => setSingleImageLoaded(true)}
                     />
                   </div>
@@ -190,7 +198,7 @@ const BikeDetails = () => {
                 <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {withUnit(bike.engineSize, 'cc')}</span>
                 <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE</Badge>
               </div>
-              
+
               <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
                 <span className="text-accent">{bike.brand}</span> {bike.model}
               </h1>
@@ -216,23 +224,55 @@ const BikeDetails = () => {
                 </div>
               </div>
 
-              <div className="mb-5 p-4 rounded bg-muted" style={{ borderLeft: '4px solid var(--accent-primary)' }}>
+              <div className="mb-4 p-4 rounded bg-muted" style={{ borderLeft: '4px solid var(--accent-primary)' }}>
                 <small className="text-secondary d-block mb-1" style={{ fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px' }}>CASH PRICE</small>
                 <div className="d-flex align-items-baseline gap-2">
-                   <h2 className="text-primary fw-bold mb-0" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>{withPeso(bike.price)}</h2>
+                  <h2 className="text-primary fw-bold mb-0" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>{withPeso(bike.price)}</h2>
                 </div>
               </div>
 
-              <Link to="/contact" className="moto-btn w-100 mb-3 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
-                INQUIRE NOW
-              </Link>
+              {bike.isFinanceable !== false && (
+                <div className="mb-5 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
+                  <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
 
-              <Link 
-                to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`} 
-                className="moto-btn moto-btn-outline w-100 mb-5 py-3 text-decoration-none" 
-                style={{ fontSize: '1rem' }}
-              >
-                APPLY FOR FINANCING
+                  <div className="mb-4">
+                    <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
+                    <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
+                  </div>
+
+                  <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                  </Row>
+
+                  <div className="mt-4 pt-3 border-top d-flex align-items-start gap-2" style={{ borderColor: 'var(--border-color)', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                    <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="text-secondary">Looking for different terms or a custom downpayment? </span>
+                      <Link
+                        to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
+                        className="text-accent fw-bold"
+                        style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
+                      >
+                        Click Here to Inquire via our Financing Tab
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <Link to="/contact" className="moto-btn w-100 mb-5 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
+                INQUIRE NOW
               </Link>
 
               {/* Overview */}
