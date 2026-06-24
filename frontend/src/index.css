@@ -25,21 +25,17 @@
 
 
 /* ── Scrollbar ── */
+/* Hide scrollbar for Chrome, Safari, and Opera */
 ::-webkit-scrollbar {
-  width: 8px;
-  background: var(--bg-void);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary);
+  display: none;
 }
 
 /* ── Base ── */
+html, body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 body {
   background-color: var(--bg-void);
   color: var(--text-primary);
