@@ -199,6 +199,8 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
       await deleteBikeImages(bike.images);
     }
 
+    console.log(`[Inventory] Bike marked as SOLD: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
+
     const updatedBike = await Bike.findByIdAndUpdate(
       req.params.id,
       {
@@ -235,6 +237,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     await deleteBikeImages(bike.images);
 
     await Bike.findByIdAndDelete(req.params.id);
+    console.log(`[Inventory] Bike DELETED: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
     res.json({ message: 'Bike and all associated images deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
