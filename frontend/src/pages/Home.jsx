@@ -45,9 +45,9 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Katingin Bikes | Premium Second Hand Bigbikes Philippines</title>
-        <meta name="description" content="Looking for the best second hand bigbikes in the Philippines? Katingin Bikes is Metro Manila's trusted dealer for premium pre-owned motorcycles with complete papers and transparent deals." />
-        <meta property="og:title" content="Katingin Bikes | Premium Second Hand Bigbikes Philippines" />
+        <title>Katingin Bikes | Premium Pre-Owned Bigbikes Philippines</title>
+        <meta name="description" content="Looking for the best pre-owned bigbikes in the Philippines? Katingin Bikes is Metro Manila's trusted dealer for premium pre-owned motorcycles with complete papers and transparent deals." />
+        <meta property="og:title" content="Katingin Bikes | Premium Pre-Owned Bigbikes Philippines" />
         <meta property="og:description" content="Trusted dealer of premium, pre-owned bigbikes and motorcycles in the Philippines. Complete papers, transparent deals, and superb aftersales." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/" />

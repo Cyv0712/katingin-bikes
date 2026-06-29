@@ -135,9 +135,9 @@ const Inventory = () => {
   return (
     <div className="py-5" style={{ minHeight: '100vh' }}>
       <Helmet>
-        <title>Second Hand Bigbikes Philippines | Full Inventory | Katingin Bikes</title>
+        <title>Pre-Owned Bigbikes Philippines | Full Inventory | Katingin Bikes</title>
         <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring bigbikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
-        <meta property="og:title" content="Second Hand Bigbikes Philippines | Full Inventory | Katingin Bikes" />
+        <meta property="og:title" content="Pre-Owned Bigbikes Philippines | Full Inventory | Katingin Bikes" />
         <meta property="og:description" content="Browse our wide collection of quality, pre-owned bigbikes and premium motorcycles in Metro Manila, Philippines." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
@@ -147,7 +147,7 @@ const Inventory = () => {
         <Reveal>
           <div className="mb-5 text-center">
             <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>SECOND HAND BIGBIKES</h1>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED BIGBIKES</h1>
           </div>
         </Reveal>
 
@@ -283,7 +283,7 @@ const Inventory = () => {
                     <Reveal className="h-100">
                       <div className="moto-card d-flex flex-column h-100">
                         <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
-                          <img src={getImageUrl(bike)} alt={`Second hand ${bike.brand} ${bike.model} ${bike.year} pre-owned motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
+                          <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
                         </div>
                         <div className="p-4 d-flex flex-column flex-grow-1">
                           <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>

@@ -158,7 +158,7 @@ const BikeDetails = () => {
                           />
                           <img
                             src={getImageUrl(img)}
-                            alt={`Second hand ${bike.brand} ${bike.model} ${bike.year} pre-owned motorcycle photo ${idx + 1} - Katingin Bikes`}
+                            alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle photo ${idx + 1} - Katingin Bikes`}
                             className="featured-gallery-fg"
                             onLoad={() => handleImageLoad(idx)}
                           />
@@ -183,7 +183,7 @@ const BikeDetails = () => {
                     />
                     <img
                       src={getImageUrl(images[0])}
-                      alt={`Second hand ${bike.brand} ${bike.model} ${bike.year} pre-owned motorcycle - Katingin Bikes`}
+                      alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle - Katingin Bikes`}
                       className="featured-gallery-fg"
                       onLoad={() => setSingleImageLoaded(true)}
                     />

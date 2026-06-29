@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
 
               <h4 className="moto-heading text-white mt-5 mb-3" style={{ fontSize: '1.2rem' }}>2. THE PURPOSE OF DATA COLLECTION</h4>
               <p>
-                We collect this information strictly for the purpose of communicating with you regarding your financing inquiry. Your contact details are used by our representatives to evaluate your request, provide financing options, and follow up regarding the specific second-hand big bike you are interested in. <strong>We do not sell, rent, or share your personal data with third-party marketers or brokers.</strong>
+                We collect this information strictly for the purpose of communicating with you regarding your financing inquiry. Your contact details are used by our representatives to evaluate your request, provide financing options, and follow up regarding the specific pre-owned big bike you are interested in. <strong>We do not sell, rent, or share your personal data with third-party marketers or brokers.</strong>
               </p>
 
               <h4 className="moto-heading text-white mt-5 mb-3" style={{ fontSize: '1.2rem' }}>3. STORAGE AND SECURITY</h4>

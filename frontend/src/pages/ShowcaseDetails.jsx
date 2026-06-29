@@ -196,7 +196,7 @@ const ShowcaseDetails = () => {
               ) : (
                 <div className="p-4 rounded" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                   <h5 className="moto-heading mb-2" style={{ fontSize: '1.1rem' }}>OUT OF STOCK</h5>
-                  <p className="text-secondary mb-0" style={{ fontSize: '0.95rem' }}>We don't have any second-hand {bike.model} units right now. Check back later or browse our other inventory!</p>
+                  <p className="text-secondary mb-0" style={{ fontSize: '0.95rem' }}>We don't have any pre-owned {bike.model} units right now. Check back later or browse our other inventory!</p>
                   <Link to="/inventory" className="text-decoration-none">
                     <button className="moto-btn moto-btn-outline w-100 mt-4 py-3" style={{ fontSize: '1rem' }}>
                       BROWSE ALL BIKES
