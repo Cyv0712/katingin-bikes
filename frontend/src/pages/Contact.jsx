@@ -33,7 +33,7 @@ const Contact = () => {
             newTab.location.href = 'https://www.viber.com/en/download/';
           }
         }
-      } catch (err) {
+      } catch {
         // Safe to ignore: a cross-origin error means it successfully navigated or launched
       }
     }, 2000);

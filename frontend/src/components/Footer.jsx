@@ -1,13 +1,48 @@
+import { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Phone, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { brandConfig } from '../data/brandConfig';
 import { contactInfo } from '../data/contactInfo';
+import { apiUrl } from '../config/api';
 
 // Import FontAwesome versions for specific brand logos that Lucide lacks
 import { FaViber, FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Footer = () => {
+  const [topBrands, setTopBrands] = useState(['Honda', 'Yamaha', 'Kawasaki', 'BMW', 'Ducati']);
+
+  useEffect(() => {
+    fetch(apiUrl('/api/bikes'))
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const counts = {};
+          // Only count active/available listings
+          data.filter(bike => bike.status === 'Available' || !bike.status).forEach(bike => {
+            if (bike.brand) {
+              const brand = bike.brand.trim();
+              counts[brand] = (counts[brand] || 0) + 1;
+            }
+          });
+
+          const sorted = Object.keys(counts)
+            .sort((a, b) => {
+              const diff = counts[b] - counts[a];
+              if (diff !== 0) return diff;
+              return a.localeCompare(b); // Alphabetical fallback
+            })
+            .slice(0, 5);
+
+          if (sorted.length > 0) {
+            setTopBrands(sorted);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to aggregate top brands for footer:', err);
+      });
+  }, []);
   return (
     <footer className="footer" style={{ backgroundColor: 'var(--bg-void)', borderTop: '1px solid var(--border-color)', paddingTop: '80px', paddingBottom: '40px' }}>
       <Container>
@@ -35,7 +70,7 @@ const Footer = () => {
             </div>
           </Col>
           
-          <Col lg={2} md={4} className="offset-lg-1">
+          <Col lg={2} md={4}>
             <h5 className="moto-heading mb-4" style={{ fontSize: '1.1rem', letterSpacing: '1px' }}>QUICK LINKS</h5>
             <ul className="list-unstyled d-flex flex-column gap-3">
               <li><Link to="/" className="text-secondary text-decoration-none hover-accent">Home</Link></li>
@@ -45,8 +80,21 @@ const Footer = () => {
               <li><Link to="/privacy-policy" className="text-secondary text-decoration-none hover-accent">Privacy Policy</Link></li>
             </ul>
           </Col>
+
+          <Col lg={3} md={4}>
+            <h5 className="moto-heading mb-4" style={{ fontSize: '1.1rem', letterSpacing: '1px' }}>SHOP BY BRAND</h5>
+            <ul className="list-unstyled d-flex flex-column gap-3">
+              {topBrands.map((brand) => (
+                <li key={brand}>
+                  <Link to={`/inventory?brand=${encodeURIComponent(brand)}`} className="text-secondary text-decoration-none hover-accent">
+                    Pre-Owned {brand}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Col>
           
-          <Col lg={4} md={8} className="offset-lg-1">
+          <Col lg={3} md={4}>
             <h5 className="moto-heading mb-4" style={{ fontSize: '1.1rem', letterSpacing: '1px' }}>CONTACT US</h5>
             <ul className="list-unstyled d-flex flex-column gap-4 text-secondary" style={{ fontSize: '0.95rem' }}>
               {/* Address removed as per new business model */}

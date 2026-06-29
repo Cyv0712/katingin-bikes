@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import NavigationBar from './components/NavigationBar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import { Analytics } from '@vercel/analytics/react';
 import AnimatedPage from './components/AnimatedPage';
 import SplashScreen from './components/SplashScreen';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -44,7 +43,6 @@ function App() {
 
   return (
     <Router>
-      <Analytics />
       <ScrollToTop />
 
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}

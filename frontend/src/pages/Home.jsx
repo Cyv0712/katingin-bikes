@@ -3,6 +3,7 @@ import BrandMarquee from '../components/BrandMarquee';
 import FeaturedBikes from '../components/FeaturedBikes';
 import AboutUs from '../components/AboutUs';
 import { Helmet } from 'react-helmet-async';
+import { contactInfo } from '../data/contactInfo';
 
 import { useReveal } from '../hooks/useReveal';
 
@@ -16,6 +17,11 @@ const Home = () => {
     "image": "https://katinginbikes.com/static_data/Katingin_logo.png",
     "url": "https://katinginbikes.com",
     "telephone": "09435509357",
+    "priceRange": "₱150,000 - ₱1,500,000",
+    "sameAs": [
+      contactInfo.facebook,
+      "https://www.instagram.com/katinginbikes"
+    ].filter(Boolean),
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Metro Manila",

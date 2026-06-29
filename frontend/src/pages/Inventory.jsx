@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Route, Calendar, Filter, Info, Search, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import Reveal from '../components/Reveal';
@@ -34,12 +34,18 @@ const getImageUrl = (bike) => {
   return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop';
 };
 
-const INITIAL_FILTERS = { search: '', brand: 'All', type: 'All', priceMin: '', priceMax: '' };
-
 const Inventory = () => {
   const [bikesData, setBikesData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters = useMemo(() => ({
+    search: searchParams.get('search') || '',
+    brand: searchParams.get('brand') || 'All',
+    type: searchParams.get('type') || 'All',
+    priceMin: searchParams.get('priceMin') || '',
+    priceMax: searchParams.get('priceMax') || ''
+  }), [searchParams]);
 
   useEffect(() => {
     const MIN_SKELETON_MS = 900;
@@ -103,8 +109,20 @@ const Inventory = () => {
     });
   }, [bikesData, filters]);
 
-  const setFilter = (key, value) => setFilters((prev) => ({ ...prev, [key]: value }));
-  const clearAllFilters = () => setFilters(INITIAL_FILTERS);
+  const setFilter = (key, value) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value === 'All' || value === '') {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+      return next;
+    }, { replace: true });
+  };
+  const clearAllFilters = () => {
+    setSearchParams(new URLSearchParams(), { replace: true });
+  };
 
   const activeChips = useMemo(() => [
     filters.search && { key: 'search', label: `"${filters.search}"` },
@@ -265,7 +283,7 @@ const Inventory = () => {
                     <Reveal className="h-100">
                       <div className="moto-card d-flex flex-column h-100">
                         <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
-                          <img src={getImageUrl(bike)} alt={bike.model} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
+                          <img src={getImageUrl(bike)} alt={`Second hand ${bike.brand} ${bike.model} ${bike.year} pre-owned motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
                         </div>
                         <div className="p-4 d-flex flex-column flex-grow-1">
                           <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
