@@ -116,10 +116,10 @@ const Inventory = () => {
   return (
     <div className="py-5" style={{ minHeight: '100vh' }}>
       <Helmet>
-        <title>Full Inventory | Katingin Bikes</title>
-        <meta name="description" content="Browse our collection of fresh, pre-owned adventure, naked, sport, and touring big bikes. Complete papers, verified quality, and honest deals." />
-        <meta property="og:title" content="Full Inventory | Katingin Bikes" />
-        <meta property="og:description" content="Browse our catalog of fresh, pre-owned big bikes and premium motorcycles in Metro Manila." />
+        <title>Second Hand Bigbikes Philippines | Full Inventory | Katingin Bikes</title>
+        <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring bigbikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
+        <meta property="og:title" content="Second Hand Bigbikes Philippines | Full Inventory | Katingin Bikes" />
+        <meta property="og:description" content="Browse our wide collection of quality, pre-owned bigbikes and premium motorcycles in Metro Manila, Philippines." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
       </Helmet>
@@ -128,7 +128,7 @@ const Inventory = () => {
         <Reveal>
           <div className="mb-5 text-center">
             <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>FULL INVENTORY</h1>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>SECOND HAND BIGBIKES</h1>
           </div>
         </Reveal>
 

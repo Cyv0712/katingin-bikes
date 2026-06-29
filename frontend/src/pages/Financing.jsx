@@ -105,10 +105,10 @@ const Financing = () => {
   return (
     <div className="financing-page pb-5" style={{ backgroundColor: 'var(--bg-void)', minHeight: '100vh', paddingTop: '76px' }}>
       <Helmet>
-        <title>Financing Inquiries | Katingin Bikes</title>
-        <meta name="description" content="Inquire about financing options for your dream big bike. Submit your application details online." />
-        <meta property="og:title" content="Financing Inquiries | Katingin Bikes" />
-        <meta property="og:description" content="Get pre-approved for big bike financing with clean papers and verified inspection." />
+        <title>Bigbike Financing & Installment Options | Katingin Bikes</title>
+        <meta name="description" content="Get pre-approved for second hand bigbike financing in the Philippines. Submit your installment application online for flexible payment terms." />
+        <meta property="og:title" content="Bigbike Financing & Installment Options | Katingin Bikes" />
+        <meta property="og:description" content="Get pre-approved for bigbike financing and installment options in Manila with easy downpayment options." />
         <meta property="og:url" content="https://katinginbikes.com/financing" />
       </Helmet>
 

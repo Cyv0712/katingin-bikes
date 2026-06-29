@@ -9,10 +9,10 @@ const About = () => {
   return (
     <div className="about-page pb-5">
       <Helmet>
-        <title>About Us | Katingin Bikes</title>
-        <meta name="description" content="Discover Katingin Bikes. Learn about our roots, our commitment to transparency, verified quality inspecton, and clean papers." />
-        <meta property="og:title" content="About Us | Katingin Bikes" />
-        <meta property="og:description" content="Learn about our roots, story, and commitment to transparency." />
+        <title>About Us | Trusted Bigbike Dealer Philippines | Katingin Bikes</title>
+        <meta name="description" content="Discover Katingin Bikes. Learn about our roots, our commitment to transparency, verified 100-point mechanical inspection, and clean papers for pre-owned bigbikes in the Philippines." />
+        <meta property="og:title" content="About Us | Trusted Bigbike Dealer Philippines | Katingin Bikes" />
+        <meta property="og:description" content="Discover Katingin Bikes: Our story, team, and commitment to delivering the highest quality pre-owned bigbikes in Manila." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/about" />
       </Helmet>

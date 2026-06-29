@@ -2,11 +2,12 @@ export const brandConfig = {
   name: 'KATINGIN BIKES',
   brandSuffix: '',
   fullName: 'Katingin Bikes',
-  description: "Offering the fresh second hand bigbikes, hassle-free paperwork, superb aftersales, and honest deals in Metro Manila.",
+  slogan: 'Second Hand Bigbikes Philippines',
+  description: "Trusted dealer of premium pre-owned bigbikes in the Philippines. We offer quality second hand big bikes and motorcycles in Metro Manila with complete papers, 100% transparency, and honest deals.",
 
   // Hero & About Narratives
   aboutHeroTitle: 'KATINGIN BIKES',
-  aboutHeroDescription: "A trusted dealer of 'fresh' and quality pre-owned big bikes in the Philippines. Looking for quality pre-owned big bikes with hassle-free paperwork? Check us out!",
+  aboutHeroDescription: "A trusted dealer of quality pre-owned big bikes in the Philippines. Looking for fresh second hand bigbikes in Metro Manila with hassle-free paperwork? Check us out!",
 
   storyTitle: 'OUR ROOTS',
   storyParagraphs: [

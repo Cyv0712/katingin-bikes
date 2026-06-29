@@ -42,10 +42,10 @@ const Contact = () => {
   return (
     <div className="contact-page pb-5" style={{ backgroundColor: 'var(--bg-void)', minHeight: '100vh', paddingTop: '76px' }}>
       <Helmet>
-        <title>Contact Us | Katingin Bikes</title>
-        <meta name="description" content="Connect with Katingin Bikes. Reach out directly via Viber, Facebook Messenger, or Email for big bike availability and financing inquiries." />
-        <meta property="og:title" content="Contact Us | Katingin Bikes" />
-        <meta property="og:description" content="Reach out to us directly via Viber, Facebook Messenger, or Email." />
+        <title>Contact Us | Katingin Bikes | Bigbikes Metro Manila</title>
+        <meta name="description" content="Get in touch with Katingin Bikes. Contact us via Viber, Messenger, or Email to verify second hand bigbike availability and schedules in Metro Manila." />
+        <meta property="og:title" content="Contact Us | Katingin Bikes | Bigbikes Metro Manila" />
+        <meta property="og:description" content="Get in touch directly via Viber, Facebook Messenger, or Email to ask about our premium pre-owned bigbikes." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/contact" />
       </Helmet>
