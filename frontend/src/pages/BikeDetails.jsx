@@ -4,9 +4,11 @@ import { Container, Row, Col, Badge, Carousel, Spinner } from 'react-bootstrap';
 import { ArrowLeft, Calendar, Route, CircleCheck, Circle, Info } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
+import { createSlug } from '../config/slug';
 
 const BikeDetails = () => {
-  const { id } = useParams();
+  const { slugAndId } = useParams();
+  const id = slugAndId ? slugAndId.split('-').pop() : '';
   const [bike, setBike] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadedMap, setLoadedMap] = useState({});
@@ -101,7 +103,7 @@ const BikeDetails = () => {
     "description": bike.description || `Fresh pre-owned ${bike.brand} ${bike.model} big bike for sale.`,
     "offers": {
       "@type": "Offer",
-      "url": `https://katinginbikes.com/bike/${bike._id}`,
+      "url": `https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`,
       "priceCurrency": "PHP",
       "price": cleanPrice,
       "availability": bike.status === 'Sold' ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
@@ -117,7 +119,7 @@ const BikeDetails = () => {
         <meta property="og:title" content={`${bike.brand} ${bike.model} (${bike.year}) - For Sale`} />
         <meta property="og:description" content={`Fresh pre-owned ${bike.brand} ${bike.model} big bike for sale at Katingin Bikes.`} />
         <meta property="og:image" content={absoluteImage} />
-        <meta property="og:url" content={`https://katinginbikes.com/bike/${bike._id}`} />
+        <meta property="og:url" content={`https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`} />
         <script type="application/ld+json">
           {JSON.stringify(schemaData)}
         </script>

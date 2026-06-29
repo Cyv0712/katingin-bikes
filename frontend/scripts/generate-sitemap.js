@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { showcaseBikes } from '../src/data/showcase.js';
+import { createSlug } from '../src/config/slug.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +57,7 @@ async function generateSitemap() {
   // Add active listings dynamic URLs
   bikes.forEach(bike => {
     urls.push({
-      loc: `${SITE_BASE_URL}/bike/${bike._id}`,
+      loc: `${SITE_BASE_URL}/bike/${createSlug(bike)}-${bike._id}`,
       changefreq: 'weekly',
       priority: '0.8'
     });

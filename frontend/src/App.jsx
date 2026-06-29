@@ -62,7 +62,7 @@ function App() {
           <Routes>
             <Route path="/" element={<AnimatedPage><Home /></AnimatedPage>} />
             <Route path="/inventory" element={<AnimatedPage><Inventory /></AnimatedPage>} />
-            <Route path="/bike/:id" element={<AnimatedPage><BikeDetails /></AnimatedPage>} />
+            <Route path="/bike/:slugAndId" element={<AnimatedPage><BikeDetails /></AnimatedPage>} />
             <Route path="/showcase/:slug" element={<AnimatedPage><ShowcaseDetails /></AnimatedPage>} />
             {/* <Route path="/about" element={<AnimatedPage><About /></AnimatedPage>} /> */}
             {/* <Route path="/buyers" element={<AnimatedPage><Buyers /></AnimatedPage>} /> */}

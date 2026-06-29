@@ -5,12 +5,13 @@ import { ArrowLeft, Check, Database, Zap } from 'lucide-react';
 import { showcaseBikes } from '../data/showcase';
 import { apiUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
+import { createSlug } from '../config/slug';
 
 const ShowcaseDetails = () => {
   const { slug } = useParams();
   const bike = showcaseBikes.find(b => b.slug === slug);
   const [inStock, setInStock] = useState(false);
-  const [inventoryId, setInventoryId] = useState(null);
+  const [matchedLiveBike, setMatchedLiveBike] = useState(null);
 
   useEffect(() => {
     if (bike) {
@@ -60,10 +61,10 @@ const ShowcaseDetails = () => {
 
           if (matchedBike) {
             setInStock(true);
-            setInventoryId(matchedBike._id);
+            setMatchedLiveBike(matchedBike);
           } else {
             setInStock(false);
-            setInventoryId(null);
+            setMatchedLiveBike(null);
           }
         })
         .catch(err => console.error(err));
@@ -186,7 +187,7 @@ const ShowcaseDetails = () => {
                 <div className="p-4 rounded" style={{ background: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)' }}>
                   <h5 className="moto-heading mb-2 text-primary" style={{ fontSize: '1.1rem' }}>CURRENTLY AVAILABLE</h5>
                   <p className="text-secondary mb-4" style={{ fontSize: '0.95rem' }}>Great news! We currently have a {bike.model} available in our live inventory. Click below to view the actual unit.</p>
-                  <Link to={`/bike/${inventoryId}`} className="text-decoration-none">
+                  <Link to={`/bike/${createSlug(matchedLiveBike)}-${matchedLiveBike._id}`} className="text-decoration-none">
                     <button className="moto-btn w-100 py-3" style={{ fontSize: '1rem' }}>
                        VIEW LIVE INVENTORY UNIT <Database size={18} className="ms-2" />
                     </button>

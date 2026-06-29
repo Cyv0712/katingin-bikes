@@ -6,6 +6,7 @@ import SkeletonCard from '../components/SkeletonCard';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import Reveal from '../components/Reveal';
 import { Helmet } from 'react-helmet-async';
+import { createSlug } from '../config/slug';
 
 // --- Helper ---
 const parsePrice = (priceStr) => {
@@ -286,7 +287,7 @@ const Inventory = () => {
                           <div className="d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
                             <span className="text-accent fw-bold" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
                             <Link
-                              to={`/bike/${bike._id}`}
+                              to={`/bike/${createSlug(bike)}-${bike._id}`}
                               className="moto-btn"
                               style={{ padding: '8px 16px', fontSize: '0.8rem' }}
                             >
