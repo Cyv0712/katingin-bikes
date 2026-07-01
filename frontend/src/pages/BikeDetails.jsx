@@ -233,45 +233,64 @@ const BikeDetails = () => {
                 </div>
               </div>
 
-              {bike.isFinanceable !== false && (
-                <div className="mb-5 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
-                  <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
+              <div className="mb-5 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
+                {bike.isFinanceable ? (
+                  <>
+                    <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
 
-                  <div className="mb-4">
-                    <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
-                    <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
-                  </div>
-
-                  <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                  </Row>
-
-                  <div className="mt-4 pt-3 border-top d-flex align-items-start gap-2" style={{ borderColor: 'var(--border-color)', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                    <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="text-secondary">Looking for different terms or a custom downpayment? </span>
-                      <Link
-                        to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
-                        className="text-accent fw-bold"
-                        style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
-                      >
-                        Click Here to Inquire via our Financing Tab
-                      </Link>
+                    <div className="mb-4">
+                      <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
+                      <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
                     </div>
-                  </div>
-                </div>
-              )}
+
+                    <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
+                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
+                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                      </Col>
+                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
+                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                      </Col>
+                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
+                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                      </Col>
+                    </Row>
+
+                    <div className="mt-4 pt-3 border-top d-flex align-items-start gap-2" style={{ borderColor: 'var(--border-color)', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                      <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-secondary">Looking for different terms or a custom downpayment? </span>
+                        <Link
+                          to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
+                          className="text-accent fw-bold"
+                          style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
+                        >
+                          Click Here to Inquire via our Financing Tab
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="badge text-white mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>FINANCING OPTIONS</span>
+                    <div className="d-flex align-items-start gap-2" style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>
+                      <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-secondary">Interested in acquiring this unit through installment plans? </span>
+                        <Link
+                          to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
+                          className="text-accent fw-bold"
+                          style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
+                        >
+                          Click Here to Inquire via our Financing Tab
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
               <Link to="/contact" className="moto-btn w-100 mb-5 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
                 INQUIRE NOW
