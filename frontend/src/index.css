@@ -125,6 +125,21 @@ h6,
   color: var(--bg-void);
 }
 
+.inquiry-block-tooltip .tooltip-inner {
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  max-width: 260px;
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding: 8px 12px;
+}
+
+.inquiry-block-tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: var(--border-color);
+}
+
 /* ── Cards & Containers ── */
 .moto-card {
   background-color: var(--bg-card);

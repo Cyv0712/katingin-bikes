@@ -31,17 +31,22 @@ const Financing = () => {
     fetch(apiUrl('/api/bikes'))
       .then((res) => res.json())
       .then((data) => {
-        // Only active/available bikes
-        const activeList = data.filter(b => b.status === 'Available');
+        // Only active/available, non-reserved bikes
+        const activeList = data.filter(b => b.status === 'Available' && !b.isReserved);
         setAvailableBikes(activeList);
-        
+
+        const getBikeName = (bike) => `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
+
         // Setup initial pre-selected bike if provided in URL, else default to empty
         if (bikeNameParam) {
-          setFormData(prev => ({ ...prev, unitInterested: bikeNameParam }));
+          const matched = activeList.find(b => getBikeName(b) === bikeNameParam);
+          if (matched) {
+            setFormData(prev => ({ ...prev, unitInterested: bikeNameParam }));
+          } else if (activeList.length > 0) {
+            setFormData(prev => ({ ...prev, unitInterested: getBikeName(activeList[0]) }));
+          }
         } else if (activeList.length > 0) {
-          // Preselect the first bike in the list by default
-          const firstBikeName = `${activeList[0].brand} ${activeList[0].model} ${activeList[0].engineSize || ''}`.trim();
-          setFormData(prev => ({ ...prev, unitInterested: firstBikeName }));
+          setFormData(prev => ({ ...prev, unitInterested: getBikeName(activeList[0]) }));
         }
         setLoadingBikes(false);
       })

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
-import { Trash, Plus, Bike, Banknote, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search } from 'lucide-react';
+import { Trash, Plus, Bike, Banknote, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search, Bookmark } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 
 // Parse price strings like "₱450,000" → 450000
@@ -99,6 +99,7 @@ const EMPTY_FORM = {
   description: '',
   brand: '', model: '', engineSize: '', // These will be auto-populated
   isFinanceable: false,
+  isReserved: false,
   minDownpayment: '',
   monthly12: '',
   monthly24: '',
@@ -345,6 +346,7 @@ const Admin = () => {
       model: bike.model || '',
       engineSize: bike.engineSize || '',
       isFinanceable: bike.isFinanceable || false,
+      isReserved: bike.isReserved || false,
       minDownpayment: bike.minDownpayment ? String(bike.minDownpayment).replace(/[^0-9]/g, '') : '',
       monthly12: bike.monthly12 ? String(bike.monthly12).replace(/[^0-9]/g, '') : '',
       monthly24: bike.monthly24 ? String(bike.monthly24).replace(/[^0-9]/g, '') : '',
@@ -422,6 +424,27 @@ const Admin = () => {
     } catch (err) {
       console.error(err);
       alert('Failed to mark the unit as sold. Please try again.');
+    }
+  };
+
+  const handleToggleReserved = async (bike) => {
+    try {
+      const res = await fetch(apiUrl(`/api/bikes/${bike._id}/reserved`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isReserved: !bike.isReserved }),
+        credentials: 'include'
+      });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+      if (!res.ok) throw new Error('Failed to update reserved status');
+      await fetchBikes();
+      showSuccess(bike.isReserved ? 'Unit is no longer marked as reserved.' : 'Unit was successfully marked as reserved.');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update reserved status. Please try again.');
     }
   };
 
@@ -624,7 +647,12 @@ const Admin = () => {
                 filteredBikes.map((bike) => (
                   <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td className="py-3 ps-4">{bike.brand}</td>
-                    <td className="py-3">{bike.model}</td>
+                    <td className="py-3">
+                      {bike.model}
+                      {bike.isReserved && view === 'Available' && (
+                        <span className="badge bg-primary text-white ms-2" style={{ fontSize: '0.65rem', fontWeight: 700 }}>RESERVED</span>
+                      )}
+                    </td>
                     <td className="py-3">{bike.type ? bike.type.toUpperCase() : '—'}</td>
                     <td className="py-3">{bike.year || '—'}</td>
                     <td className={`py-3 fw-bold ${view === 'Available' ? 'text-accent' : 'text-muted'}`}>{bike.price}</td>
@@ -633,6 +661,14 @@ const Admin = () => {
                         <div className="d-flex justify-content-center gap-2">
                           <button className="p-1" style={{ background: 'none', border: 'none', color: '#60a5fa' }} onClick={() => handleEditClick(bike)} title="Edit Unit">
                             <Pencil size={18} />
+                          </button>
+                          <button
+                            className={`p-1 ${bike.isReserved ? 'text-warning' : ''}`}
+                            style={{ background: 'none', border: 'none', color: bike.isReserved ? undefined : 'rgba(255,255,255,0.5)' }}
+                            onClick={() => handleToggleReserved(bike)}
+                            title={bike.isReserved ? 'Unmark as Reserved' : 'Mark as Reserved'}
+                          >
+                            <Bookmark size={18} fill={bike.isReserved ? 'currentColor' : 'none'} />
                           </button>
                           <button className="p-1 text-accent" style={{ background: 'none', border: 'none' }} onClick={() => handleMarkAsSold(bike._id)} title="Mark as Sold">
                             <Check size={18} />
@@ -685,7 +721,7 @@ const Admin = () => {
                 </div>
                 {/* ── Rest of the Form ── */}
                 {Object.keys(formData).map((key) => {
-                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity', 'isFinanceable', 'minDownpayment', 'monthly12', 'monthly24', 'monthly36'].includes(key);
+                  const isHidden = ['brand', 'model', 'engineSize', 'combinedIdentity', 'isFinanceable', 'isReserved', 'minDownpayment', 'monthly12', 'monthly24', 'monthly36'].includes(key);
                   if (isHidden) return null;
 
                   const isRequired = ['type', 'year', 'mileage', 'price'].includes(key);
@@ -736,6 +772,17 @@ const Admin = () => {
                 {/* ── Financing Settings ── */}
                 <div className="col-md-12 mt-2">
                   <hr className="border-secondary my-3" />
+                  <Form.Group className="mb-2">
+                    <Form.Check 
+                      type="switch"
+                      id="isReserved-switch"
+                      label="Mark as Reserved"
+                      name="isReserved"
+                      checked={formData.isReserved}
+                      onChange={(e) => setFormData({ ...formData, isReserved: e.target.checked })}
+                      className="text-warning fw-bold"
+                    />
+                  </Form.Group>
                   <Form.Group className="mb-2">
                     <Form.Check 
                       type="switch"

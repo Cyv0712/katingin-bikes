@@ -17,6 +17,7 @@ const BikeSchema = new mongoose.Schema({
   fuelCapacity: { type: String },
   images: { type: [String], default: [] }, // Array to support multiple photos per bike
   status: { type: String, default: 'Available', enum: ['Available', 'Sold'] },
+  isReserved: { type: Boolean, default: false },
   isFinanceable: { type: Boolean, default: false },
   minDownpayment: { type: String },
   monthly12: { type: String },

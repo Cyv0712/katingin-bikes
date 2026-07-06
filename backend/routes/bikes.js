@@ -188,6 +188,29 @@ router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) 
   }
 });
 
+// Mark or unmark a bike as reserved
+router.patch('/:id/reserved', authMiddleware, async (req, res) => {
+  try {
+    const bike = await Bike.findById(req.params.id);
+    if (!bike) return res.status(404).json({ message: 'Bike not found' });
+
+    const isReserved = req.body.isReserved !== undefined
+      ? req.body.isReserved === true || req.body.isReserved === 'true'
+      : !bike.isReserved;
+
+    const updatedBike = await Bike.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isReserved } },
+      { new: true }
+    );
+
+    console.log(`[Inventory] Bike ${isReserved ? 'RESERVED' : 'UNRESERVED'}: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
+    res.json(updatedBike);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 // Mark a bike as sold — clears spec details and deletes associated images from disk / Cloudinary
 router.patch('/:id/sold', authMiddleware, async (req, res) => {
   try {

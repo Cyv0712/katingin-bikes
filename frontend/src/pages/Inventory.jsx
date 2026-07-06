@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Badge } from 'react-bootstrap';
 import { Route, Calendar, Filter, Info, Search, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
@@ -284,6 +284,14 @@ const Inventory = () => {
                       <div className="moto-card d-flex flex-column h-100">
                         <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
                           <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
+                          {bike.isReserved && (
+                            <Badge
+                              className="position-absolute top-0 start-0 m-2 bg-primary text-white"
+                              style={{ fontSize: '0.75rem', fontWeight: 700, zIndex: 1 }}
+                            >
+                              RESERVED
+                            </Badge>
+                          )}
                         </div>
                         <div className="p-4 d-flex flex-column flex-grow-1">
                           <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Badge, Carousel, Spinner } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, CircleCheck, Circle, Info } from 'lucide-react';
+import { Container, Row, Col, Badge, Carousel, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { ArrowLeft, Calendar, Route, CircleCheck, Circle } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 import { createSlug } from '../config/slug';
@@ -91,6 +91,19 @@ const BikeDetails = () => {
 
   const images = getImages(bike);
 
+  const financingUrl = `/financing?bikeName=${encodeURIComponent(
+    `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim()
+  )}`;
+
+  const inquiryBlockReason = bike.isReserved
+    ? 'This unit is reserved and cannot accept new inquiries.'
+    : !bike.isFinanceable
+      ? 'This unit is not available for financing.'
+      : null;
+
+  const canInquireFinancing = !inquiryBlockReason;
+  const showFinancingCard = bike.isFinanceable && !bike.isReserved;
+
   const cleanPrice = parseFloat(String(bike.price).replace(/[^0-9.]/g, '')) || 0;
   const firstImage = images.length > 0 ? getImageUrl(images[0]) : '';
   const absoluteImage = firstImage.startsWith('http') ? firstImage : `https://katinginbikes.com${firstImage}`;
@@ -137,7 +150,7 @@ const BikeDetails = () => {
           {/* ── Image Carousel ── */}
           <Col lg={7}>
             <div className="sticky-lg-top-120">
-              <div className="moto-card overflow-hidden">
+              <div className="moto-card moto-card-static overflow-hidden">
                 {images.length > 1 ? (
                   <Carousel interval={null}>
                     {images.map((img, idx) => (
@@ -195,10 +208,12 @@ const BikeDetails = () => {
 
           {/* ── Bike Info ── */}
           <Col lg={5}>
-            <div className="moto-card p-4 border-0" style={{ background: 'transparent' }}>
+            <div className="moto-card moto-card-static p-4 border-0" style={{ background: 'transparent' }}>
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {withUnit(bike.engineSize, 'cc')}</span>
-                <Badge className="bg-accent text-dark" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE</Badge>
+                <Badge className={bike.isReserved ? 'bg-primary text-white' : 'bg-accent text-dark'} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>
+                  {bike.isReserved ? 'RESERVED' : 'AVAILABLE'}
+                </Badge>
               </div>
 
               <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
@@ -233,68 +248,60 @@ const BikeDetails = () => {
                 </div>
               </div>
 
-              <div className="mb-5 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
-                {bike.isFinanceable ? (
-                  <>
-                    <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
+              {showFinancingCard && (
+                <div className="mb-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
+                  <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
 
-                    <div className="mb-4">
-                      <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
-                      <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
-                    </div>
+                  <div className="mb-4">
+                    <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
+                    <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
+                  </div>
 
-                    <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
-                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
-                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                      </Col>
-                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
-                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                      </Col>
-                      <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                        <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
-                        <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                      </Col>
-                    </Row>
+                  <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
+                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                    </Col>
+                  </Row>
+                </div>
+              )}
 
-                    <div className="mt-4 pt-3 border-top d-flex align-items-start gap-2" style={{ borderColor: 'var(--border-color)', fontSize: '0.85rem', lineHeight: '1.5' }}>
-                      <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
-                      <div>
-                        <span className="text-secondary">Looking for different terms or a custom downpayment? </span>
-                        <Link
-                          to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
-                          className="text-accent fw-bold"
-                          style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
-                        >
-                          Click Here to Inquire via our Financing Tab
-                        </Link>
-                      </div>
-                    </div>
-                  </>
+              <div className="mb-5">
+                {canInquireFinancing ? (
+                  <Link to={financingUrl} className="moto-btn w-100 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
+                    INQUIRE FOR FINANCING
+                  </Link>
                 ) : (
-                  <>
-                    <span className="badge text-white mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>FINANCING OPTIONS</span>
-                    <div className="d-flex align-items-start gap-2" style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>
-                      <Info size={18} className="text-accent flex-shrink-0 mt-0.5" />
-                      <div>
-                        <span className="text-secondary">Interested in acquiring this unit through installment plans? </span>
-                        <Link
-                          to={`/financing?bikeName=${encodeURIComponent(`${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim())}`}
-                          className="text-accent fw-bold"
-                          style={{ textDecoration: 'underline', display: 'inline-block', marginTop: '2px' }}
-                        >
-                          Click Here to Inquire via our Financing Tab
-                        </Link>
-                      </div>
-                    </div>
-                  </>
+                  <OverlayTrigger
+                    trigger={['hover', 'focus', 'click']}
+                    placement="top"
+                    overlay={
+                      <Tooltip id="inquiry-block-tooltip" className="inquiry-block-tooltip">
+                        {inquiryBlockReason}
+                      </Tooltip>
+                    }
+                  >
+                    <span className="d-inline-block w-100" tabIndex={0} style={{ cursor: 'not-allowed' }}>
+                      <button
+                        type="button"
+                        className="moto-btn w-100 py-3"
+                        disabled
+                        style={{ fontSize: '1rem', opacity: 0.5, pointerEvents: 'none' }}
+                      >
+                        INQUIRE FOR FINANCING
+                      </button>
+                    </span>
+                  </OverlayTrigger>
                 )}
               </div>
-
-              <Link to="/contact" className="moto-btn w-100 mb-5 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
-                INQUIRE NOW
-              </Link>
 
               {/* Overview */}
               <div className="mb-5">
