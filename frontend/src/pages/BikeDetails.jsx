@@ -6,6 +6,12 @@ import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 import { createSlug } from '../config/slug';
 
+const hasFinancingValue = (value) => {
+  if (!value) return false;
+  const cleaned = String(value).replace(/[^0-9.]/g, '');
+  return cleaned.length > 0 && parseFloat(cleaned) > 0;
+};
+
 const BikeDetails = () => {
   const { slugAndId } = useParams();
   const id = slugAndId ? slugAndId.split('-').pop() : '';
@@ -97,12 +103,17 @@ const BikeDetails = () => {
 
   const inquiryBlockReason = bike.isReserved
     ? 'This unit is reserved and cannot accept new inquiries.'
-    : !bike.isFinanceable
+    : bike.isFinanceable === false
       ? 'This unit is not available for financing.'
       : null;
 
   const canInquireFinancing = !inquiryBlockReason;
-  const showFinancingCard = bike.isFinanceable && !bike.isReserved;
+  const showFinancingCard = bike.isFinanceable !== false && !bike.isReserved;
+  const showDownpayment = hasFinancingValue(bike.minDownpayment);
+  const showMonthly12 = hasFinancingValue(bike.monthly12);
+  const showMonthly24 = hasFinancingValue(bike.monthly24);
+  const showMonthly36 = hasFinancingValue(bike.monthly36);
+  const showMonthlyTerms = showMonthly12 || showMonthly24 || showMonthly36;
 
   const cleanPrice = parseFloat(String(bike.price).replace(/[^0-9.]/g, '')) || 0;
   const firstImage = images.length > 0 ? getImageUrl(images[0]) : '';
@@ -252,25 +263,35 @@ const BikeDetails = () => {
                 <div className="mb-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
                   <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
 
-                  <div className="mb-4">
-                    <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
-                    <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment || "120,000")}</h3>
-                  </div>
+                  {showDownpayment && (
+                    <div className={showMonthlyTerms ? 'mb-4' : 'mb-0'}>
+                      <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
+                      <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment)}</h3>
+                    </div>
+                  )}
 
-                  <Row className="g-3 pt-3 border-top" style={{ borderColor: 'var(--border-color)' }}>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12 || "35,000")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24 || "19,500")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                    <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                      <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
-                      <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36 || "14,200")}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
-                    </Col>
-                  </Row>
+                  {showMonthlyTerms && (
+                    <Row className={`g-3 ${showDownpayment ? 'pt-3 border-top' : ''}`} style={{ borderColor: 'var(--border-color)' }}>
+                      {showMonthly12 && (
+                        <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                        </Col>
+                      )}
+                      {showMonthly24 && (
+                        <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                        </Col>
+                      )}
+                      {showMonthly36 && (
+                        <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                        </Col>
+                      )}
+                    </Row>
+                  )}
                 </div>
               )}
 

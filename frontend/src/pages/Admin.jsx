@@ -98,7 +98,7 @@ const EMPTY_FORM = {
   type: '', year: '', mileage: '', price: '',
   description: '',
   brand: '', model: '', engineSize: '', // These will be auto-populated
-  isFinanceable: false,
+  isFinanceable: true,
   isReserved: false,
   minDownpayment: '',
   monthly12: '',
@@ -345,7 +345,7 @@ const Admin = () => {
       brand: bike.brand || '',
       model: bike.model || '',
       engineSize: bike.engineSize || '',
-      isFinanceable: bike.isFinanceable || false,
+      isFinanceable: bike.isFinanceable ?? true,
       isReserved: bike.isReserved || false,
       minDownpayment: bike.minDownpayment ? String(bike.minDownpayment).replace(/[^0-9]/g, '') : '',
       monthly12: bike.monthly12 ? String(bike.monthly12).replace(/[^0-9]/g, '') : '',
@@ -801,7 +801,7 @@ const Admin = () => {
                     <div className="col-md-6">
                       <Form.Group>
                         <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          Minimum Downpayment <span className="text-accent">*</span>
+                          Minimum Downpayment
                         </label>
                         <Form.Control
                           type="text"
@@ -809,7 +809,6 @@ const Admin = () => {
                           className="moto-input"
                           value={formData.minDownpayment}
                           onChange={handleInputChange}
-                          required
                           placeholder="e.g. 150000 (just the number)"
                         />
                       </Form.Group>
@@ -817,7 +816,7 @@ const Admin = () => {
                     <div className="col-md-6">
                       <Form.Group>
                         <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          12 Months Monthly Payment <span className="text-accent">*</span>
+                          12 Months Monthly Payment
                         </label>
                         <Form.Control
                           type="text"
@@ -825,7 +824,6 @@ const Admin = () => {
                           className="moto-input"
                           value={formData.monthly12}
                           onChange={handleInputChange}
-                          required
                           placeholder="e.g. 45000 (just the number)"
                         />
                       </Form.Group>
@@ -833,7 +831,7 @@ const Admin = () => {
                     <div className="col-md-6">
                       <Form.Group>
                         <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          24 Months Monthly Payment <span className="text-accent">*</span>
+                          24 Months Monthly Payment
                         </label>
                         <Form.Control
                           type="text"
@@ -841,7 +839,6 @@ const Admin = () => {
                           className="moto-input"
                           value={formData.monthly24}
                           onChange={handleInputChange}
-                          required
                           placeholder="e.g. 25000 (just the number)"
                         />
                       </Form.Group>
@@ -849,7 +846,7 @@ const Admin = () => {
                     <div className="col-md-6">
                       <Form.Group>
                         <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          36 Months Monthly Payment <span className="text-accent">*</span>
+                          36 Months Monthly Payment
                         </label>
                         <Form.Control
                           type="text"
@@ -857,7 +854,6 @@ const Admin = () => {
                           className="moto-input"
                           value={formData.monthly36}
                           onChange={handleInputChange}
-                          required
                           placeholder="e.g. 18000 (just the number)"
                         />
                       </Form.Group>
