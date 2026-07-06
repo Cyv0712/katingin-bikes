@@ -4,6 +4,7 @@ import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
 import { ArrowLeft, Check, Database, Zap } from 'lucide-react';
 import { showcaseBikes } from '../data/showcase';
 import { apiUrl } from '../config/api';
+import { findShowcaseInventoryMatch } from '../utils/showcaseStockMatch';
 import { Helmet } from 'react-helmet-async';
 import { createSlug } from '../config/slug';
 
@@ -18,46 +19,7 @@ const ShowcaseDetails = () => {
       fetch(apiUrl('/api/bikes'))
         .then(res => res.json())
         .then(data => {
-          const matchedBike = data.find(liveBike => {
-            // Check availability status first
-            if (liveBike.status && liveBike.status !== 'Available') return false;
-
-            const targetBrand = bike.brand.toLowerCase().trim();
-            const liveBrand = (liveBike.brand || '').toLowerCase().trim();
-            if (liveBrand !== targetBrand) return false;
-
-            const liveModel = (liveBike.model || '').toLowerCase();
-            const liveEngine = (liveBike.engineSize || '').toLowerCase().replace('cc', '').trim();
-            const combinedLive = `${liveModel} ${liveEngine}`.replace(/[^\w\s]/g, '').trim();
-
-            // Custom-tailored matches for the showcase collection:
-            if (bike.slug === 'honda-africa-twin') {
-              return combinedLive.includes('africa') && combinedLive.includes('twin');
-            }
-            if (bike.slug === 'yamaha-tracer-900') {
-              return combinedLive.includes('tracer') && (combinedLive.includes('900') || combinedLive.includes('gt'));
-            }
-            if (bike.slug === 'kawasaki-versys-650') {
-              return combinedLive.includes('versys') && (combinedLive.includes('650') || combinedLive.includes('600'));
-            }
-            if (bike.slug === 'honda-cb650r') {
-              return combinedLive.includes('cb650r') || (combinedLive.includes('cb') && combinedLive.includes('650'));
-            }
-            if (bike.slug === 'ducati-monster-937') {
-              return combinedLive.includes('monster') && (combinedLive.includes('937') || combinedLive.includes('900') || combinedLive.includes('821') || combinedLive.includes('797'));
-            }
-            if (bike.slug === 'bmw-gs-rallye') {
-              return combinedLive.includes('gs') && (combinedLive.includes('rallye') || combinedLive.includes('1250') || combinedLive.includes('1200'));
-            }
-
-            // Fallback matching
-            const targetWords = bike.model.toLowerCase()
-              .replace(/[^\w\s]/g, '')
-              .split(/\s+/)
-              .filter(w => w && w !== 'cc');
-            
-            return targetWords.every(word => combinedLive.includes(word));
-          });
+          const matchedBike = findShowcaseInventoryMatch(bike, data);
 
           if (matchedBike) {
             setInStock(true);
