@@ -7,3 +7,4 @@ node_modules/
 # Custom ignores
 **/uploads
 **/package-lock.json
+**/cache

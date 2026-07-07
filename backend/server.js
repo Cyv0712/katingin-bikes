@@ -93,8 +93,14 @@ app.listen(PORT, host, () => {
   console.log(`Server listening on http://${host}:${PORT}`);
   mongoose
     .connect(MONGO_URI)
-    .then(() => {
+    .then(async () => {
       console.log('Connected to MongoDB');
+      try {
+        const { runStartupMigrations } = require('./utils/runStartupMigrations');
+        await runStartupMigrations();
+      } catch (err) {
+        console.error('[Startup] Migration error:', err);
+      }
       // Delay cache warmer to prevent CPU/memory spikes during port-binding/health-checks
       console.log('[Startup] Delaying cache warmer by 30 seconds...');
       setTimeout(() => {
