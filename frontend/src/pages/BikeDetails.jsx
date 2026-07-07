@@ -108,12 +108,13 @@ const BikeDetails = () => {
       : null;
 
   const canInquireFinancing = !inquiryBlockReason;
-  const showFinancingCard = bike.isFinanceable !== false && !bike.isReserved;
   const showDownpayment = hasFinancingValue(bike.minDownpayment);
   const showMonthly12 = hasFinancingValue(bike.monthly12);
   const showMonthly24 = hasFinancingValue(bike.monthly24);
   const showMonthly36 = hasFinancingValue(bike.monthly36);
   const showMonthlyTerms = showMonthly12 || showMonthly24 || showMonthly36;
+  const showFinancingCard =
+    bike.isFinanceable !== false && !bike.isReserved && (showDownpayment || showMonthlyTerms);
 
   const cleanPrice = parseFloat(String(bike.price).replace(/[^0-9.]/g, '')) || 0;
   const firstImage = images.length > 0 ? getImageUrl(images[0]) : '';
@@ -261,8 +262,6 @@ const BikeDetails = () => {
 
               {showFinancingCard && (
                 <div className="mb-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
-                  <span className="badge bg-accent text-dark mb-3" style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 8px' }}>FINANCING AVAILABLE</span>
-
                   {showDownpayment && (
                     <div className={showMonthlyTerms ? 'mb-4' : 'mb-0'}>
                       <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
