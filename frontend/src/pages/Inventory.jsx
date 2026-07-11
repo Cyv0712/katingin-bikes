@@ -205,10 +205,10 @@ const Inventory = () => {
   return (
     <div className="inventory-page py-5" style={{ minHeight: '100vh' }}>
       <Helmet>
-        <title>Pre-Owned Bigbikes Philippines | Full Inventory | Katingin Bikes</title>
-        <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring bigbikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
-        <meta property="og:title" content="Pre-Owned Bigbikes Philippines | Full Inventory | Katingin Bikes" />
-        <meta property="og:description" content="Browse our wide collection of quality, pre-owned bigbikes and premium motorcycles in Metro Manila, Philippines." />
+        <title>Pre-Owned Big Bikes Philippines | Full Inventory | Katingin Bikes</title>
+        <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring big bikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
+        <meta property="og:title" content="Pre-Owned Big Bikes Philippines | Full Inventory | Katingin Bikes" />
+        <meta property="og:description" content="Browse our wide collection of quality, pre-owned big bikes and premium motorcycles in Metro Manila, Philippines." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
       </Helmet>
@@ -217,7 +217,7 @@ const Inventory = () => {
         <Reveal>
           <div className="inventory-page-header mb-5 text-center">
             <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED BIGBIKES</h1>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED BIG BIKES</h1>
           </div>
         </Reveal>
 
