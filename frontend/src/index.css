@@ -43,13 +43,17 @@ body {
   /* Firefox */
 }
 
+html {
+  /* clip avoids creating a scroll container (hidden breaks position:sticky) */
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--bg-void);
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
   position: relative;
 }
 
@@ -265,7 +269,6 @@ h6,
 .inventory-filters.moto-card {
   height: auto;
   overflow: visible;
-  align-self: flex-start;
   width: 100%;
 }
 
@@ -615,21 +618,19 @@ section {
 }
 
 /* ── Page Transitions ── */
+/* Opacity only — a lingering transform (even translateY(0)) breaks position:sticky */
 @keyframes pageFadeIn {
   0% {
     opacity: 0;
-    transform: translateY(12px);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .page-fade-in {
   animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -745,12 +746,27 @@ section {
     position: sticky !important;
     top: 100px !important;
     z-index: 10;
+    align-self: flex-start;
   }
 
   .sticky-lg-top-120 {
     position: sticky !important;
     top: 120px !important;
     z-index: 10;
+    align-self: flex-start;
+  }
+
+  /* Inventory filter: sticky while scrolling the bike grid */
+  .inventory-sidebar-col {
+    align-self: stretch;
+  }
+
+  .inventory-filters.sticky-lg-top-100 {
+    position: sticky !important;
+    top: 100px !important;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    overflow-x: visible;
   }
 }
 

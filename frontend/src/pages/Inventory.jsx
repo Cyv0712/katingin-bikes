@@ -235,7 +235,7 @@ const Inventory = () => {
 
         <Row className="g-3 g-xl-4">
           {/* ── Sidebar Filters ── */}
-          <Col lg={3} xl={2} className="mb-4 align-self-lg-start">
+          <Col lg={3} xl={2} className="mb-4 inventory-sidebar-col">
               <div className="moto-card inventory-filters p-4 sticky-lg-top-100">
                 {/* Mobile: collapsible toggle */}
                 <button
