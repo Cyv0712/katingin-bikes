@@ -7,7 +7,8 @@
   --bg-card: #121212;
   --bg-muted: #1a1a1a;
   --text-primary: #f0f0f0;
-  --text-muted: #949494; /* Brighter for contrast compliance */
+  --text-muted: #949494;
+  /* Brighter for contrast compliance */
   --accent-primary: #D4AF37;
   /* Katingin Gold */
   --accent-hover: #FFD700;
@@ -17,10 +18,13 @@
 
 /* Accessibility Contrast Overrides */
 .text-secondary {
-  color: #b0b0b0 !important; /* > 5.5:1 ratio on #080808 (Passes AA/AAA) */
+  color: #b0b0b0 !important;
+  /* > 5.5:1 ratio on #080808 (Passes AA/AAA) */
 }
+
 .text-muted {
-  color: var(--text-muted) !important; /* > 4.5:1 ratio on #080808 (Passes AA) */
+  color: var(--text-muted) !important;
+  /* > 4.5:1 ratio on #080808 (Passes AA) */
 }
 
 
@@ -31,9 +35,12 @@
 }
 
 /* ── Base ── */
-html, body {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+html,
+body {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 body {
@@ -161,6 +168,97 @@ h6,
   transform: none !important;
   border-color: var(--border-color) !important;
   box-shadow: none !important;
+}
+
+/* ── Inventory page layout ── */
+.inventory-container {
+  max-width: 1680px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 1200px) {
+  .inventory-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ── Inventory cards (desktop base; mobile overrides below) ── */
+.inventory-card-img {
+  height: 260px;
+  overflow: hidden;
+  position: relative;
+}
+
+.inventory-card-img .bike-img {
+  object-fit: cover;
+  object-position: center 45%;
+}
+
+.inventory-card-body {
+  min-width: 0;
+}
+
+.inventory-card-title {
+  word-break: break-word;
+}
+
+.inventory-card-mileage {
+  min-width: 0;
+  flex: 1;
+}
+
+.inventory-card-footer {
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.inventory-card-btn {
+  white-space: nowrap;
+}
+
+/* Desktop 4-col: stack footer so price + button never collide */
+@media (min-width: 1200px) {
+  .inventory-card-img {
+    height: 240px;
+  }
+
+  .inventory-card-body {
+    padding: 1rem !important;
+  }
+
+  .inventory-card-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .inventory-card-meta {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .inventory-card-footer {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.6rem;
+    padding-top: 0.75rem !important;
+  }
+
+  .inventory-card-price {
+    font-size: 1.15rem !important;
+  }
+
+  .inventory-card-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+.inventory-filters-toggle {
+  border: 1px solid var(--border-color);
 }
 
 /* ── Social Links ── */
@@ -452,10 +550,21 @@ section {
 }
 
 /* Stagger delays for grids */
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-1 {
+  transition-delay: 0.1s;
+}
+
+.reveal-delay-2 {
+  transition-delay: 0.2s;
+}
+
+.reveal-delay-3 {
+  transition-delay: 0.3s;
+}
+
+.reveal-delay-4 {
+  transition-delay: 0.4s;
+}
 
 /* ── Custom Carousel Controls ── */
 .carousel-control-prev,
@@ -488,7 +597,8 @@ section {
 
 .carousel-control-prev:hover .carousel-control-prev-icon,
 .carousel-control-next:hover .carousel-control-next-icon {
-  filter: brightness(0); /* Make arrows dark when background is gold */
+  filter: brightness(0);
+  /* Make arrows dark when background is gold */
 }
 
 /* ── Page Transitions ── */
@@ -497,6 +607,7 @@ section {
     opacity: 0;
     transform: translateY(12px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -527,7 +638,8 @@ section {
 .splash-img-wrap {
   position: absolute;
   overflow: hidden;
-  opacity: 0; /* GSAP fades it in */
+  opacity: 0;
+  /* GSAP fades it in */
   /* Keep image centered as wrapper expands */
   display: flex;
   align-items: center;
@@ -556,7 +668,8 @@ section {
   inset: 0;
   background: radial-gradient(ellipse at center, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.8) 100%);
   z-index: 1;
-  opacity: 0; /* GSAP fades in */
+  opacity: 0;
+  /* GSAP fades in */
 }
 
 .splash-content {
@@ -572,7 +685,8 @@ section {
   height: auto;
   border-radius: 8px;
   margin-bottom: 18px;
-  opacity: 0; /* Hide initially to prevent FOUC/glitch before GSAP initializes */
+  opacity: 0;
+  /* Hide initially to prevent FOUC/glitch before GSAP initializes */
 }
 
 .splash-title {
@@ -589,7 +703,8 @@ section {
   font-weight: 900;
   letter-spacing: 4px;
   line-height: 1.1;
-  opacity: 0; /* Hide initially to prevent FOUC/glitch before GSAP initializes */
+  opacity: 0;
+  /* Hide initially to prevent FOUC/glitch before GSAP initializes */
 }
 
 .splash-title-main {
@@ -618,6 +733,7 @@ section {
     top: 100px !important;
     z-index: 10;
   }
+
   .sticky-lg-top-120 {
     position: sticky !important;
     top: 120px !important;
@@ -718,9 +834,101 @@ section {
     position: static !important;
   }
 
+  /* Inventory page: tighter chrome so more cards enter the viewport */
+  .inventory-page-header {
+    margin-bottom: 1.25rem !important;
+  }
+
+  .inventory-disclaimer {
+    margin-bottom: 1.25rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .inventory-disclaimer .fs-4 {
+    font-size: 1.1rem !important;
+  }
+
+  .inventory-disclaimer .text-secondary {
+    font-size: 0.85rem !important;
+  }
+
+  .inventory-filters {
+    padding: 0.75rem !important;
+  }
+
+  /* Inventory cards: 2-col grid — compact chrome for half-width cells */
+  .inventory-card-body {
+    padding: 0.5rem 0.6rem !important;
+  }
+
+  .inventory-card-type {
+    font-size: 0.65rem !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .inventory-card-title {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.35rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .inventory-card-meta {
+    margin-bottom: 0.35rem !important;
+    gap: 0.4rem !important;
+    flex-wrap: wrap;
+  }
+
+  .inventory-card-meta .text-secondary {
+    font-size: 0.7rem !important;
+  }
+
+  .inventory-card-meta svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .inventory-card-footer {
+    padding-top: 0.4rem !important;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .inventory-card-price {
+    font-size: 0.9rem !important;
+  }
+
+  .inventory-card-btn {
+    padding: 5px 8px !important;
+    font-size: 0.65rem !important;
+  }
+
+  /* Loading skeletons match compact 2-col inventory cards */
+  .skeleton-img {
+    height: 150px !important;
+  }
+
+  .skeleton-body {
+    padding: 8px 10px !important;
+  }
+
+  .skeleton-line {
+    margin-bottom: 6px !important;
+    height: 10px !important;
+  }
+
+  .skeleton-divider {
+    margin: 6px 0 !important;
+  }
+
   /* FeaturedBikes carousel image height */
   .bike-img-wrapper {
     height: 260px !important;
+  }
+
+  /* Inventory overrides FeaturedBikes global image height */
+  .inventory-card .bike-img-wrapper,
+  .inventory-card-img {
+    height: 150px !important;
   }
 
   /* About page quote border */
@@ -769,6 +977,11 @@ section {
     height: 320px !important;
   }
 
+  .inventory-card .bike-img-wrapper,
+  .inventory-card-img {
+    height: 200px !important;
+  }
+
   .moto-card:hover {
     transform: translateY(-2px);
   }
@@ -801,7 +1014,8 @@ section {
   height: 100%;
   object-fit: cover;
   filter: blur(15px) brightness(0.4);
-  transform: scale(1.08); /* Avoid white edges from blur */
+  transform: scale(1.08);
+  /* Avoid white edges from blur */
   pointer-events: none;
   z-index: 1;
   transition: opacity 0.3s ease;
@@ -895,6 +1109,7 @@ section {
   .featured-carousel-card {
     padding: 24px;
   }
+
   .featured-gallery-main {
     height: 280px;
   }

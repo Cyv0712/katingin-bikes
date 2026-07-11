@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Col, Badge } from 'react-bootstrap';
-import { Route, Calendar, Filter, Info, Search, X } from 'lucide-react';
+import { Container, Row, Col, Badge, Collapse } from 'react-bootstrap';
+import { Route, Calendar, Filter, Info, Search, X, ChevronDown } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
@@ -37,6 +37,7 @@ const getImageUrl = (bike) => {
 const Inventory = () => {
   const [bikesData, setBikesData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const filters = useMemo(() => ({
@@ -132,8 +133,77 @@ const Inventory = () => {
     filters.priceMax && { key: 'priceMax', label: `Max ₱${Number(filters.priceMax).toLocaleString()}` },
   ].filter(Boolean), [filters]);
 
+  const filterFields = (
+    <>
+      {/* Search */}
+      <div className="mb-4">
+        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>SEARCH</label>
+        <div className="position-relative">
+          <Search size={14} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            type="text"
+            className="form-control moto-input moto-input-with-icon w-100"
+            placeholder="Brand, model..."
+            value={filters.search}
+            onChange={(e) => setFilter('search', e.target.value)}
+          />
+          {filters.search && (
+            <X size={14} className="text-secondary position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} onClick={() => setFilter('search', '')} />
+          )}
+        </div>
+      </div>
+
+      {/* Brand */}
+      <div className="mb-4">
+        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>BRAND</label>
+        <select className="form-select moto-input" value={filters.brand} onChange={(e) => setFilter('brand', e.target.value)}>
+          {brands.map((b) => <option key={b} value={b}>{b}</option>)}
+        </select>
+      </div>
+
+      {/* Type */}
+      <div className="mb-4">
+        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>TYPE</label>
+        <select className="form-select moto-input" value={filters.type} onChange={(e) => setFilter('type', e.target.value)}>
+          {types.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </div>
+
+      {/* Price Range */}
+      <div className="mb-4">
+        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
+          PRICE RANGE (₱)
+        </label>
+        <div className="d-flex gap-2">
+          <input
+            type="number"
+            className="form-control moto-input"
+            placeholder="MIN"
+            value={filters.priceMin}
+            onChange={(e) => setFilter('priceMin', e.target.value)}
+          />
+          <input
+            type="number"
+            className="form-control moto-input"
+            placeholder="MAX"
+            value={filters.priceMax}
+            onChange={(e) => setFilter('priceMax', e.target.value)}
+          />
+        </div>
+      </div>
+
+      <button
+        className="moto-btn moto-btn-outline w-100 mt-2"
+        onClick={clearAllFilters}
+        style={{ fontSize: '0.8rem', padding: '10px' }}
+      >
+        RESET FILTERS
+      </button>
+    </>
+  );
+
   return (
-    <div className="py-5" style={{ minHeight: '100vh' }}>
+    <div className="inventory-page py-5" style={{ minHeight: '100vh' }}>
       <Helmet>
         <title>Pre-Owned Bigbikes Philippines | Full Inventory | Katingin Bikes</title>
         <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring bigbikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
@@ -142,10 +212,10 @@ const Inventory = () => {
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
       </Helmet>
-      <Container style={{ paddingTop: '80px' }}>
+      <Container fluid className="inventory-container" style={{ paddingTop: '80px' }}>
         {/* Page Header */}
         <Reveal>
-          <div className="mb-5 text-center">
+          <div className="inventory-page-header mb-5 text-center">
             <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
             <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED BIGBIKES</h1>
           </div>
@@ -153,7 +223,7 @@ const Inventory = () => {
 
         {/* Disclaimer */}
         <Reveal delay={1}>
-          <div className="mb-5 p-4" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
+          <div className="inventory-disclaimer mb-5 p-4" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
             <div className="d-flex align-items-center">
               <Info className="text-accent fs-4 me-3 flex-shrink-0" />
               <div className="text-secondary" style={{ fontSize: '0.95rem' }}>
@@ -163,85 +233,59 @@ const Inventory = () => {
           </div>
         </Reveal>
 
-        <Row>
+        <Row className="g-3 g-xl-4">
           {/* ── Sidebar Filters ── */}
-          <Col lg={3} className="mb-4">
-            <Reveal delay={2}>
-              <div className="moto-card p-4 position-sticky" style={{ top: '100px' }}>
-                <h5 className="mb-4 d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
+          <Col lg={3} xl={2} className="mb-4">
+              <div className="moto-card inventory-filters p-4 sticky-lg-top-100">
+                {/* Mobile: collapsible toggle */}
+                <button
+                  type="button"
+                  className="inventory-filters-toggle moto-btn moto-btn-outline w-100 d-lg-none d-flex align-items-center justify-content-between"
+                  onClick={() => setFiltersOpen((open) => !open)}
+                  aria-expanded={filtersOpen}
+                  style={{ fontSize: '0.85rem', padding: '10px 14px' }}
+                >
+                  <span className="d-flex align-items-center gap-2">
+                    <Filter size={16} className="text-accent" />
+                    FILTERS
+                    {activeChips.length > 0 && (
+                      <span className="badge bg-primary text-white" style={{ fontSize: '0.7rem' }}>
+                        {activeChips.length}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    style={{
+                      transition: 'transform 0.2s ease',
+                      transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    }}
+                  />
+                </button>
+
+                {/* Desktop: always-visible heading */}
+                <h5 className="mb-4 d-none d-lg-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
                   <Filter size={18} className="text-accent" /> FILTERS
                 </h5>
 
-                {/* Search */}
-                <div className="mb-4">
-                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>SEARCH</label>
-                  <div className="position-relative">
-                    <Search size={14} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input
-                      type="text"
-                      className="form-control moto-input moto-input-with-icon w-100"
-                      placeholder="Brand, model..."
-                      value={filters.search}
-                      onChange={(e) => setFilter('search', e.target.value)}
-                    />
-                    {filters.search && (
-                      <X size={14} className="text-secondary position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} onClick={() => setFilter('search', '')} />
-                    )}
-                  </div>
+                {/* Mobile: collapsible fields (default closed) */}
+                <div className="d-lg-none">
+                  <Collapse in={filtersOpen}>
+                    <div className="inventory-filters-body pt-3">
+                      {filterFields}
+                    </div>
+                  </Collapse>
                 </div>
 
-                {/* Brand */}
-                <div className="mb-4">
-                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>BRAND</label>
-                  <select className="form-select moto-input" value={filters.brand} onChange={(e) => setFilter('brand', e.target.value)}>
-                    {brands.map((b) => <option key={b} value={b}>{b}</option>)}
-                  </select>
+                {/* Desktop: always-visible fields */}
+                <div className="d-none d-lg-block">
+                  {filterFields}
                 </div>
-
-                {/* Type */}
-                <div className="mb-4">
-                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>TYPE</label>
-                  <select className="form-select moto-input" value={filters.type} onChange={(e) => setFilter('type', e.target.value)}>
-                    {types.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                </div>
-
-                {/* Price Range */}
-                <div className="mb-4">
-                  <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                    PRICE RANGE (₱)
-                  </label>
-                  <div className="d-flex gap-2">
-                    <input
-                      type="number"
-                      className="form-control moto-input"
-                      placeholder="MIN"
-                      value={filters.priceMin}
-                      onChange={(e) => setFilter('priceMin', e.target.value)}
-                    />
-                    <input
-                      type="number"
-                      className="form-control moto-input"
-                      placeholder="MAX"
-                      value={filters.priceMax}
-                      onChange={(e) => setFilter('priceMax', e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  className="moto-btn moto-btn-outline w-100 mt-2"
-                  onClick={clearAllFilters}
-                  style={{ fontSize: '0.8rem', padding: '10px' }}
-                >
-                  RESET FILTERS
-                </button>
               </div>
-            </Reveal>
           </Col>
 
           {/* ── Bike Grid ── */}
-          <Col lg={9}>
+          <Col lg={9} xl={10}>
             {/* Results count + active chips */}
             {!loading && (
               <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
@@ -270,20 +314,20 @@ const Inventory = () => {
               </div>
             )}
 
-            <Row className="g-4">
+            <Row className="g-2 g-md-3">
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
-                  <Col xl={4} md={6} key={i}>
+                  <Col xs={6} xl={3} key={i}>
                     <SkeletonCard />
                   </Col>
                 ))
               ) : filteredBikes.length > 0 ? (
                 filteredBikes.map((bike) => (
-                  <Col xl={4} md={6} key={bike._id}>
+                  <Col xs={6} xl={3} key={bike._id}>
                     <Reveal className="h-100">
-                      <div className="moto-card d-flex flex-column h-100">
-                        <div className="bike-img-wrapper" style={{ height: '300px', overflow: 'hidden', position: 'relative' }}>
-                          <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" style={{ objectFit: 'cover' }} />
+                      <div className="moto-card inventory-card d-flex flex-column h-100">
+                        <div className="bike-img-wrapper inventory-card-img">
+                          <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" />
                           {bike.isReserved && (
                             <Badge
                               className="position-absolute top-0 start-0 m-2 bg-primary text-white"
@@ -293,28 +337,28 @@ const Inventory = () => {
                             </Badge>
                           )}
                         </div>
-                        <div className="p-4 d-flex flex-column flex-grow-1">
-                          <span className="text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
-                          <h4 className="moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
+                        <div className="inventory-card-body p-4 d-flex flex-column flex-grow-1">
+                          <span className="inventory-card-type text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
+                          <h4 className="inventory-card-title moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
                             <span className="text-accent">{bike.brand}</span> {bike.model}
                           </h4>
 
-                          <div className="d-flex gap-3 mb-4">
+                          <div className="inventory-card-meta d-flex gap-3 mb-4">
                             <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
-                              <Calendar size={14} className="text-accent" />
+                              <Calendar size={14} className="text-accent flex-shrink-0" />
                               <span>{bike.year}</span>
                             </div>
-                            <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
-                              <Route size={14} className="text-accent" />
-                              <span>{withUnit(bike.mileage, 'km')}</span>
+                            <div className="inventory-card-mileage d-flex align-items-center gap-1 text-secondary min-w-0" style={{ fontSize: '0.9rem' }}>
+                              <Route size={14} className="text-accent flex-shrink-0" />
+                              <span className="text-truncate">{withUnit(bike.mileage, 'km')}</span>
                             </div>
                           </div>
 
-                          <div className="d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                            <span className="text-accent fw-bold" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
+                          <div className="inventory-card-footer d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                            <span className="inventory-card-price text-accent fw-bold text-truncate me-2" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
                             <Link
                               to={`/bike/${createSlug(bike)}-${bike._id}`}
-                              className="moto-btn"
+                              className="moto-btn inventory-card-btn flex-shrink-0"
                               style={{ padding: '8px 16px', fontSize: '0.8rem' }}
                             >
                               DETAILS
