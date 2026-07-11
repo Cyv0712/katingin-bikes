@@ -261,6 +261,19 @@ h6,
   border: 1px solid var(--border-color);
 }
 
+/* Sticky sidebar must size to content — height:100% from .moto-card breaks sticky */
+.inventory-filters.moto-card {
+  height: auto;
+  overflow: visible;
+  align-self: flex-start;
+  width: 100%;
+}
+
+.inventory-filters.moto-card:hover {
+  transform: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
 /* ── Social Links ── */
 .social-link {
   display: flex;
