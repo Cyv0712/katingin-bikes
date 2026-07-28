@@ -11,3 +11,6 @@ cmds = ["npm install --include=dev"]
 
 [phases.build]
 cmds = ["npm run build"]
+
+[start]
+cmd = "caddy run --config /assets/Caddyfile"
