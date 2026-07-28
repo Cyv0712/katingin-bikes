@@ -1,13 +1,14 @@
 export const brandConfig = {
   name: 'KATINGIN BIKES',
-  brandSuffix: '',
-  fullName: 'Katingin Bikes',
-  slogan: 'Pre-Owned Big Bikes Philippines',
-  description: "Trusted dealer of premium pre-owned big bikes in the Philippines. We offer quality pre-owned big bikes and motorcycles in Metro Manila with complete papers, 100% transparency, and honest deals.",
+  brandSuffix: 'by REVLINE',
+  fullName: 'Katingin Bikes by REVLINE',
+  slogan: 'MOTORCYCLES PHILIPPINES // PRE-OWNED BIG BIKES',
+  description: "Trusted dealer of premium pre-owned motorcycles in the Philippines. We offer quality pre-owned big bikes and motorcycles in Metro Manila with complete papers, 100% transparency, and honest deals.",
 
   // Hero & About Narratives
-  aboutHeroTitle: 'KATINGIN BIKES',
-  aboutHeroDescription: "A trusted dealer of quality pre-owned big bikes in the Philippines. Looking for fresh pre-owned big bikes in Metro Manila with hassle-free paperwork? Check us out!",
+  aboutHeroTitle: 'PRE-OWNED MOTORCYCLES',
+  aboutHeroSubtitle: 'PHILIPPINES',
+  aboutHeroDescription: "Metro Manila's premier dealer for quality pre-owned big bikes and motorcycles in the Philippines. Transparent inspection, complete OR/CR papers, and low downpayment financing.",
 
   storyTitle: 'OUR ROOTS',
   storyParagraphs: [

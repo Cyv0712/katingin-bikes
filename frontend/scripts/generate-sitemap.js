@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // Clean up trailing slash on API base URL
 const API_BASE_URL = (process.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
-const SITE_BASE_URL = 'https://www.katinginbikes.com';
+const SITE_BASE_URL = 'https://katinginbikes.com';
 
 async function generateSitemap() {
   console.log('Generating dynamic XML sitemap...');

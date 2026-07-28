@@ -140,10 +140,12 @@ const BikeDetails = () => {
   return (
     <div style={{ paddingTop: '120px', paddingBottom: '100px', minHeight: '100vh' }}>
       <Helmet>
-        <title>{`${bike.brand} ${bike.model} (${bike.year}) | Katingin Bikes`}</title>
-        <meta name="description" content={`Get this fresh pre-owned ${bike.brand} ${bike.model} (${bike.year}). Price: ${withPeso(bike.price)}, Engine: ${bike.engineSize}, Config: ${bike.engineConfig || 'N/A'}. Check clean papers.`} />
-        <meta property="og:title" content={`${bike.brand} ${bike.model} (${bike.year}) - For Sale`} />
-        <meta property="og:description" content={`Fresh pre-owned ${bike.brand} ${bike.model} big bike for sale at Katingin Bikes.`} />
+        <title>{`${bike.brand} ${bike.model} (${bike.year}) | Pre-Owned Motorcycles Philippines`}</title>
+        <meta name="description" content={`Fresh pre-owned ${bike.brand} ${bike.model} (${bike.year}) for sale in Metro Manila, Philippines. Price: ${withPeso(bike.price)}, Engine: ${bike.engineSize || 'N/A'}. 100-point inspected with complete OR/CR papers.`} />
+        <meta name="keywords" content={`${bike.brand} ${bike.model}, ${bike.brand} motorcycle Philippines, pre-owned ${bike.brand} ${bike.model}, used big bikes Philippines`} />
+        <link rel="canonical" href={`https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`} />
+        <meta property="og:title" content={`${bike.brand} ${bike.model} (${bike.year}) | Pre-Owned Motorcycles Philippines`} />
+        <meta property="og:description" content={`Pre-owned ${bike.brand} ${bike.model} (${bike.year}) for sale at Katingin Bikes Philippines. Price: ${withPeso(bike.price)}.`} />
         <meta property="og:image" content={absoluteImage} />
         <meta property="og:url" content={`https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`} />
         <script type="application/ld+json">
@@ -384,6 +386,10 @@ const BikeDetails = () => {
                 <h5 className="moto-heading mb-3" style={{ fontSize: '0.95rem' }}><CircleCheck className="text-accent me-2" size={18} /> UNIT OVERVIEW & CONDITION</h5>
                 <div className="description-container">
                   {renderIssues(bike.description)}
+                </div>
+                <div className="mt-4 pt-3 border-top border-secondary-subtle d-flex align-items-center justify-content-between">
+                  <span className="text-secondary text-mono fw-bold" style={{ fontSize: '0.78rem', letterSpacing: '0.5px' }}>POWERED BY REVLINE PLATFORM</span>
+                  <img src="/static_data/revline_logo.png" alt="REVLINE" style={{ height: '36px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} />
                 </div>
               </div>
             </div>

@@ -202,22 +202,62 @@ const Inventory = () => {
     </>
   );
 
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Pre-Owned Motorcycles for Sale in the Philippines",
+    "description": "Available pre-owned big bikes and motorcycles in Metro Manila, Philippines.",
+    "itemListElement": filteredBikes.slice(0, 30).map((bike, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "name": `${bike.brand} ${bike.model} (${bike.year})`,
+      "url": `https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`
+    }))
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://katinginbikes.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Motorcycles Philippines Inventory",
+        "item": "https://katinginbikes.com/inventory"
+      }
+    ]
+  };
+
   return (
     <div className="inventory-page py-5" style={{ minHeight: '100vh' }}>
       <Helmet>
-        <title>Pre-Owned Big Bikes Philippines | Full Inventory | Katingin Bikes</title>
-        <meta name="description" content="Browse our wide collection of fresh, pre-owned adventure, naked, sport, and touring big bikes in the Philippines. Verified quality, complete papers, and Metro Manila delivery." />
-        <meta property="og:title" content="Pre-Owned Big Bikes Philippines | Full Inventory | Katingin Bikes" />
-        <meta property="og:description" content="Browse our wide collection of quality, pre-owned big bikes and premium motorcycles in Metro Manila, Philippines." />
+        <title>Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes</title>
+        <meta name="description" content="Browse fresh pre-owned motorcycles and big bikes for sale in the Philippines. Filter by brand (BMW, Ducati, Kawasaki, Yamaha, Honda), price, engine CC, and flexible installment terms." />
+        <meta name="keywords" content="Motorcycles Philippines, Pre-Owned Motorcycles for Sale PH, Second Hand Big Bikes Metro Manila, Used Motorcycles Philippines" />
+        <link rel="canonical" href="https://katinginbikes.com/inventory" />
+        <meta property="og:title" content="Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes" />
+        <meta property="og:description" content="Browse our collection of fresh pre-owned big bikes and motorcycles for sale in the Philippines. 100-point inspection and complete OR/CR papers." />
         <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
         <meta property="og:url" content="https://katinginbikes.com/inventory" />
+        <script type="application/ld+json">
+          {JSON.stringify(itemListSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       </Helmet>
       <Container fluid className="inventory-container" style={{ paddingTop: '80px' }}>
         {/* Page Header */}
         <Reveal>
           <div className="inventory-page-header mb-5 text-center">
-            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>OUR COLLECTION</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED BIG BIKES</h1>
+            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>MOTORCYCLES PHILIPPINES</span>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED MOTORCYCLES & BIG BIKES</h1>
           </div>
         </Reveal>
 

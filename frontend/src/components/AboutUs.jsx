@@ -56,6 +56,26 @@ const AboutUs = () => {
             </Reveal>
           </Col>
         </Row>
+
+        <Reveal delay={4} className="mt-4">
+          <div className="moto-card glass-panel p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between gap-4 border border-secondary-subtle">
+            <div className="d-flex flex-column flex-md-row align-items-center gap-4 text-center text-md-start">
+              <img 
+                src="/static_data/revline_logo.png" 
+                alt="REVLINE Dealership Web Platform" 
+                style={{ height: '80px', width: 'auto', filter: 'invert(1) brightness(1.2)', flexShrink: 0 }} 
+              />
+              <div>
+                <h5 className="moto-heading mb-2 text-white" style={{ fontSize: '1.2rem', letterSpacing: '0.5px' }}>
+                  KATINGIN BIKES IS POWERED BY REVLINE
+                </h5>
+                <p className="text-secondary mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.7', maxWidth: '720px' }}>
+                  Our digital showroom and inventory showcase run on Revline's Next-Gen Motorcycle Dealership Web Platform—delivering instant stock updates, high-resolution media galleries, and a seamless online browsing experience.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
       </Container>
     </section>
   );

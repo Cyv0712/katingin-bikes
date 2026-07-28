@@ -477,14 +477,20 @@ const Admin = () => {
   if (!isAuthenticated) {
     return (
       <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
-        <div className="moto-card p-4 p-sm-5" style={{ width: '100%', maxWidth: '400px', border: '1px solid var(--destructive)' }}>
-          <div className="text-center mb-5">
-            <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-4 text-destructive">
-              <ShieldAlert size={40} />
+        <div className="moto-card glass-panel p-4 p-sm-5" style={{ width: '100%', maxWidth: '420px', border: '1px solid var(--border-color)' }}>
+          <div className="text-center mb-4">
+            <img 
+              src="/static_data/revline_logo.png" 
+              alt="REVLINE Dealership Web Platform" 
+              style={{ height: '70px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} 
+              className="mb-3"
+            />
+            <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-3 text-destructive">
+              <ShieldAlert size={36} />
             </div>
-            <h3 className="moto-heading mb-2">ADMIN ACCESS</h3>
-            <p className="text-destructive fw-bold" style={{ fontSize: '0.85rem', letterSpacing: '1px' }}>WARNING: AUTHORIZED PERSONNEL ONLY</p>
-            <p className="text-secondary mt-2" style={{ fontSize: '0.75rem' }}>All access attempts are logged and monitored.</p>
+            <h3 className="moto-heading mb-1">ADMIN ACCESS</h3>
+            <span className="text-accent text-mono d-block mb-2" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>KATINGIN BIKES BY REVLINE</span>
+            <p className="text-destructive fw-bold mb-0" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>AUTHORIZED PERSONNEL ONLY</p>
           </div>
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-4">
@@ -534,8 +540,15 @@ const Admin = () => {
         {/* Header */}
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-5">
           <div>
-            <span className="text-accent" style={{ fontSize: '0.85rem', fontWeight: 600, letterSpacing: '2px' }}>STATUS: ONLINE</span>
-            <h2 className="moto-heading mt-1 mb-0" style={{ fontSize: '2.5rem' }}>DASHBOARD</h2>
+            <div className="d-flex align-items-center gap-2 mb-1">
+              <span className="text-secondary text-mono" style={{ fontSize: '0.78rem', letterSpacing: '1px', fontWeight: 600 }}>POWERED BY</span>
+              <img 
+                src="/static_data/revline_logo.png" 
+                alt="REVLINE" 
+                style={{ height: '42px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} 
+              />
+            </div>
+            <h2 className="moto-heading mb-0" style={{ fontSize: '2.5rem' }}>DASHBOARD</h2>
           </div>
           <div className="d-flex flex-wrap gap-2 gap-sm-3">
             <button

@@ -103,8 +103,13 @@ const Financing = () => {
   return (
     <div className="financing-page pb-5" style={{ backgroundColor: 'var(--bg-void)', minHeight: '100vh', paddingTop: '76px' }}>
       <Helmet>
-        <title>Big Bike Financing & Installment Options | Katingin Bikes</title>
-        <meta name="description" content="Get pre-approved for pre-owned big bike financing in the Philippines. Submit your installment application online for flexible payment terms." />
+        <title>Big Bike & Motorcycle Financing Philippines | Katingin Bikes</title>
+        <meta name="description" content="Apply for motorcycle financing and installment options in the Philippines. Easy pre-approval for pre-owned big bikes with low downpayment terms." />
+        <meta name="keywords" content="Motorcycle Financing Philippines, Big Bike Installment Philippines, Used Motorcycle Financing Metro Manila" />
+        <link rel="canonical" href="https://katinginbikes.com/financing" />
+        <meta property="og:title" content="Big Bike & Motorcycle Financing Philippines | Katingin Bikes" />
+        <meta property="og:description" content="Get pre-approved for pre-owned big bike financing in the Philippines. Flexible downpayment and monthly installment plans." />
+        <meta property="og:url" content="https://katinginbikes.com/financing" />
       </Helmet>
 
       {/* Hero Section */}

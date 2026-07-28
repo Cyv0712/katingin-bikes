@@ -1,9 +1,15 @@
-# robots.txt for Katingin Bikes
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /inventory
+Allow: /financing
+Allow: /contact
+Allow: /privacy-policy
+Allow: /showcase/
+Allow: /bike/
 
-# Disallow admin dashboard crawling
+# Disallow administrative dashboard
 Disallow: /admin
 
-Sitemap: https://www.katinginbikes.com/sitemap.xml
-
+# Sitemap Location
+Sitemap: https://katinginbikes.com/sitemap.xml
