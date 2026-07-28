@@ -256,8 +256,8 @@ const Inventory = () => {
         {/* Page Header */}
         <Reveal>
           <div className="inventory-page-header mb-5 text-center">
-            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>MOTORCYCLES PHILIPPINES</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>PRE-OWNED MOTORCYCLES & BIG BIKES</h1>
+            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>PRE-OWNED MOTORCYCLES & BIG BIKES</span>
+            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>KATINGIN BIKES</h1>
           </div>
         </Reveal>
 

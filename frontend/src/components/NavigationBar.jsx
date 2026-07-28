@@ -9,7 +9,7 @@ const NavigationBar = () => {
                             location.pathname.startsWith('/showcase');
 
   return (
-    <Navbar expand="lg" fixed="top" className="moto-nav glass-panel" variant="dark">
+    <Navbar expand="lg" fixed="top" className="moto-nav glass-panel border-0" variant="dark" style={{ border: 'none', borderBottom: 'none', boxShadow: 'none' }}>
       <Container>
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2 gap-sm-3" style={{ fontWeight: 800, fontSize: 'clamp(1.05rem, 3.2vw, 1.35rem)' }}>
           <img 

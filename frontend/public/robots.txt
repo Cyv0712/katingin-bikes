@@ -11,5 +11,6 @@ Allow: /bike/
 # Disallow administrative dashboard
 Disallow: /admin
 
-# Sitemap Location
+# Sitemap Locations
 Sitemap: https://katinginbikes.com/sitemap.xml
+Sitemap: https://www.katinginbikes.com/sitemap.xml
