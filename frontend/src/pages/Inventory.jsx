@@ -236,7 +236,7 @@ const Inventory = () => {
         <Row className="g-3 g-xl-4">
           {/* ── Sidebar Filters ── */}
           <Col lg={3} xl={2} className="mb-4 inventory-sidebar-col">
-              <div className="moto-card inventory-filters p-4 sticky-lg-top-100">
+              <div className="moto-card inventory-filters glass-panel p-4 sticky-lg-top-100">
                 {/* Mobile: collapsible toggle */}
                 <button
                   type="button"
@@ -249,7 +249,7 @@ const Inventory = () => {
                     <Filter size={16} className="text-accent" />
                     FILTERS
                     {activeChips.length > 0 && (
-                      <span className="badge bg-primary text-white" style={{ fontSize: '0.7rem' }}>
+                      <span className="badge bg-accent text-dark" style={{ fontSize: '0.7rem', fontWeight: 800 }}>
                         {activeChips.length}
                       </span>
                     )}
@@ -289,14 +289,14 @@ const Inventory = () => {
             {/* Results count + active chips */}
             {!loading && (
               <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
-                <span className="text-secondary" style={{ fontSize: '0.9rem' }}>
-                  RESULTS: <strong className="text-accent">{filteredBikes.length}</strong> / {bikesData.length}
+                <span className="text-secondary text-mono" style={{ fontSize: '0.85rem' }}>
+                  SHOWROOM UNITS: <strong className="text-accent">{filteredBikes.length}</strong> / {bikesData.length}
                 </span>
                 {activeChips.map((chip) => (
                   <span
                     key={chip.key}
-                    className="badge border border-secondary"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', backgroundColor: 'var(--bg-card)', color: 'var(--text-muted)' }}
+                    className="badge border border-secondary-subtle glass-panel"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-primary)' }}
                     onClick={() => setFilter(chip.key, chip.key === 'brand' || chip.key === 'type' ? 'All' : '')}
                   >
                     {chip.label} <X size={12} className="ms-1" />
@@ -304,11 +304,11 @@ const Inventory = () => {
                 ))}
                 {activeChips.length > 1 && (
                   <span
-                    className="text-accent ms-2"
+                    className="text-accent ms-2 text-mono"
                     style={{ fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
                     onClick={clearAllFilters}
                   >
-                    CLEAR ALL
+                    RESET FILTERS
                   </span>
                 )}
               </div>
@@ -325,41 +325,43 @@ const Inventory = () => {
                 filteredBikes.map((bike) => (
                   <Col xs={6} xl={3} key={bike._id}>
                     <Reveal className="h-100">
-                      <div className="moto-card inventory-card d-flex flex-column h-100">
-                        <div className="bike-img-wrapper inventory-card-img">
+                      <div className="moto-card inventory-card glass-panel d-flex flex-column h-100">
+                        <div className="bike-img-wrapper inventory-card-img position-relative overflow-hidden">
                           <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" />
                           {bike.isReserved && (
                             <Badge
-                              className="position-absolute top-0 start-0 m-2 bg-primary text-white"
-                              style={{ fontSize: '0.75rem', fontWeight: 700, zIndex: 1 }}
+                              className="position-absolute top-0 start-0 m-2 bg-danger text-white"
+                              style={{ fontSize: '0.7rem', fontWeight: 700, zIndex: 1, letterSpacing: '0.5px' }}
                             >
                               RESERVED
                             </Badge>
                           )}
                         </div>
-                        <div className="inventory-card-body p-4 d-flex flex-column flex-grow-1">
-                          <span className="inventory-card-type text-secondary mb-1 d-block font-weight-bold" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{bike.type?.toUpperCase()}</span>
-                          <h4 className="inventory-card-title moto-heading mb-3" style={{ fontSize: '1.25rem' }}>
+                        <div className="inventory-card-body p-3 p-xl-4 d-flex flex-column flex-grow-1">
+                          <span className="telemetry-badge mb-2 d-inline-block text-accent" style={{ fontSize: '0.7rem', width: 'fit-content' }}>{bike.type?.toUpperCase()}</span>
+                          <h4 className="inventory-card-title moto-heading mb-2" style={{ fontSize: '1.15rem', lineHeight: '1.2' }}>
                             <span className="text-accent">{bike.brand}</span> {bike.model}
                           </h4>
 
-                          <div className="inventory-card-meta d-flex gap-3 mb-4">
-                            <div className="d-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.9rem' }}>
-                              <Calendar size={14} className="text-accent flex-shrink-0" />
+                          <div className="inventory-card-meta d-flex gap-3 mb-3 text-mono" style={{ fontSize: '0.82rem' }}>
+                            <div className="d-flex align-items-center gap-1 text-secondary">
+                              <Calendar size={13} className="text-accent flex-shrink-0" />
                               <span>{bike.year}</span>
                             </div>
-                            <div className="inventory-card-mileage d-flex align-items-center gap-1 text-secondary min-w-0" style={{ fontSize: '0.9rem' }}>
-                              <Route size={14} className="text-accent flex-shrink-0" />
+                            <div className="inventory-card-mileage d-flex align-items-center gap-1 text-secondary min-w-0">
+                              <Route size={13} className="text-accent flex-shrink-0" />
                               <span className="text-truncate">{withUnit(bike.mileage, 'km')}</span>
                             </div>
                           </div>
 
                           <div className="inventory-card-footer d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                            <span className="inventory-card-price text-accent fw-bold text-truncate me-2" style={{ fontSize: '1.3rem' }}>{withPeso(bike.price)}</span>
+                            <div>
+                              <span className="inventory-card-price text-accent fw-bold text-mono d-block" style={{ fontSize: '1.2rem', lineHeight: '1' }}>{withPeso(bike.price)}</span>
+                            </div>
                             <Link
                               to={`/bike/${createSlug(bike)}-${bike._id}`}
                               className="moto-btn inventory-card-btn flex-shrink-0"
-                              style={{ padding: '8px 16px', fontSize: '0.8rem' }}
+                              style={{ padding: '8px 16px', fontSize: '0.78rem' }}
                             >
                               DETAILS
                             </Link>
@@ -371,10 +373,13 @@ const Inventory = () => {
                 ))
               ) : (
                 <Col>
-                  <div className="text-center p-5 text-secondary moto-card border-0">
-                    <Search size={48} className="text-muted mb-4 opacity-50" />
-                    <h5 className="moto-heading">NO RESULTS FOUND</h5>
-                    <p style={{ fontSize: '0.9rem' }}>Adjust your filters or <span className="text-accent" style={{ cursor: 'pointer' }} onClick={clearAllFilters}>reset all filters</span>.</p>
+                  <div className="text-center p-5 text-secondary glass-panel rounded border-0">
+                    <Search size={48} className="text-accent mb-3 opacity-50" />
+                    <h5 className="moto-heading mb-2">NO MATCHING UNITS FOUND</h5>
+                    <p style={{ fontSize: '0.9rem' }}>Try adjusting your search criteria or price boundaries.</p>
+                    <button onClick={clearAllFilters} className="moto-btn mt-2">
+                      RESET ALL FILTERS
+                    </button>
                   </div>
                 </Col>
               )}

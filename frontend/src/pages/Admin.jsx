@@ -567,23 +567,24 @@ const Admin = () => {
               icon: <Bike size={28} className="text-accent" />,
               label: 'UNITS IN STOCK',
               value: stats.count,
-              sub: 'Operational Units',
+              sub: 'Operational Units Available',
             },
             {
               icon: <Banknote size={28} className="text-accent" />,
               label: 'TOTAL ASSET VALUE',
               value: `₱${stats.totalInventoryValue.toLocaleString()}`,
-              sub: 'Inventory Liquidity',
+              sub: 'Inventory Liquidity Valuation',
             },
           ].map((card) => (
             <Col md={6} key={card.label}>
-              <div className="moto-card p-4 h-100">
-                <div className="d-flex justify-content-between align-items-start mb-4">
+              <div className="moto-card glass-panel metallic-glow p-4 h-100">
+                <div className="d-flex justify-content-between align-items-start mb-3">
                   {card.icon}
+                  <span className="telemetry-badge">LIVE METRICS</span>
                 </div>
-                <div className="text-secondary fw-bold mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{card.label}</div>
-                <div className="text-primary fw-bold" style={{ fontSize: '1.8rem' }}>{card.value}</div>
-                <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: '8px' }}>{card.sub}</div>
+                <div className="text-secondary fw-bold text-mono mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{card.label}</div>
+                <div className="text-accent fw-bold text-mono" style={{ fontSize: '2.2rem' }}>{card.value}</div>
+                <div className="text-muted text-mono" style={{ fontSize: '0.78rem', marginTop: '8px' }}>{card.sub}</div>
               </div>
             </Col>
           ))}
@@ -593,11 +594,11 @@ const Admin = () => {
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 mt-5">
           <h4 className="moto-heading mb-0" style={{ fontSize: '1.4rem' }}>
              <Database size={20} className="text-accent me-2" /> 
-             {view === 'Available' ? 'ACTIVE INVENTORY' : 'SOLD UNITS'}
+             {view === 'Available' ? 'ACTIVE INVENTORY TELEMETRY' : 'SOLD UNITS LOG'}
           </h4>
           <div className="d-flex flex-column flex-sm-row gap-3 align-items-sm-end" style={{ width: '100%', maxWidth: '500px' }}>
             <Form.Group className="flex-grow-1">
-              <small className="text-secondary fw-bold d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>SEARCH INVENTORY</small>
+              <small className="text-secondary fw-bold text-mono d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>SEARCH INVENTORY</small>
               <div className="position-relative">
                 <Search size={16} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                 <Form.Control
@@ -610,11 +611,11 @@ const Admin = () => {
               </div>
             </Form.Group>
             <Form.Group style={{ minWidth: '180px' }}>
-               <small className="text-secondary fw-bold d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>VIEW STATUS</small>
+               <small className="text-secondary fw-bold text-mono d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>VIEW STATUS</small>
                <Form.Select 
                 value={view} 
                 onChange={(e) => setView(e.target.value)}
-                className="moto-input"
+                className="moto-input text-white"
               >
                 <option value="Available">Active Inventory</option>
                 <option value="Sold">Sold Units</option>
@@ -624,63 +625,62 @@ const Admin = () => {
         </div>
 
         <div className="admin-table-wrapper">
-          <div className="moto-card overflow-hidden p-0 border-0">
-            <Table responsive variant="dark" className="mb-0" style={{ backgroundColor: 'var(--bg-card)' }}>
-            <thead style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)' }}>
-              <tr>
-                <th className="py-3 ps-4 text-accent" style={{ fontWeight: 600 }}>BRAND</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 600 }}>MODEL</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 600 }}>TYPE</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 600 }}>YEAR</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 600 }}>PRICE</th>
-                <th className="py-3 pe-4 text-center text-accent" style={{ fontWeight: 600 }}>ACTIONS</th>
+          <div className="moto-card glass-panel overflow-hidden p-0 border-0">
+            <Table responsive variant="dark" className="mb-0 align-middle" style={{ backgroundColor: 'transparent' }}>
+            <thead style={{ backgroundColor: 'rgba(212, 175, 55, 0.08)', borderBottom: '1px solid var(--border-color)' }}>
+              <tr className="text-mono" style={{ fontSize: '0.82rem' }}>
+                <th className="py-3 ps-4 text-accent" style={{ fontWeight: 700 }}>BRAND</th>
+                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>MODEL</th>
+                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>TYPE</th>
+                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>YEAR</th>
+                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>PRICE</th>
+                <th className="py-3 pe-4 text-center text-accent" style={{ fontWeight: 700 }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
               {filteredBikes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center text-muted py-5">
-                    {searchQuery ? 'No matching units found.' : `No ${view === 'Available' ? 'available' : 'sold'} units in inventory.`}
+                  <td colSpan={6} className="text-center text-muted py-5 text-mono">
+                    {searchQuery ? 'No matching units found in query.' : `No ${view === 'Available' ? 'available' : 'sold'} units in database.`}
                   </td>
                 </tr>
               ) : (
                 filteredBikes.map((bike) => (
                   <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td className="py-3 ps-4">{bike.brand}</td>
+                    <td className="py-3 ps-4 fw-bold">{bike.brand}</td>
                     <td className="py-3">
-                      {bike.model}
+                      <span className="fw-semibold">{bike.model}</span>
                       {bike.isReserved && view === 'Available' && (
-                        <span className="badge bg-primary text-white ms-2" style={{ fontSize: '0.65rem', fontWeight: 700 }}>RESERVED</span>
+                        <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.65rem', fontWeight: 800 }}>RESERVED</span>
                       )}
                     </td>
-                    <td className="py-3">{bike.type ? bike.type.toUpperCase() : '—'}</td>
-                    <td className="py-3">{bike.year || '—'}</td>
-                    <td className={`py-3 fw-bold ${view === 'Available' ? 'text-accent' : 'text-muted'}`}>{bike.price}</td>
+                    <td className="py-3"><span className="telemetry-badge" style={{ fontSize: '0.7rem' }}>{bike.type ? bike.type.toUpperCase() : '—'}</span></td>
+                    <td className="py-3 text-mono">{bike.year || '—'}</td>
+                    <td className={`py-3 fw-bold text-mono ${view === 'Available' ? 'text-accent' : 'text-muted'}`}>{bike.price}</td>
                     <td className="py-3 pe-4">
                       {view === 'Available' ? (
                         <div className="d-flex justify-content-center gap-2">
-                          <button className="p-1" style={{ background: 'none', border: 'none', color: '#60a5fa' }} onClick={() => handleEditClick(bike)} title="Edit Unit">
-                            <Pencil size={18} />
+                          <button className="btn btn-sm btn-outline-info p-1" onClick={() => handleEditClick(bike)} title="Edit Unit">
+                            <Pencil size={15} />
                           </button>
                           <button
-                            className={`p-1 ${bike.isReserved ? 'text-warning' : ''}`}
-                            style={{ background: 'none', border: 'none', color: bike.isReserved ? undefined : 'rgba(255,255,255,0.5)' }}
+                            className={`btn btn-sm ${bike.isReserved ? 'btn-warning text-dark' : 'btn-outline-warning'}`}
                             onClick={() => handleToggleReserved(bike)}
                             title={bike.isReserved ? 'Unmark as Reserved' : 'Mark as Reserved'}
                           >
-                            <Bookmark size={18} fill={bike.isReserved ? 'currentColor' : 'none'} />
+                            <Bookmark size={15} fill={bike.isReserved ? 'currentColor' : 'none'} />
                           </button>
-                          <button className="p-1 text-accent" style={{ background: 'none', border: 'none' }} onClick={() => handleMarkAsSold(bike._id)} title="Mark as Sold">
-                            <Check size={18} />
+                          <button className="btn btn-sm btn-outline-success p-1" onClick={() => handleMarkAsSold(bike._id)} title="Mark as Sold">
+                            <Check size={15} />
                           </button>
-                          <button className="p-1 text-destructive" style={{ background: 'none', border: 'none' }} onClick={() => handleDelete(bike._id)} title="Delete Unit">
-                            <Trash size={18} />
+                          <button className="btn btn-sm btn-outline-danger p-1" onClick={() => handleDelete(bike._id)} title="Delete Unit">
+                            <Trash size={15} />
                           </button>
                         </div>
                       ) : (
                         <div className="d-flex justify-content-center">
-                          <button className="p-1 text-destructive" style={{ background: 'none', border: 'none' }} onClick={() => handleDelete(bike._id)} title="Delete Unit">
-                            <Trash size={18} />
+                          <button className="btn btn-sm btn-outline-danger p-1" onClick={() => handleDelete(bike._id)} title="Delete Unit">
+                            <Trash size={15} />
                           </button>
                         </div>
                       )}

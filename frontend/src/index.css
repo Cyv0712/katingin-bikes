@@ -1,46 +1,37 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap');
 
 :root {
-  /* Colors */
+  /* Surface Layers */
   --bg-void: #080808;
   --bg-card: #121212;
   --bg-muted: #1a1a1a;
-  --text-primary: #f0f0f0;
-  --text-muted: #949494;
-  /* Brighter for contrast compliance */
-  --accent-primary: #D4AF37;
-  /* Katingin Gold */
+  --bg-surface-elevated: #222222;
+  
+  /* Text System */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  
+  /* Brand Accents */
+  --accent-primary: #D4AF37; /* Katingin Gold */
   --accent-hover: #FFD700;
-  --border-color: #222222;
+  
+  /* Structural Tokens */
+  --border-color: #242424;
+  --border-color-glow: rgba(212, 175, 55, 0.3);
   --color-destructive: #dc3545;
+  
+  /* Typography Tokens */
+  --font-heading: 'Outfit', 'Montserrat', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
 }
 
-/* Accessibility Contrast Overrides */
-.text-secondary {
-  color: #b0b0b0 !important;
-  /* > 5.5:1 ratio on #080808 (Passes AA/AAA) */
-}
-
-.text-muted {
-  color: var(--text-muted) !important;
-  /* > 4.5:1 ratio on #080808 (Passes AA) */
-}
-
-
-/* ── Scrollbar ── */
-/* Hide scrollbar for Chrome, Safari, and Opera */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* ── Base ── */
-html,
-body {
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
+/* Accessible Global Focus Rings */
+*:focus-visible {
+  outline: 2px solid var(--accent-primary) !important;
+  outline-offset: 2px !important;
 }
 
 html {
@@ -79,7 +70,7 @@ h4,
 h5,
 h6,
 .moto-heading {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-heading);
   text-transform: uppercase;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -90,50 +81,109 @@ h6,
   color: var(--accent-primary) !important;
 }
 
+/* Override Bootstrap .text-primary so it never turns neon blue */
+.text-primary {
+  color: #ffffff !important;
+}
+
 .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-muted {
   color: var(--text-muted) !important;
 }
 
-.text-primary {
-  color: var(--accent-primary) !important;
+.text-mono {
+  font-family: var(--font-mono) !important;
 }
 
 /* ── Buttons ── */
 .moto-btn {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-heading);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   background: var(--accent-primary);
-  color: var(--bg-void);
+  color: #080808;
   border: 1px solid var(--accent-primary);
   padding: 12px 28px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+  font-weight: 800;
+  font-size: 0.88rem;
+  transition: all 0.25s ease;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
 }
 
 .moto-btn:hover {
-  background: var(--accent-hover);
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
   border-color: var(--accent-hover);
-  color: var(--bg-void);
+  color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.moto-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
 }
 
 .moto-btn-outline {
-  background: transparent;
-  color: var(--accent-primary);
+  background: rgba(18, 20, 28, 0.6);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(8px);
 }
 
 .moto-btn-outline:hover {
-  background: var(--accent-primary);
-  color: var(--bg-void);
+  background: var(--bg-surface-elevated);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Anti-Slop High-Octane Utilities ── */
+.glass-panel {
+  background: rgba(18, 20, 28, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.metallic-glow {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+}
+
+.telemetry-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(26, 29, 39, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-cyan-glow);
+  box-shadow: 0 0 8px var(--color-cyan-glow);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 240, 255, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
 }
 
 .inquiry-block-tooltip .tooltip-inner {
@@ -1142,4 +1192,13 @@ section {
   .featured-gallery-main {
     height: 280px;
   }
+}
+
+/* Hide scrollbars for thumbnail strip */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

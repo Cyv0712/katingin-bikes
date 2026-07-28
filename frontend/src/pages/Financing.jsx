@@ -31,13 +31,11 @@ const Financing = () => {
     fetch(apiUrl('/api/bikes'))
       .then((res) => res.json())
       .then((data) => {
-        // Only active/available, non-reserved bikes
         const activeList = data.filter(b => b.status === 'Available' && !b.isReserved);
         setAvailableBikes(activeList);
 
         const getBikeName = (bike) => `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
 
-        // Setup initial pre-selected bike if provided in URL, else default to empty
         if (bikeNameParam) {
           const matched = activeList.find(b => getBikeName(b) === bikeNameParam);
           if (matched) {
@@ -58,12 +56,7 @@ const Financing = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Contact number character limits and patterns validation
-    if (name === 'contactNumber' && value.length > 20) {
-      return; // Cap contact numbers at 20 characters
-    }
-
+    if (name === 'contactNumber' && value.length > 20) return;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -112,9 +105,6 @@ const Financing = () => {
       <Helmet>
         <title>Big Bike Financing & Installment Options | Katingin Bikes</title>
         <meta name="description" content="Get pre-approved for pre-owned big bike financing in the Philippines. Submit your installment application online for flexible payment terms." />
-        <meta property="og:title" content="Big Bike Financing & Installment Options | Katingin Bikes" />
-        <meta property="og:description" content="Get pre-approved for big bike financing and installment options in Manila with easy downpayment options." />
-        <meta property="og:url" content="https://katinginbikes.com/financing" />
       </Helmet>
 
       {/* Hero Section */}
@@ -124,7 +114,7 @@ const Financing = () => {
             <span className="text-accent mb-2 d-block" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
               ACQUISITION DEFERRALS
             </span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)' }}>FINANCING INQUIRY</h1>
+            <h1 className="moto-heading mb-0" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)' }}>FINANCING INQUIRY</h1>
           </Reveal>
         </Container>
       </section>
@@ -135,9 +125,8 @@ const Financing = () => {
             <Col lg={8} md={10}>
               <Reveal delay={1}>
                 {submitSuccess ? (
-                  // Success State Card
-                  <div className="moto-card p-5 text-center my-4">
-                    <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-muted rounded-circle" style={{ color: 'var(--accent-primary)', width: '70px', height: '70px' }}>
+                  <div className="moto-card glass-panel p-5 text-center my-4">
+                    <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style={{ width: '70px', height: '70px' }}>
                       <CheckCircle size={40} />
                     </div>
                     <h2 className="moto-heading mb-3" style={{ fontSize: '1.8rem' }}>APPLICATION SUBMITTED</h2>
@@ -154,15 +143,14 @@ const Financing = () => {
                     </div>
                   </div>
                 ) : (
-                  // Form State Card
-                  <div className="moto-card p-4 p-md-5 my-4">
+                  <div className="moto-card glass-panel p-4 p-md-5 my-4">
                     <h3 className="moto-heading mb-4 d-flex align-items-center gap-2" style={{ fontSize: '1.3rem' }}>
                       <FileText className="text-accent" size={24} /> FINANCING DETAILS FORM
                     </h3>
                     <p className="text-secondary mb-4" style={{ fontSize: '0.95rem' }}>
-                      Please supply clean, verified contact and identity information. We will use these details to contact you directly regarding your financing options.
+                      Please supply clean, verified contact information. We will use these details to contact you directly regarding your financing options.
                     </p>
-                    <p className="mb-4" style={{ fontSize: '0.85rem', color: '#888', borderLeft: '3px solid var(--accent-primary)', paddingLeft: '12px', fontStyle: 'italic' }}>
+                    <p className="mb-4" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', borderLeft: '3px solid var(--accent-primary)', paddingLeft: '12px', fontStyle: 'italic' }}>
                       <strong>Privacy Notice:</strong> We collect your name, email, and phone number solely to respond to your motorcycle inquiry. We do not sell, share, or use your data for unsolicited marketing.
                     </p>
 
@@ -176,7 +164,7 @@ const Financing = () => {
                       <Row className="g-4">
                         <Col md={12}>
                           <Form.Group>
-                            <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
                               Applicant Full Name <span className="text-accent">*</span>
                             </label>
                             <Form.Control
@@ -193,7 +181,7 @@ const Financing = () => {
 
                         <Col md={6}>
                           <Form.Group>
-                            <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
                               Email Address <span className="text-accent">*</span>
                             </label>
                             <Form.Control
@@ -210,7 +198,7 @@ const Financing = () => {
 
                         <Col md={6}>
                           <Form.Group>
-                            <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
                               Contact / Mobile Number <span className="text-accent">*</span>
                             </label>
                             <Form.Control
@@ -227,12 +215,12 @@ const Financing = () => {
 
                         <Col md={12}>
                           <Form.Group>
-                            <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
                               Motorcycle Unit of Interest <span className="text-accent">*</span>
                             </label>
                             
                             {loadingBikes ? (
-                              <div className="d-flex align-items-center gap-2 p-2 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div className="d-flex align-items-center gap-2 p-2 rounded glass-panel">
                                 <Spinner animation="border" size="sm" variant="accent" />
                                 <span className="text-muted" style={{ fontSize: '0.85rem' }}>Loading active units inventory...</span>
                               </div>
@@ -263,7 +251,7 @@ const Financing = () => {
 
                         <Col md={12}>
                           <Form.Group>
-                            <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
+                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
                               Message / Downpayment Options <span className="text-muted">(Optional)</span>
                             </label>
                             <Form.Control
@@ -286,7 +274,7 @@ const Financing = () => {
                               checked={consentChecked}
                               onChange={(e) => setConsentChecked(e.target.checked)}
                               label={
-                                <span style={{ fontSize: '0.85rem', color: '#ccc' }}>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                   I agree to the <Link to="/privacy-policy" className="text-accent text-decoration-none">Privacy Policy</Link> and consent to Katingin Bikes processing my contact details to handle my inquiry. <span className="text-accent">*</span>
                                 </span>
                               }

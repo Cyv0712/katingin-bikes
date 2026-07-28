@@ -16,13 +16,20 @@ const BrandMarquee = () => {
 
   return (
     <Reveal>
-      <div className="marquee-container">
+      <div 
+        className="marquee-container py-4 border-0"
+        style={{
+          background: 'transparent',
+          maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)'
+        }}
+      >
         <div className="marquee-content">
-          {/* Render the original list */}
+          {/* Render original list */}
           {logos.map((logo, idx) => (
             <img key={idx} src={logo.src} alt={logo.name} className={`brand-logo ${logo.name === 'BMW Motorrad' ? 'no-invert' : ''}`} />
           ))}
-          {/* Render a duplicate list right next to it so the infinite scroll loops seamlessly */}
+          {/* Duplicate list for seamless infinite loop */}
           {logos.map((logo, idx) => (
             <img key={`dup-${idx}`} src={logo.src} alt={logo.name} className={`brand-logo ${logo.name === 'BMW Motorrad' ? 'no-invert' : ''}`} />
           ))}

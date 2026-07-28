@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Badge, Carousel, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { ArrowLeft, Calendar, Route, CircleCheck, Circle } from 'lucide-react';
+import { ArrowLeft, Calendar, Route, CircleCheck, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
 import { createSlug } from '../config/slug';
@@ -19,6 +19,7 @@ const BikeDetails = () => {
   const [loading, setLoading] = useState(true);
   const [loadedMap, setLoadedMap] = useState({});
   const [singleImageLoaded, setSingleImageLoaded] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleImageLoad = (idx) => {
     setLoadedMap((prev) => ({ ...prev, [idx]: true }));
@@ -164,7 +165,7 @@ const BikeDetails = () => {
             <div className="sticky-lg-top-120">
               <div className="moto-card moto-card-static overflow-hidden">
                 {images.length > 1 ? (
-                  <Carousel interval={null}>
+                  <Carousel activeIndex={activeIndex} onSelect={(selectedIdx) => setActiveIndex(selectedIdx)} interval={null} controls={false} indicators={false}>
                     {images.map((img, idx) => (
                       <Carousel.Item key={idx}>
                         <div className="featured-gallery-main" style={{ height: 'clamp(260px, 45vw, 550px)' }}>
@@ -215,78 +216,133 @@ const BikeDetails = () => {
                   </div>
                 )}
               </div>
+
+              {/* Mini Image Thumbnails Navigation Strip */}
+              {images.length > 1 && (
+                <div className="d-flex align-items-center justify-content-center gap-2 mt-3 px-2">
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-link p-1 text-secondary text-decoration-none"
+                    onClick={() => setActiveIndex(prev => (prev === 0 ? images.length - 1 : prev - 1))}
+                    aria-label="Previous image thumbnail"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+
+                  <div className="d-flex align-items-center gap-2 overflow-x-auto py-1 px-1 no-scrollbar" style={{ maxWidth: '100%' }}>
+                    {images.map((img, idx) => {
+                      const isActive = activeIndex === idx;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActiveIndex(idx)}
+                          className="p-0 border-0 bg-transparent flex-shrink-0"
+                          aria-label={`Select photo ${idx + 1}`}
+                        >
+                          <img
+                            src={getImageUrl(img)}
+                            alt={`Thumbnail ${idx + 1}`}
+                            style={{
+                              width: '78px',
+                              height: '78px',
+                              objectFit: 'cover',
+                              borderRadius: '14px',
+                              border: isActive ? '2px solid var(--accent-primary)' : '1px solid rgba(255, 255, 255, 0.15)',
+                              opacity: isActive ? 1 : 0.55,
+                              transform: isActive ? 'scale(1.04)' : 'scale(1)',
+                              transition: 'all 0.2s ease',
+                              boxShadow: isActive ? '0 0 14px rgba(212, 175, 55, 0.35)' : 'none',
+                              cursor: 'pointer'
+                            }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-link p-1 text-secondary text-decoration-none"
+                    onClick={() => setActiveIndex(prev => (prev === images.length - 1 ? 0 : prev + 1))}
+                    aria-label="Next image thumbnail"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                </div>
+              )}
             </div>
           </Col>
 
           {/* ── Bike Info ── */}
           <Col lg={5}>
-            <div className="moto-card moto-card-static p-4 border-0" style={{ background: 'transparent' }}>
+            <div className="moto-card glass-panel p-4 p-xl-5">
               <div className="d-flex justify-content-between align-items-start mb-3">
-                <span className="text-secondary" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>{bike.type.toUpperCase()} // {withUnit(bike.engineSize, 'cc')}</span>
-                <Badge className={bike.isReserved ? 'bg-primary text-white' : 'bg-accent text-dark'} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>
+                <span className="featured-spec-badge">{bike.type?.toUpperCase()} // {withUnit(bike.engineSize, 'cc')}</span>
+                <Badge className={bike.isReserved ? 'bg-danger text-white' : 'bg-success text-white'} style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>
                   {bike.isReserved ? 'RESERVED' : 'AVAILABLE'}
                 </Badge>
               </div>
 
-              <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>
+              <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', lineHeight: '1.15' }}>
                 <span className="text-accent">{bike.brand}</span> {bike.model}
               </h1>
 
-              <div className="d-flex flex-wrap gap-4 mb-5">
-                <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded bg-muted">
-                    <Calendar className="text-accent" size={24} />
+              <div className="d-flex flex-wrap gap-3 mb-4">
+                <div className="d-flex align-items-center gap-3 p-3 rounded glass-panel flex-grow-1">
+                  <div className="p-2 rounded bg-muted">
+                    <Calendar className="text-accent" size={20} />
                   </div>
                   <div>
                     <small className="text-secondary d-block" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>YEAR MODEL</small>
-                    <span className="text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{bike.year}</span>
+                    <span className="text-white fw-bold" style={{ fontSize: '1.1rem' }}>{bike.year}</span>
                   </div>
                 </div>
-                <div className="d-flex align-items-center gap-3">
-                  <div className="p-3 rounded bg-muted">
-                    <Route className="text-accent" size={24} />
+
+                <div className="d-flex align-items-center gap-3 p-3 rounded glass-panel flex-grow-1">
+                  <div className="p-2 rounded bg-muted">
+                    <Route className="text-accent" size={20} />
                   </div>
                   <div>
-                    <small className="text-secondary d-block" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MILEAGE</small>
-                    <span className="text-primary fw-bold" style={{ fontSize: '1.1rem' }}>{withUnit(bike.mileage, 'km')}</span>
+                    <small className="text-secondary d-block" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>ODOMETER</small>
+                    <span className="text-white fw-bold" style={{ fontSize: '1.1rem' }}>{withUnit(bike.mileage, 'km')}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-4 p-4 rounded bg-muted" style={{ borderLeft: '4px solid var(--accent-primary)' }}>
+              {/* Price Card */}
+              <div className="mb-4 p-4 rounded glass-panel">
                 <small className="text-secondary d-block mb-1" style={{ fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px' }}>CASH PRICE</small>
-                <div className="d-flex align-items-baseline gap-2">
-                  <h2 className="text-primary fw-bold mb-0" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}>{withPeso(bike.price)}</h2>
-                </div>
+                <h2 className="text-accent fw-bold mb-0" style={{ fontSize: 'clamp(2rem, 5vw, 2.8rem)' }}>{withPeso(bike.price)}</h2>
               </div>
 
               {showFinancingCard && (
-                <div className="mb-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', borderLeft: '4px solid var(--accent-primary)' }}>
+                <div className="mb-4 p-4 rounded glass-panel border border-secondary-subtle">
                   {showDownpayment && (
-                    <div className={showMonthlyTerms ? 'mb-4' : 'mb-0'}>
-                      <small className="text-secondary d-block mb-1" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
-                      <h3 className="text-white fw-bold mb-0" style={{ fontSize: '1.8rem' }}>{withPeso(bike.minDownpayment)}</h3>
+                    <div className={showMonthlyTerms ? 'mb-3 pb-3 border-bottom border-secondary-subtle' : 'mb-0'}>
+                      <small className="text-secondary text-mono d-block mb-1" style={{ fontSize: '0.72rem', letterSpacing: '1px' }}>MINIMUM DOWNPAYMENT</small>
+                      <h3 className="text-white text-mono fw-bold mb-0" style={{ fontSize: '1.6rem' }}>{withPeso(bike.minDownpayment)}</h3>
                     </div>
                   )}
 
                   {showMonthlyTerms && (
-                    <Row className={`g-3 ${showDownpayment ? 'pt-3 border-top' : ''}`} style={{ borderColor: 'var(--border-color)' }}>
+                    <Row className="g-3 text-mono">
                       {showMonthly12 && (
                         <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>12 MOS</small>
-                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly12)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.68rem', letterSpacing: '0.5px' }}>12 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '0.95rem' }}>{withPeso(bike.monthly12)}<span className="text-muted" style={{ fontSize: '0.72rem' }}>/mo</span></span>
                         </Col>
                       )}
                       {showMonthly24 && (
                         <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>24 MOS</small>
-                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly24)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.68rem', letterSpacing: '0.5px' }}>24 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '0.95rem' }}>{withPeso(bike.monthly24)}<span className="text-muted" style={{ fontSize: '0.72rem' }}>/mo</span></span>
                         </Col>
                       )}
                       {showMonthly36 && (
                         <Col xs={12} sm={4} className="d-flex d-sm-block justify-content-between align-items-center">
-                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.5px' }}>36 MOS</small>
-                          <span className="text-accent fw-bold" style={{ fontSize: '1rem' }}>{withPeso(bike.monthly36)}<span className="text-muted" style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>/mo</span></span>
+                          <small className="text-secondary d-block mb-0 mb-sm-1" style={{ fontSize: '0.68rem', letterSpacing: '0.5px' }}>36 MOS</small>
+                          <span className="text-accent fw-bold" style={{ fontSize: '0.95rem' }}>{withPeso(bike.monthly36)}<span className="text-muted" style={{ fontSize: '0.72rem' }}>/mo</span></span>
                         </Col>
                       )}
                     </Row>
@@ -294,9 +350,9 @@ const BikeDetails = () => {
                 </div>
               )}
 
-              <div className="mb-5">
+              <div className="mb-4">
                 {canInquireFinancing ? (
-                  <Link to={financingUrl} className="moto-btn w-100 py-3 text-decoration-none" style={{ fontSize: '1rem' }}>
+                  <Link to={financingUrl} className="moto-btn w-100 py-3 text-decoration-none" style={{ fontSize: '0.95rem' }}>
                     INQUIRE FOR FINANCING
                   </Link>
                 ) : (
@@ -314,7 +370,7 @@ const BikeDetails = () => {
                         type="button"
                         className="moto-btn w-100 py-3"
                         disabled
-                        style={{ fontSize: '1rem', opacity: 0.5, pointerEvents: 'none' }}
+                        style={{ fontSize: '0.95rem', opacity: 0.5, pointerEvents: 'none' }}
                       >
                         INQUIRE FOR FINANCING
                       </button>
@@ -324,8 +380,8 @@ const BikeDetails = () => {
               </div>
 
               {/* Overview */}
-              <div className="mb-5">
-                <h5 className="moto-heading mb-3" style={{ fontSize: '1rem' }}><CircleCheck className="text-accent me-2" size={20} /> OVERVIEW</h5>
+              <div>
+                <h5 className="moto-heading mb-3" style={{ fontSize: '0.95rem' }}><CircleCheck className="text-accent me-2" size={18} /> UNIT OVERVIEW & CONDITION</h5>
                 <div className="description-container">
                   {renderIssues(bike.description)}
                 </div>
