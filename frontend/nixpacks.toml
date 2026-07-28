@@ -1,11 +1,7 @@
-[providers]
-providers = ['node']
+providers = ["node"]
 
 [phases.setup]
-nixPkgs = ['nodejs_20']
-
-[phases.install]
-cmds = ['npm ci']
+nixPkgs = ["nodejs_20"]
 
 [phases.build]
-cmds = ['npm run build']
+cmds = ["npm run build"]
