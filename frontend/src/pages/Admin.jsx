@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
 import { Trash, Plus, Bike, Banknote, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search, Bookmark } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
+import { Helmet } from 'react-helmet-async';
 
 // Parse price strings like "₱450,000" → 450000
 const parsePrice = (priceStr) => {
@@ -477,19 +478,14 @@ const Admin = () => {
   if (!isAuthenticated) {
     return (
       <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+        <Helmet><title>Katingin Bikes - Admin</title></Helmet>
         <div className="moto-card glass-panel p-4 p-sm-5" style={{ width: '100%', maxWidth: '420px', border: '1px solid var(--border-color)' }}>
           <div className="text-center mb-4">
-            <img 
-              src="/static_data/revline_logo.png" 
-              alt="REVLINE Dealership Web Platform" 
-              style={{ height: '70px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} 
-              className="mb-3"
-            />
             <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-3 text-destructive">
               <ShieldAlert size={36} />
             </div>
             <h3 className="moto-heading mb-1">ADMIN ACCESS</h3>
-            <span className="text-accent text-mono d-block mb-2" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>KATINGIN BIKES BY REVLINE</span>
+            <span className="text-accent text-mono d-block mb-2" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>KATINGIN BIKES</span>
             <p className="text-destructive fw-bold mb-0" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>AUTHORIZED PERSONNEL ONLY</p>
           </div>
           <Form onSubmit={handleLogin}>
@@ -536,18 +532,11 @@ const Admin = () => {
   // ── Dashboard ──
   return (
     <div style={{ paddingTop: '100px', paddingBottom: '100px', minHeight: '100vh', backgroundColor: 'var(--bg-void)' }}>
+      <Helmet><title>Katingin Bikes - Admin</title></Helmet>
       <Container>
         {/* Header */}
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-5">
           <div>
-            <div className="d-flex align-items-center gap-2 mb-1">
-              <span className="text-secondary text-mono" style={{ fontSize: '0.78rem', letterSpacing: '1px', fontWeight: 600 }}>POWERED BY</span>
-              <img 
-                src="/static_data/revline_logo.png" 
-                alt="REVLINE" 
-                style={{ height: '42px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} 
-              />
-            </div>
             <h2 className="moto-heading mb-0" style={{ fontSize: '2.5rem' }}>DASHBOARD</h2>
           </div>
           <div className="d-flex flex-wrap gap-2 gap-sm-3">

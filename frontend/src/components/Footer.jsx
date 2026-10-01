@@ -54,7 +54,7 @@ const Footer = () => {
                 style={{ height: '40px', width: 'auto', borderRadius: '4px' }} 
               />
               <h3 className="moto-heading mb-0" style={{ fontSize: '1.4rem', fontWeight: 800 }}>
-                {brandConfig.name} <span className="text-secondary fw-normal fs-6 ms-1">BY</span> <span className="text-accent ms-1">REVLINE</span>
+                {brandConfig.name}
               </h3>
             </div>
             <p className="text-secondary mb-4 mx-lg-0 mx-auto" style={{ fontSize: '0.92rem', lineHeight: '1.8', maxWidth: '360px' }}>
@@ -116,14 +116,6 @@ const Footer = () => {
         </Row>
         
         <div className="text-center pt-5 mt-4" style={{ borderTop: '1px solid var(--border-color)', opacity: 0.9 }}>
-          <div className="d-inline-flex flex-column flex-sm-row align-items-center gap-3 mb-4 px-4 py-3 rounded glass-panel border border-secondary-subtle">
-            <span className="text-secondary text-mono" style={{ fontSize: '0.8rem', letterSpacing: '1.5px', fontWeight: 700 }}>POWERED BY</span>
-            <img 
-              src="/static_data/revline_logo.png" 
-              alt="REVLINE Dealership Web Platform" 
-              style={{ height: '48px', width: 'auto', filter: 'invert(1) brightness(1.2)' }} 
-            />
-          </div>
           <p className="text-secondary mb-0 text-mono" style={{ fontSize: '0.82rem', letterSpacing: '0.5px' }}>
             &copy; {new Date().getFullYear()} {brandConfig.fullName}. All rights reserved.
           </p>

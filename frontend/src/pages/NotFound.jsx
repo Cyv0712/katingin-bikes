@@ -1,10 +1,11 @@
 import { Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const NotFound = () => {
   return (
-    <div 
+    <div
       className="d-flex align-items-center justify-content-center text-center"
       style={{
         minHeight: '80vh',
@@ -13,6 +14,7 @@ const NotFound = () => {
         color: '#f0f0f0'
       }}
     >
+      <Helmet><title>Katingin Bikes - Page Not Found</title></Helmet>
       <Container>
         <Compass 
           className="text-accent mb-4 animate-pulse" 

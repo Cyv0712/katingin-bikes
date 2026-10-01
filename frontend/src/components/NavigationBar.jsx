@@ -18,7 +18,7 @@ const NavigationBar = () => {
             style={{ height: 'clamp(32px, 7vw, 38px)', width: 'auto', borderRadius: '4px', transform: 'translateY(1px)' }} 
           />
           <span style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.5px' }}>
-            {brandConfig.name} <span className="text-secondary fw-normal ms-1" style={{ fontSize: '0.75em', letterSpacing: '1px' }}>BY</span> <span className="text-accent fw-bold" style={{ letterSpacing: '0.5px' }}>REVLINE</span>
+            {brandConfig.name}
           </span>
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg"

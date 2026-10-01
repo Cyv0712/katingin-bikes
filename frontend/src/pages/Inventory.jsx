@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Container, Row, Col, Badge, Collapse } from 'react-bootstrap';
-import { Route, Calendar, Filter, Info, Search, X, ChevronDown } from 'lucide-react';
+import { Route, Calendar, Filter, Info, Search, X, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
@@ -34,6 +34,15 @@ const getImageUrl = (bike) => {
   return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop';
 };
 
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest Listed' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'year-desc', label: 'Year: Newest First' },
+  { value: 'year-asc', label: 'Year: Oldest First' },
+  { value: 'mileage-asc', label: 'Mileage: Low to High' },
+];
+
 const Inventory = () => {
   const [bikesData, setBikesData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +54,8 @@ const Inventory = () => {
     brand: searchParams.get('brand') || 'All',
     type: searchParams.get('type') || 'All',
     priceMin: searchParams.get('priceMin') || '',
-    priceMax: searchParams.get('priceMax') || ''
+    priceMax: searchParams.get('priceMax') || '',
+    sort: searchParams.get('sort') || 'newest'
   }), [searchParams]);
 
   useEffect(() => {
@@ -93,7 +103,7 @@ const Inventory = () => {
     const priceMin = filters.priceMin !== '' ? parseFloat(filters.priceMin) : null;
     const priceMax = filters.priceMax !== '' ? parseFloat(filters.priceMax) : null;
 
-    return bikesData.filter((bike) => {
+    const matched = bikesData.filter((bike) => {
       const matchesSearch =
         searchWords.length === 0 ||
         searchWords.every((word) =>
@@ -108,6 +118,23 @@ const Inventory = () => {
       const matchesPriceMax = priceMax === null || bikePrice <= priceMax;
       return matchesSearch && matchesBrand && matchesType && matchesPriceMin && matchesPriceMax;
     });
+
+    switch (filters.sort) {
+      case 'price-asc':
+        return matched.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+      case 'price-desc':
+        return matched.sort((a, b) => parsePrice(b.price) - parsePrice(a.price));
+      case 'year-asc':
+        return matched.sort((a, b) => Number(a.year) - Number(b.year));
+      case 'year-desc':
+        return matched.sort((a, b) => Number(b.year) - Number(a.year));
+      case 'mileage-asc':
+        return matched.sort((a, b) => parsePrice(a.mileage) - parsePrice(b.mileage));
+      default:
+        // "Newest Listed" — explicitly sort by the backend's createdAt timestamp
+        // (set on upload) rather than relying on fetch order.
+        return matched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
   }, [bikesData, filters]);
 
   const setFilter = (key, value) => {
@@ -123,6 +150,17 @@ const Inventory = () => {
   };
   const clearAllFilters = () => {
     setSearchParams(new URLSearchParams(), { replace: true });
+  };
+  const setSort = (value) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (value === 'newest') {
+        next.delete('sort');
+      } else {
+        next.set('sort', value);
+      }
+      return next;
+    }, { replace: true });
   };
 
   const activeChips = useMemo(() => [
@@ -351,6 +389,20 @@ const Inventory = () => {
                     RESET FILTERS
                   </span>
                 )}
+                <div className="d-flex align-items-center gap-2 ms-auto">
+                  <span className="d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
+                    <ArrowUpDown size={18} className="text-accent flex-shrink-0" />
+                    <span className="d-none d-sm-inline">SORT BY</span>
+                  </span>
+                  <select
+                    className="form-select moto-input"
+                    style={{ width: 'auto', fontSize: '0.9rem', fontWeight: 700 }}
+                    value={filters.sort}
+                    onChange={(e) => setSort(e.target.value)}
+                  >
+                    {SORT_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                  </select>
+                </div>
               </div>
             )}
 
@@ -364,7 +416,7 @@ const Inventory = () => {
               ) : filteredBikes.length > 0 ? (
                 filteredBikes.map((bike) => (
                   <Col xs={6} xl={3} key={bike._id}>
-                    <Reveal className="h-100">
+                    <div className="h-100">
                       <div className="moto-card inventory-card glass-panel d-flex flex-column h-100">
                         <div className="bike-img-wrapper inventory-card-img position-relative overflow-hidden">
                           <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" />
@@ -408,7 +460,7 @@ const Inventory = () => {
                           </div>
                         </div>
                       </div>
-                    </Reveal>
+                    </div>
                   </Col>
                 ))
               ) : (
