@@ -14,6 +14,11 @@ router.post('/login', authLimiter, (req, res) => {
     return res.status(500).json({ message: 'Admin credentials not configured' });
   }
 
+  if (!adminPasswordHash && adminPasswordPlain && process.env.NODE_ENV === 'production') {
+    console.error('FATAL ERROR: Plaintext ADMIN_PASSWORD is not allowed in production. Set ADMIN_PASSWORD_HASH instead.');
+    return res.status(500).json({ message: 'Admin credentials misconfigured' });
+  }
+
   let isValid = false;
 
   if (adminPasswordHash) {

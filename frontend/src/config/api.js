@@ -8,14 +8,8 @@ export const apiUrl = (path = '') => {
 
 export const toAbsoluteUploadUrl = (path) => {
   if (!path) return path;
-  if (/^https?:\/\//i.test(path)) {
-    if (path.includes('res.cloudinary.com')) {
-      // Strip out any existing f_auto,q_auto transformations to fetch the raw image
-      const cleanPath = path.replace(/\/f_auto,q_auto\//, '/');
-      return apiUrl(`/api/bikes/image-proxy?url=${encodeURIComponent(cleanPath)}`);
-    }
-    return path;
-  }
+  // Legacy bike records may still reference an old Cloudinary URL — serve those as-is.
+  if (/^https?:\/\//i.test(path)) return path;
   if (path.startsWith('/uploads')) return apiUrl(path);
   return path;
 };

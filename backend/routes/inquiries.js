@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { inquiryLimiter } = require('../middleware/rateLimiter');
 
 const LOGO_URL = 'https://www.katinginbikes.com/static_data/Katingin_logo.webp';
 
@@ -16,7 +17,7 @@ const escapeHtml = (unsafe) => {
 
 
 // POST /api/inquiries - Submit a new financing / unit inquiry
-router.post('/', async (req, res) => {
+router.post('/', inquiryLimiter, async (req, res) => {
   try {
     let { name, email, contactNumber, unitInterested, message } = req.body;
 

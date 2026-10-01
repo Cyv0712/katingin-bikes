@@ -1,78 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const sharp = require('sharp');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
 const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
-const { downloadImage } = require('../utils/download');
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
-});
-
-// Ensure cache directory exists for storing optimized images locally
-const cacheDir = path.join(__dirname, '..', 'cache');
-if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir, { recursive: true });
-}
-
-// Image proxy route - optimizes Cloudinary images on the fly on our server
-router.get('/image-proxy', async (req, res) => {
-  try {
-    const imageUrl = req.query.url;
-    if (!imageUrl) {
-      return res.status(400).send('URL parameter is required');
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'));
     }
-
-    // Validate that it's a Cloudinary URL to prevent SSRF
-    if (!imageUrl.includes('res.cloudinary.com')) {
-      return res.status(400).send('Invalid image source');
-    }
-
-    // Generate a unique filename based on the MD5 hash of the URL
-    const urlHash = crypto.createHash('md5').update(imageUrl).digest('hex');
-    const cachedFilePath = path.join(cacheDir, `${urlHash}.webp`);
-
-    // Check if the optimized image is already in our local disk cache
-    if (fs.existsSync(cachedFilePath)) {
-      res.set('Cache-Control', 'public, max-age=31536000, immutable');
-      res.set('Content-Type', 'image/webp');
-      return res.sendFile(cachedFilePath);
-    }
-
-    // Fetch the raw image from Cloudinary
-    let imageBuffer;
-    try {
-      imageBuffer = await downloadImage(imageUrl);
-    } catch (fetchErr) {
-      console.error(`Failed to download image: ${fetchErr.message}`);
-      return res.status(502).send('Failed to fetch image');
-    }
-
-    // Optimize the image using sharp (resize to max 1200px and compress to WebP)
-    const optimizedBuffer = await sharp(imageBuffer)
-      .resize({ width: 1200, height: 1200, fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer();
-
-    // Save to local disk cache asynchronously
-    fs.writeFile(cachedFilePath, optimizedBuffer, (err) => {
-      if (err) console.error('Failed to write image cache:', err);
-    });
-
-    // Set aggressive cache control and correct mime type
-    res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    res.set('Content-Type', 'image/webp');
-    res.send(optimizedBuffer);
-  } catch (err) {
-    console.error('Image proxy error:', err);
-    res.status(500).send('Error processing image');
-  }
+    cb(null, true);
+  },
 });
 
 // Get all bikes
@@ -131,7 +72,7 @@ router.post('/', authMiddleware, upload.array('images', 20), async (req, res) =>
         bike.images = uploadedImages;
         await bike.save();
       } catch (uploadErr) {
-        // Rollback: Delete the database record if Cloudinary uploads fail
+        // Rollback: Delete the database record if image uploads fail
         await Bike.findByIdAndDelete(bike._id);
         throw uploadErr;
       }
@@ -169,7 +110,7 @@ router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) 
         existing.images = uploadedImages;
         await existing.save();
         
-        // Only delete the old images from Cloudinary after the new ones are successfully saved
+        // Only delete the old images after the new ones are successfully saved
         await deleteBikeImages(originalImages);
       } catch (uploadErr) {
         throw uploadErr;
@@ -211,7 +152,7 @@ router.patch('/:id/reserved', authMiddleware, async (req, res) => {
   }
 });
 
-// Mark a bike as sold — clears spec details and deletes associated images from disk / Cloudinary
+// Mark a bike as sold — clears spec details and deletes associated images from disk
 router.patch('/:id/sold', authMiddleware, async (req, res) => {
   try {
     const bike = await Bike.findById(req.params.id);
@@ -251,7 +192,7 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
   }
 });
 
-// Delete a bike — removes associated disk files and Cloudinary assets
+// Delete a bike — removes associated disk files
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const bike = await Bike.findById(req.params.id);

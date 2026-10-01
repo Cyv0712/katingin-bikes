@@ -22,7 +22,19 @@ const authLimiter = rateLimit({
   }
 });
 
+// Inquiry limiter: 10 submissions per hour per IP (prevents inbox flooding / email-API abuse)
+const inquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: 'Too many inquiries submitted from this IP, please try again later'
+  }
+});
+
 module.exports = {
   globalLimiter,
-  authLimiter
+  authLimiter,
+  inquiryLimiter
 };
