@@ -8,3 +8,5 @@ node_modules/
 **/uploads
 **/package-lock.json
 **/cache
+**/db-dump
+**/backend/scripts
