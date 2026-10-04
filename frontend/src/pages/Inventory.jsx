@@ -408,7 +408,7 @@ const Inventory = () => {
 
             <Row className="g-2 g-md-3">
               {loading ? (
-                Array.from({ length: 6 }).map((_, i) => (
+                Array.from({ length: 12 }).map((_, i) => (
                   <Col xs={6} xl={3} key={i}>
                     <SkeletonCard />
                   </Col>
