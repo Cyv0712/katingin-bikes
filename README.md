@@ -6,7 +6,7 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 
 - **Immersive User Experience**: Cinematic dark-mode design with smooth scroll-triggered animations (Intersection Observer API) to highlight premium motorcycle photography.
 - **Dynamic Inventory Management**: A secure Admin Dashboard allowing staff to easily add, edit, and remove motorcycle listings.
-- **Automated Media Handling**: Integrated with **Cloudinary v2 SDK**. Features parallel image uploads, automatic thumbnail selection, and zero-waste storage logic (deleting a bike automatically destroys its associated cloud images).
+- **Automated Media Handling**: Bike photos are optimized and stored on the API server under `backend/uploads/` (legacy Cloudinary URLs still render if present).
 - **Intelligent Stock Tracking**: Real-time cross-referencing between static showcase data and the live database to display accurate "Available" or "Sold Out" badges.
 - **Traffic Insights**: Built-in **Vercel Web Analytics** integration to track visitor engagement and popular listings.
 - **White-Label Architecture**: Designed with decoupled brand configurations (`brandConfig.js`), allowing the entire platform's identity, colors, and assets to be swapped in minutes.
@@ -24,12 +24,19 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 ### Backend & Database
 - **Node.js & Express**: Fast, lightweight REST API architecture.
 - **MongoDB Atlas**: Fully managed cloud database for inventory persistence.
-- **Cloudinary**: Cloud-based media storage and image optimization.
-- **Multer**: Handling multipart/form-data for image uploads.
+- **Multer + Sharp**: Multipart uploads, resized to WebP on disk.
 
 ### Hosting
-- **Frontend**: Hosted on [Vercel](https://vercel.com).
-- **Backend**: Hosted on [Render](https://render.com).
+- **Frontend**: [Vercel](https://vercel.com). Production deploys from `main`; staging deploys from `staging`.
+- **Backend**: Node/Express API with disk uploads. Production and staging each need their own process and Mongo database — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## Git workflow
+
+`main` is production. `staging` is the integration branch. New work goes on `feature/*` or `fix/*` branches, PRs into `staging`, then a PR from `staging` into `main` to ship.
+
+Ideas and bugs are GitHub Issues on a Project board (Backlog → Done). How to file issues, name branches, and set up staging is in [CONTRIBUTING.md](CONTRIBUTING.md). Do not push straight to `main`.
 
 ---
 
@@ -38,11 +45,10 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 ### Prerequisites
 - Node.js installed (v18 or higher recommended)
 - MongoDB Atlas account (or local MongoDB instance)
-- Cloudinary account for image storage
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/katingin-bikes.git
+git clone https://github.com/Cyv0712/katingin-bikes.git
 cd katingin-bikes
 ```
 
@@ -53,21 +59,18 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in the `backend` folder and add the following keys:
+Copy `backend/.env.example` to `backend/.env` and fill in at least:
+
 ```env
-# MongoDB Connection
-MONGO_URI=your_mongodb_atlas_connection_string
-
-# Cloudinary Config
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-CLOUDINARY_FOLDER=katingin-bikes/bikes
-
-# Security
 PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/katinginbikes
+CORS_ORIGIN=http://localhost:5173
+ADMIN_PASSWORD_HASH=your_secure_bcrypt_hash
+JWT_SECRET=your_secure_jwt_secret_key
 ```
-Start the backend server:
+
+Generate `ADMIN_PASSWORD_HASH` with `npm run generate-hash` in `backend/`. Start the API:
+
 ```bash
 node server.js
 ```
@@ -79,15 +82,14 @@ cd frontend
 npm install
 ```
 
-Create a `.env` file in the `frontend` folder and add the following keys:
-```env
-# Point this to your backend server
-VITE_API_URL=http://localhost:5000
+Create a `.env` file in the `frontend` folder:
 
-# Admin Access Credentials
-VITE_ADMIN_USER=admin
-VITE_ADMIN_PASS=your_secure_password
+```env
+VITE_API_URL=http://localhost:5000
 ```
+
+Admin login is handled by the API (JWT + `ADMIN_PASSWORD_HASH`). There are no `VITE_ADMIN_*` variables.
+
 Start the Vite development server:
 ```bash
 npm run dev

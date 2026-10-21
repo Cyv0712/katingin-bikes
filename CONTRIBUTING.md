@@ -1,0 +1,157 @@
+# Contributing to Katingin Bikes
+
+This repo uses `main` for production, `staging` for integration, and short-lived feature branches for new work. Ideas live in GitHub Issues on a Project board — not in markdown backlogs.
+
+`WEBSITE_FEATURES.md` is the shipped product spec. Update it when a user-facing change reaches production. Do not use it as a todo list.
+
+## Git workflow
+
+```
+Issue → feature/branch (cut from staging)
+     → PR into staging → staging site
+     → PR staging into main → production site
+```
+
+| Branch | Purpose | Deploys |
+| --- | --- | --- |
+| `main` | Production. Never push here directly. | Vercel Production (`katinginbikes.com`) |
+| `staging` | Integration branch. Merge feature PRs here first. | Vercel Staging environment |
+| `feature/short-name` | New work, cut from `staging`. | Vercel Preview (on the PR) |
+| `fix/short-name` | Bug fixes, cut from `staging` (or `main` for a hotfix). | Vercel Preview (on the PR) |
+
+One GitHub Issue per branch when practical. Link it from the PR with `Closes #N`.
+
+### Day-to-day
+
+1. File or pick a [GitHub Issue](https://github.com/Cyv0712/katingin-bikes/issues/new/choose). Move it to **In Progress** on the Project board.
+2. Cut a branch from staging:
+
+   ```bash
+   git checkout staging
+   git pull origin staging
+   git checkout -b feature/short-name
+   ```
+
+3. Open a pull request **into `staging`**. Use the Vercel Preview on the PR. After merge, re-check the persistent staging URL.
+4. When staging looks good, open a PR **`staging` → `main`** to ship production.
+5. Close the issue (`Closes #N`). If customers or staff will see the change, update `WEBSITE_FEATURES.md` in that same production PR (or immediately after).
+
+Never push straight to `main`.
+
+### Hotfix
+
+Urgent production bugs skip the feature queue:
+
+1. Branch from `main`: `git checkout main && git pull && git checkout -b fix/short-name`
+2. Open a PR **into `main`**.
+3. After it ships, merge or cherry-pick the same commits into `staging` so staging does not drift.
+
+## Feature tracking (the board)
+
+Use **GitHub Issues** as tickets and one **GitHub Project** as the Jira-like board.
+
+Columns:
+
+- **Backlog** — ideas, not ready to start
+- **Ready** — spec is clear, can be picked up
+- **In Progress** — a branch exists
+- **In Review** — PR is open
+- **Done** — merged to `main` (or closed as not doing)
+
+Create issues with the Feature or Bug templates. They ask for a short spec (problem, proposal, acceptance criteria) so the issue *is* the feature doc.
+
+## Environments
+
+Staging must have its **own Mongo database and API**. Sharing production Mongo would let staging admin actions create, edit, or delete live bikes.
+
+| | Production | Staging |
+| --- | --- | --- |
+| Git branch | `main` | `staging` |
+| Frontend | Vercel Production (`katinginbikes.com`) | Vercel custom environment on `staging` |
+| Backend | Current production API | Second API process (second Render service, or second process on the VPS) |
+| Database | Current Atlas database | Same Atlas cluster, database name `katinginbikes-staging` |
+
+Keep Vercel Preview deploys for feature PRs. The persistent staging URL is for post-merge checks.
+
+Seed staging with a copy or a small fake inventory. Never by pointing `MONGO_URI` at production.
+
+### Staging env vars (distinct from production)
+
+Frontend (Vercel Staging environment):
+
+```env
+VITE_API_URL=https://your-staging-api.example.com
+```
+
+Backend:
+
+```env
+NODE_ENV=production
+PORT=5000
+MONGO_URI=mongodb+srv://.../katinginbikes-staging
+CORS_ORIGIN=https://staging.katinginbikes.com
+JWT_SECRET=a-different-secret-from-production
+ADMIN_PASSWORD_HASH=a-different-hash-from-production
+RESEND_API_KEY=...
+INQUIRY_RECEIVER_EMAIL=...
+```
+
+`CORS_ORIGIN` must include the staging frontend origin. Use a different `JWT_SECRET` and admin hash than production.
+
+Local development uses `backend/.env` and `frontend/.env` (gitignored). Copy from the `.env.example` files. Admin login is JWT + `ADMIN_PASSWORD_HASH` — there are no `VITE_ADMIN_*` variables.
+
+## Remaining dashboard setup
+
+These cannot be applied from the repo alone. Do them once in GitHub, Vercel, and Atlas.
+
+### 1. Branch protection (`main` and `staging`)
+
+GitHub → **Settings → Rules → Rulesets** (or **Branches → Add branch protection rule**):
+
+- Target `main` and `staging` (one ruleset per branch, or a ruleset that matches both).
+- Require a pull request before merging.
+- Do **not** require approvals while this is a solo repo (required PRs still block accidental direct pushes).
+- Do not allow force pushes or deletions.
+
+### 2. Vercel Staging environment
+
+Vercel → project **katingin-bikes** → **Settings → Environments**:
+
+1. Keep Production assigned to `main`.
+2. Create a custom environment named **Staging**.
+3. Assign branch `staging`.
+4. Set Staging env var `VITE_API_URL` to the staging API URL (not production).
+5. Optional: attach `staging.katinginbikes.com` (or use the `*.vercel.app` staging URL).
+
+Feature PRs keep using Preview deployments. Do not reuse Production `VITE_API_URL` on Staging.
+
+### 3. Atlas database `katinginbikes-staging`
+
+MongoDB Atlas → the existing cluster → **Browse Collections** (or connection string):
+
+1. Create database `katinginbikes-staging` (or point `MONGO_URI` at that DB name; Atlas creates it on first write).
+2. Use the same cluster and a DB user that can access this database.
+3. Seed a few test bikes, or restore a sanitized copy. Do not connect staging to the production database name.
+
+### 4. Staging API process
+
+Stand up a second Node process from the `staging` branch:
+
+- **Render:** duplicate the web service, set the branch to `staging`, paste the staging env vars above.
+- **VPS:** second systemd/PM2 process, different port or hostname, same staging env vars, disk uploads in a separate `uploads` directory.
+
+Confirm `/health` responds, then put that URL into Vercel Staging `VITE_API_URL` and into `CORS_ORIGIN` on the API.
+
+### 5. GitHub Project board
+
+`gh` is not required. In the browser:
+
+1. Open [github.com/Cyv0712/katingin-bikes](https://github.com/Cyv0712/katingin-bikes) → **Projects** → **New project**.
+2. Choose **Board**.
+3. Name it **Katingin Bikes**.
+4. Set columns to **Backlog**, **Ready**, **In Progress**, **In Review**, **Done** (rename/add as needed; remove extras).
+5. **Settings → Linked repositories** → add `Cyv0712/katingin-bikes`.
+6. Optional: add a workflow that auto-adds new issues to **Backlog**.
+7. Paste the project URL into this file under **Project board** below once it exists.
+
+**Project board:** _not created yet — add the URL here after step 5._
