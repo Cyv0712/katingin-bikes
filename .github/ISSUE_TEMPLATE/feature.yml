@@ -1,0 +1,37 @@
+name: Feature
+description: Propose a new feature or product change
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this solve for customers, staff, or the business?
+      placeholder: Admins cannot sort inventory by price, so finding a unit for a budget takes too long.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should we build? Include UI, API, or data changes if you know them.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How will we know this is done? Use a short checklist.
+      placeholder: |
+        - [ ] Inventory can be sorted by price
+        - [ ] Sort choice survives page refresh
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: What should this issue explicitly not include?
+    validations:
+      required: false

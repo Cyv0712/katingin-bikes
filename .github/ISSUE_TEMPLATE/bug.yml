@@ -1,0 +1,48 @@
+name: Bug
+description: Report something that is broken or unexpected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: Current behavior
+      description: What happens today?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to /inventory
+        2. Apply the brand filter
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did you see this?
+      options:
+        - Production
+        - Staging
+        - Local
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra context
+      description: Screenshots, URLs, bike IDs, or browser details.
+    validations:
+      required: false
