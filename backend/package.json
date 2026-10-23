@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22.23.4"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",

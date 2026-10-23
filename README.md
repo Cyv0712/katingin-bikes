@@ -8,7 +8,7 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 - **Dynamic Inventory Management**: A secure Admin Dashboard allowing staff to easily add, edit, and remove motorcycle listings.
 - **Automated Media Handling**: Bike photos are optimized and stored on the API server under `backend/uploads/` (legacy Cloudinary URLs still render if present).
 - **Intelligent Stock Tracking**: Real-time cross-referencing between static showcase data and the live database to display accurate "Available" or "Sold Out" badges.
-- **Traffic Insights**: Built-in **Vercel Web Analytics** integration to track visitor engagement and popular listings.
+- **Traffic Insights**: Self-hosted **Umami** analytics to track visitor engagement and popular listings.
 - **White-Label Architecture**: Designed with decoupled brand configurations (`brandConfig.js`), allowing the entire platform's identity, colors, and assets to be swapped in minutes.
 
 ---
@@ -19,7 +19,7 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 - **React 19** & **Vite**: For lightning-fast local development and optimized production builds.
 - **React Router DOM**: Client-side routing for seamless page transitions.
 - **React Bootstrap**: Responsive grid system and component structure.
-- **Vercel Analytics**: Real-time traffic monitoring.
+- **Umami**: Self-hosted, real-time traffic monitoring.
 
 ### Backend & Database
 - **Node.js & Express**: Fast, lightweight REST API architecture.
@@ -27,8 +27,9 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 - **Multer + Sharp**: Multipart uploads, resized to WebP on disk.
 
 ### Hosting
-- **Frontend**: [Vercel](https://vercel.com). Production deploys from `main`; staging deploys from `staging`.
-- **Backend**: Node/Express API with disk uploads. Production and staging each need their own process and Mongo database — see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Frontend**: static Vite build served by Caddy, deployed with [Coolify](https://coolify.io) on a Hostinger VPS (Nixpacks build). Production deploys from `main`; staging deploys from `staging`.
+- **Backend**: Node/Express API with disk uploads, deployed with Coolify on the same VPS (Nixpacks build). Production and staging each need their own process and Mongo database — see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Node version**: Node 22 (`.nvmrc`, `engines` in both `package.json` files, `frontend/nixpacks.toml`, and `NIXPACKS_NODE_VERSION=22` on the Coolify backend app). Bump these together when upgrading.
 
 ---
 
@@ -43,7 +44,7 @@ Ideas and bugs are [GitHub Issues](https://github.com/Cyv0712/katingin-bikes/iss
 ## 🚀 Getting Started Locally
 
 ### Prerequisites
-- Node.js installed (v18 or higher recommended)
+- Node.js 22.23.4 or higher (see `.nvmrc`; older releases are missing the October 2026 security fixes)
 - MongoDB Atlas account (or local MongoDB instance)
 
 ### 1. Clone the repository

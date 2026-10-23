@@ -14,10 +14,10 @@ Issue → feature/branch (cut from staging)
 
 | Branch | Purpose | Deploys |
 | --- | --- | --- |
-| `main` | Production. Never push here directly. | Vercel Production (`katinginbikes.com`) |
-| `staging` | Integration branch. Merge feature PRs here first. | Vercel Staging environment |
-| `feature/short-name` | New work, cut from `staging`. | Vercel Preview (on the PR) |
-| `fix/short-name` | Bug fixes, cut from `staging` (or `main` for a hotfix). | Vercel Preview (on the PR) |
+| `main` | Production. Never push here directly. | Coolify production apps (`katinginbikes.com`) |
+| `staging` | Integration branch. Merge feature PRs here first. | Coolify staging apps |
+| `feature/short-name` | New work, cut from `staging`. | Nothing (test locally, then on staging after merge) |
+| `fix/short-name` | Bug fixes, cut from `staging` (or `main` for a hotfix). | Nothing (test locally, then on staging after merge) |
 
 One GitHub Issue per branch when practical. Link it from the PR with `Closes #N`.
 
@@ -32,7 +32,7 @@ One GitHub Issue per branch when practical. Link it from the PR with `Closes #N`
    git checkout -b feature/short-name
    ```
 
-3. Open a pull request **into `staging`**. Use the Vercel Preview on the PR. After merge, re-check the persistent staging URL.
+3. Open a pull request **into `staging`**. After merge, check the change on the persistent staging URL.
 4. When staging looks good, open a PR **`staging` → `main`** to ship production.
 5. Close the issue (`Closes #N`). If customers or staff will see the change, update `WEBSITE_FEATURES.md` in that same production PR (or immediately after).
 
@@ -67,17 +67,17 @@ Staging must have its **own Mongo database and API**. Sharing production Mongo w
 | | Production | Staging |
 | --- | --- | --- |
 | Git branch | `main` | `staging` |
-| Frontend | Vercel Production (`katinginbikes.com`) | Vercel custom environment on `staging` |
-| Backend | Current production API | Second API process (second Render service, or second process on the VPS) |
+| Frontend | Coolify app on `main` (`katinginbikes.com`) | Second Coolify app on `staging` |
+| Backend | Current production API (Coolify) | Second Coolify app on `staging` |
 | Database | Current Atlas database | Same Atlas cluster, database name `katinginbikes-staging` |
 
-Keep Vercel Preview deploys for feature PRs. The persistent staging URL is for post-merge checks.
+The persistent staging URL is for post-merge checks.
 
 Seed staging with a copy or a small fake inventory. Never by pointing `MONGO_URI` at production.
 
 ### Staging env vars (distinct from production)
 
-Frontend (Vercel Staging environment):
+Frontend (staging Coolify app, as a **build variable**, since Vite bakes it in at build time):
 
 ```env
 VITE_API_URL=https://your-staging-api.example.com
@@ -102,7 +102,7 @@ Local development uses `backend/.env` and `frontend/.env` (gitignored). Copy fro
 
 ## Remaining dashboard setup
 
-These cannot be applied from the repo alone. Do them once in GitHub, Vercel, and Atlas.
+These cannot be applied from the repo alone. Do them once in GitHub, Coolify, and Atlas.
 
 ### 1. Branch protection (`main` and `staging`)
 
@@ -110,17 +110,16 @@ Applied: [Protect main and staging](https://github.com/Cyv0712/katingin-bikes/ru
 
 To change it later: GitHub → **Settings → Rules → Rulesets**.
 
-### 2. Vercel Staging environment
+### 2. Staging frontend app
 
-Vercel → project **katingin-bikes** → **Settings → Environments**:
+Coolify → the project that holds the production frontend → duplicate the frontend application:
 
-1. Keep Production assigned to `main`.
-2. Create a custom environment named **Staging**.
-3. Assign branch `staging`.
-4. Set Staging env var `VITE_API_URL` to the staging API URL (not production).
-5. Optional: attach `staging.katinginbikes.com` (or use the `*.vercel.app` staging URL).
+1. Keep the production app on branch `main`.
+2. Set the duplicate's branch to `staging`.
+3. Set build variable `VITE_API_URL` to the staging API URL (not production).
+4. Attach a domain such as `staging.katinginbikes.com`.
 
-Feature PRs keep using Preview deployments. Do not reuse Production `VITE_API_URL` on Staging.
+Do not reuse the production `VITE_API_URL` on staging.
 
 ### 3. Atlas database `katinginbikes-staging`
 
@@ -132,12 +131,13 @@ MongoDB Atlas → the existing cluster → **Browse Collections** (or connection
 
 ### 4. Staging API process
 
-Stand up a second Node process from the `staging` branch:
+In Coolify, duplicate the backend application, set the branch to `staging`, paste the staging env vars above, and keep `NIXPACKS_NODE_VERSION=22` as a build variable. Give it its own persistent storage for `uploads`.
 
-- **Render:** duplicate the web service, set the branch to `staging`, paste the staging env vars above.
-- **VPS:** second systemd/PM2 process, different port or hostname, same staging env vars, disk uploads in a separate `uploads` directory.
+Confirm `/health` responds, then put that URL into the staging frontend's `VITE_API_URL` and into `CORS_ORIGIN` on the API.
 
-Confirm `/health` responds, then put that URL into Vercel Staging `VITE_API_URL` and into `CORS_ORIGIN` on the API.
+## Node version
+
+Node 22 is pinned in `.nvmrc`, the `engines` field of `frontend/package.json` and `backend/package.json`, `frontend/nixpacks.toml`, and the `NIXPACKS_NODE_VERSION` variable on each Coolify backend app. When Node ships a security release, update all of them together, then redeploy with **Force rebuild without cache** and confirm with `node -v` in the Coolify terminal.
 
 ### 5. GitHub Project board
 
