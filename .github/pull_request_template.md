@@ -11,4 +11,4 @@ Closes #
 
 ## Staging
 
-- [ ] Checked on the Vercel Preview URL, or on staging after merge
+- [ ] Checked on staging after merge
