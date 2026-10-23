@@ -28,8 +28,8 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 
 ### Hosting
 - **Frontend**: static Vite build served by Caddy, deployed with [Coolify](https://coolify.io) on a Hostinger VPS (Nixpacks build). Production deploys from `main`; staging deploys from `staging`.
-- **Backend**: Node/Express API with disk uploads, deployed with Coolify on the same VPS (Nixpacks build). Production and staging each need their own process and Mongo database — see [CONTRIBUTING.md](CONTRIBUTING.md).
-- **Node version**: Node 22 (`.nvmrc`, `engines` in both `package.json` files, `frontend/nixpacks.toml`, and `NIXPACKS_NODE_VERSION=22` on the Coolify backend app). Bump these together when upgrading.
+- **Backend**: Node/Express API with disk uploads, deployed with Coolify on the same VPS (`backend/Dockerfile` build, so the Node patch version is pinned). Production and staging each need their own process and Mongo database — see [CONTRIBUTING.md](CONTRIBUTING.md).
+- **Node version**: Node 22 (`.nvmrc`, `engines` in both `package.json` files, `frontend/nixpacks.toml`, and the exact tag in `backend/Dockerfile`). Bump these together when upgrading.
 
 ---
 

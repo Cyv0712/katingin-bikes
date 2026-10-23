@@ -1,0 +1,7 @@
+node_modules
+uploads
+db-dump
+scripts
+.env
+.env.*
+!.env.example

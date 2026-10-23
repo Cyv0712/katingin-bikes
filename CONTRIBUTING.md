@@ -131,13 +131,13 @@ MongoDB Atlas → the existing cluster → **Browse Collections** (or connection
 
 ### 4. Staging API process
 
-In Coolify, duplicate the backend application, set the branch to `staging`, paste the staging env vars above, and keep `NIXPACKS_NODE_VERSION=22` as a build variable. Give it its own persistent storage for `uploads`.
+In Coolify, duplicate the backend application, set the branch to `staging`, paste the staging env vars above, and keep its Build Pack set to **Dockerfile** (base directory `/backend`). Give it its own persistent storage for `uploads`.
 
 Confirm `/health` responds, then put that URL into the staging frontend's `VITE_API_URL` and into `CORS_ORIGIN` on the API.
 
 ## Node version
 
-Node 22 is pinned in `.nvmrc`, the `engines` field of `frontend/package.json` and `backend/package.json`, `frontend/nixpacks.toml`, and the `NIXPACKS_NODE_VERSION` variable on each Coolify backend app. When Node ships a security release, update all of them together, then redeploy with **Force rebuild without cache** and confirm with `node -v` in the Coolify terminal.
+Node 22 is pinned in `.nvmrc`, the `engines` field of `frontend/package.json` and `backend/package.json`, `frontend/nixpacks.toml`, and the exact image tag in `backend/Dockerfile` (the backend uses a Dockerfile because Nixpacks only picks a major version and lags on patch releases). When Node ships a security release, update all of them together, then redeploy with **Force rebuild without cache** and confirm with `node -v` in the backend's Coolify terminal.
 
 ### 5. GitHub Project board
 
