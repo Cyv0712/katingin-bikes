@@ -36,7 +36,7 @@ A premium, high-performance web application designed for a high-end pre-owned mo
 
 `main` is production. `staging` is the integration branch. New work goes on `feature/*` or `fix/*` branches, PRs into `staging`, then a PR from `staging` into `main` to ship.
 
-Ideas and bugs are GitHub Issues on a Project board (Backlog → Done). How to file issues, name branches, and set up staging is in [CONTRIBUTING.md](CONTRIBUTING.md). Do not push straight to `main`.
+Ideas and bugs are [GitHub Issues](https://github.com/Cyv0712/katingin-bikes/issues/new/choose) on a [Project board](https://github.com/Cyv0712/katingin-bikes/projects) (Backlog → Done). How to file issues, name branches, and set up staging is in [CONTRIBUTING.md](CONTRIBUTING.md). Do not push straight to `main`.
 
 ---
 

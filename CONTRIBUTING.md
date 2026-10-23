@@ -106,12 +106,9 @@ These cannot be applied from the repo alone. Do them once in GitHub, Vercel, and
 
 ### 1. Branch protection (`main` and `staging`)
 
-GitHub → **Settings → Rules → Rulesets** (or **Branches → Add branch protection rule**):
+Applied: [Protect main and staging](https://github.com/Cyv0712/katingin-bikes/rules/25714456). Direct pushes, force pushes, and branch deletion are blocked. A pull request is required; approvals are optional while this is a solo repo.
 
-- Target `main` and `staging` (one ruleset per branch, or a ruleset that matches both).
-- Require a pull request before merging.
-- Do **not** require approvals while this is a solo repo (required PRs still block accidental direct pushes).
-- Do not allow force pushes or deletions.
+To change it later: GitHub → **Settings → Rules → Rulesets**.
 
 ### 2. Vercel Staging environment
 
@@ -144,14 +141,15 @@ Confirm `/health` responds, then put that URL into Vercel Staging `VITE_API_URL`
 
 ### 5. GitHub Project board
 
-`gh` is not required. In the browser:
+The stored GitHub token cannot create Projects (needs the `project` scope). Create it once in the browser:
 
-1. Open [github.com/Cyv0712/katingin-bikes](https://github.com/Cyv0712/katingin-bikes) → **Projects** → **New project**.
-2. Choose **Board**.
-3. Name it **Katingin Bikes**.
-4. Set columns to **Backlog**, **Ready**, **In Progress**, **In Review**, **Done** (rename/add as needed; remove extras).
-5. **Settings → Linked repositories** → add `Cyv0712/katingin-bikes`.
-6. Optional: add a workflow that auto-adds new issues to **Backlog**.
-7. Paste the project URL into this file under **Project board** below once it exists.
+1. Open [Create a new project](https://github.com/users/Cyv0712/projects/new).
+2. Choose **Board**. Name it **Katingin Bikes**.
+3. Set columns to **Backlog**, **Ready**, **In Progress**, **In Review**, **Done** (rename/add as needed; remove extras).
+4. **Settings → Linked repositories** → add `Cyv0712/katingin-bikes`.
+5. Add a workflow that auto-adds new issues and pull requests from this repo to **Backlog**.
+6. Paste the project URL into this file under **Project board** below.
+
+Issue templates already use `feature` / `bug` labels. The issue chooser also links to [the repo Projects tab](https://github.com/Cyv0712/katingin-bikes/projects).
 
 **Project board:** _not created yet — add the URL here after step 5._
