@@ -1,4 +1,3 @@
-import { Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Compass } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
@@ -7,47 +6,18 @@ const NotFound = () => {
   return (
     <div
       className="d-flex align-items-center justify-content-center text-center"
-      style={{
-        minHeight: '80vh',
-        marginTop: '76px', // Offset for Navbar
-        backgroundColor: '#080808',
-        color: '#f0f0f0'
-      }}
+      style={{ minHeight: '70vh', padding: '64px 20px' }}
     >
       <Helmet><title>Katingin Bikes - Page Not Found</title></Helmet>
-      <Container>
-        <Compass 
-          className="text-accent mb-4 animate-pulse" 
-          size={72} 
-          strokeWidth={1.5}
-          style={{ animation: 'pulse 2s infinite' }}
-        />
-        <h1 
-          className="moto-heading mb-3" 
-          style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', letterSpacing: '4px' }}
-        >
-          404
-        </h1>
-        <h2 
-          className="moto-heading mb-4 text-accent" 
-          style={{ fontSize: '1.5rem', letterSpacing: '2px' }}
-        >
-          LOST THE TRAIL?
-        </h2>
-        <p 
-          className="text-secondary mx-auto mb-5" 
-          style={{ maxWidth: '500px', fontSize: '1rem', lineHeight: '1.6' }}
-        >
-          The page you are looking for has been moved, renamed, or does not exist. Let's get you back on track to finding your dream ride.
+      <div className="container">
+        <Compass className="text-accent mb-4" size={56} strokeWidth={1.75} aria-hidden="true" />
+        <h1 className="kb-display-xl mb-3">404</h1>
+        <h2 className="kb-h3 mb-3">Lost the trail?</h2>
+        <p className="kb-body-lg mx-auto mb-5" style={{ maxWidth: '500px' }}>
+          The page you are looking for has been moved, renamed, or does not exist. Let&apos;s get you back on track to finding your dream ride.
         </p>
-        <Link 
-          to="/" 
-          className="moto-btn d-inline-flex align-items-center justify-content-center px-5 py-3"
-          style={{ letterSpacing: '2px', fontWeight: 700 }}
-        >
-          BACK TO SHOWROOM
-        </Link>
-      </Container>
+        <Link to="/" className="moto-btn">Back to showroom</Link>
+      </div>
     </div>
   );
 };

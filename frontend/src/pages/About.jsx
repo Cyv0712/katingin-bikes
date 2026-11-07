@@ -21,21 +21,20 @@ const About = () => {
         className="about-hero position-relative d-flex align-items-center justify-content-center text-center"
         style={{
           minHeight: '80vh',
-          marginTop: '76px', // Offset for navbar
-          backgroundImage: `linear-gradient(to bottom, rgba(10,10,15,0.8), rgba(10,10,15,1)), url('${brandConfig.images.aboutHeroBackground}')`,
+          backgroundImage: `linear-gradient(to bottom, var(--scrim), var(--bg)), url('${brandConfig.images.aboutHeroBackground}')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
         <Container>
           <Reveal>
-            <span className="text-accent mb-3 d-block" style={{ letterSpacing: '6px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
+            <span className="text-accent mb-3 d-block">
               {brandConfig.aboutHeroSubtitle}
             </span>
             <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(2rem, 8vw, 4.5rem)' }}>
               {brandConfig.aboutHeroTitle}
             </h1>
-            <p className="lead text-secondary mx-auto" style={{ maxWidth: '800px', fontSize: 'clamp(0.95rem, 2.5vw, 1.2rem)', borderLeft: '2px solid var(--accent-primary)', paddingLeft: '20px', lineHeight: '1.8' }}>
+            <p className="lead text-secondary mx-auto" style={{ maxWidth: '800px', fontSize: 'clamp(0.95rem, 2.5vw, 1.2rem)', borderLeft: '2px solid var(--brass)', paddingLeft: '20px', lineHeight: '1.8' }}>
               {brandConfig.aboutHeroDescription}
             </p>
           </Reveal>
@@ -43,7 +42,7 @@ const About = () => {
       </section>
 
       {/* ── 2. The Narrative ── */}
-      <section className="section-padding py-5 mt-5">
+      <section className="kb-section">
         <Container>
           <Row className="align-items-center gy-5">
             <Col lg={6}>
@@ -57,7 +56,7 @@ const About = () => {
                       {para}
                     </p>
                   ))}
-                  <div className="mt-4 p-4 moto-card about-quote-card" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', borderLeft: '4px solid var(--accent-primary)' }}>
+                  <div className="mt-4 p-4 moto-card about-quote-card" style={{ backgroundColor: 'var(--brass-soft)', borderLeft: '4px solid var(--brass)' }}>
                     <div className="d-flex align-items-center gap-3">
                       <Handshake className="text-accent" size={32} />
                       <p className="mb-0 text-primary" style={{ fontSize: '1.1rem', fontStyle: 'italic', fontWeight: 600 }}>"{brandConfig.quote}"</p>
@@ -76,7 +75,7 @@ const About = () => {
                       className="img-fluid rounded"
                       style={{ filter: 'grayscale(0.3) contrast(1.1)', transition: 'all 0.5s ease' }}
                     />
-                    <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(45deg, var(--accent-primary) 0%, transparent 5%, transparent 95%, var(--accent-primary) 100%)', opacity: 0.1, pointerEvents: 'none' }}></div>
+                    <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: 'linear-gradient(45deg, var(--brass) 0%, transparent 5%, transparent 95%, var(--brass) 100%)', opacity: 0.1, pointerEvents: 'none' }}></div>
                   </div>
                 </div>
               </Reveal>
@@ -86,7 +85,7 @@ const About = () => {
       </section>
 
       {/* ── 3. The Philosophy ── */}
-      <section className="section-padding py-5">
+      <section className="kb-section">
         <Container>
           <Row className="justify-content-center text-center mb-5">
             <Col md={8}>
@@ -106,7 +105,7 @@ const About = () => {
                <Col md={4} key={i}>
                  <Reveal delay={i + 1} className="h-100">
                    <div className="moto-card p-4 h-100 text-center">
-                     <div className="d-inline-flex align-items-center justify-content-center mb-4 bg-muted rounded-circle" style={{ width: '80px', height: '80px', color: 'var(--accent-primary)' }}>
+                     <div className="d-inline-flex align-items-center justify-content-center mb-4 kb-bg-raised rounded-circle" style={{ width: '80px', height: '80px', color: 'var(--brass)' }}>
                        <item.icon size={36} strokeWidth={1.5} />
                      </div>
                      <h4 className="moto-heading mb-3" style={{ fontSize: '1.2rem' }}>{item.title}</h4>
@@ -120,7 +119,7 @@ const About = () => {
       </section>
 
       {/* ── 4. The Experience ── */}
-      <section className="section-padding py-5 mt-4">
+      <section className="kb-section">
         <Container>
           <div className="mb-5 text-center">
              <h2 className="moto-heading">THE <span className="text-accent">EXPERIENCE</span></h2>
@@ -137,7 +136,7 @@ const About = () => {
                      <div style={{ height: '240px', overflow: 'hidden' }}>
                        <img src={card.img} alt={card.title} className="w-100 h-100" style={{ objectFit: 'cover' }} />
                      </div>
-                     <div className="p-4 bg-muted h-100">
+                     <div className="p-4 kb-bg-raised h-100">
                        <h5 className="moto-heading mb-3" style={{ fontSize: '1.1rem' }}>{card.title}</h5>
                        <p className="text-secondary mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>{card.desc}</p>
                      </div>
@@ -150,7 +149,7 @@ const About = () => {
       </section>
 
       {/* ── 5. Call to Action ── */}
-      <section className="mt-5 py-5 text-center" style={{ borderTop: '1px solid var(--border-color)' }}>
+      <section className="mt-5 py-5 text-center" style={{ borderTop: '1px solid var(--line)' }}>
         <Container>
           <h3 className="moto-heading mb-4" style={{ fontSize: '2rem' }}>READY TO RIDE?</h3>
           <div className="d-flex justify-content-center gap-4 flex-wrap mt-4">

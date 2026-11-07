@@ -1,40 +1,49 @@
+import { useState } from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { brandConfig } from '../data/brandConfig';
 
 const NavigationBar = () => {
   const location = useLocation();
-  const isInventoryActive = location.pathname === '/inventory' || 
-                            location.pathname.startsWith('/bike') || 
-                            location.pathname.startsWith('/showcase');
+  const [expanded, setExpanded] = useState(false);
+  const close = () => setExpanded(false);
+
+  // Inventory stays highlighted on a bike's own page and on showcase pages
+  const isInventoryActive =
+    location.pathname === '/inventory' ||
+    location.pathname.startsWith('/bike') ||
+    location.pathname.startsWith('/showcase');
+
+  const linkClass = ({ isActive }) => `nav-link ${isActive ? 'active' : ''}`;
 
   return (
-    <Navbar expand="lg" fixed="top" className="moto-nav glass-panel border-0" variant="dark" style={{ border: 'none', borderBottom: 'none', boxShadow: 'none' }}>
+    <Navbar expand="lg" className="moto-nav" expanded={expanded} onToggle={setExpanded}>
       <Container>
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center gap-2 gap-sm-3" style={{ fontWeight: 800, fontSize: 'clamp(1.05rem, 3.2vw, 1.35rem)' }}>
-          <img 
-            src="/static_data/Katingin_logo.webp" 
-            alt="Katingin Bikes Logo" 
-            style={{ height: 'clamp(32px, 7vw, 38px)', width: 'auto', borderRadius: '4px', transform: 'translateY(1px)' }} 
-          />
-          <span style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.5px' }}>
-            {brandConfig.name}
-          </span>
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/9/99/Flag_of_the_Philippines.svg"
-            alt="Philippines"
-            className="d-none d-sm-inline-block ms-1"
-            style={{ height: '14px', width: 'auto', borderRadius: '2px', opacity: 0.85 }}
-          />
+        <Navbar.Brand as={Link} to="/" className="kb-brand" aria-label={`${brandConfig.fullName} home`} onClick={close}>
+          <img src="/static_data/Katingin_logo.webp" alt="" width="40" height="40" />
+          <span className="kb-brand-name">{brandConfig.fullName}</span>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" aria-label="Toggle Navigation Bar" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto align-items-lg-center">
-            <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>HOME</NavLink>
-            <NavLink to="/inventory" className={`nav-link ${isInventoryActive ? 'active' : ''}`}>INVENTORY</NavLink>
-            <NavLink to="/financing" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>FINANCING</NavLink>
-            <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>CONTACT</NavLink>
-            <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>ADMIN</NavLink>
+        <Navbar.Toggle
+          aria-controls="main-navigation"
+          aria-label={expanded ? 'Close menu' : 'Open menu'}
+          className="kb-nav-toggle"
+        >
+          {expanded ? <X size={20} strokeWidth={1.75} aria-hidden="true" /> : <Menu size={20} strokeWidth={1.75} aria-hidden="true" />}
+        </Navbar.Toggle>
+        <Navbar.Collapse id="main-navigation">
+          <Nav as="nav" aria-label="Main" className="ms-auto">
+            <NavLink to="/" end className={linkClass} onClick={close}>Home</NavLink>
+            <Link
+              to="/inventory"
+              className={`nav-link ${isInventoryActive ? 'active' : ''}`}
+              aria-current={isInventoryActive ? 'page' : undefined}
+              onClick={close}
+            >
+              Inventory
+            </Link>
+            <NavLink to="/financing" className={linkClass} onClick={close}>Financing</NavLink>
+            <NavLink to="/contact" className={linkClass} onClick={close}>Contact</NavLink>
           </Nav>
         </Navbar.Collapse>
       </Container>

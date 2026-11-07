@@ -1,50 +1,61 @@
-import { Container, Row, Col } from 'react-bootstrap';
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { brandConfig } from '../data/brandConfig';
-import Reveal from './Reveal';
+import { bikeAlt, bikePath, getBikeImage, withPeso } from '../utils/format';
 
-const HeroSection = () => {
+const HeroTile = ({ bike }) => (
+  <Link to={bikePath(bike)} className="kb-hero-tile moto-card moto-card-link" aria-label={`${bike.brand} ${bike.model}, ${withPeso(bike.price)}`}>
+    <img src={getBikeImage(bike)} alt={bikeAlt(bike)} />
+    <span className="kb-price-plate kb-price-plate-overlay">{withPeso(bike.price)}</span>
+  </Link>
+);
+
+const TilePlaceholder = () => (
+  <div className="kb-hero-tile moto-card skeleton-img" aria-hidden="true" />
+);
+
+/**
+ * Home hero: headline + two actions on the left, and a staggered 2x2 grid of
+ * the newest bikes on the right (hidden on phone, like the mockup).
+ * `bikes` are up to four available bikes that have a photo.
+ */
+const HeroSection = ({ bikes, loading }) => {
+  const columns = [bikes.slice(0, 2), bikes.slice(2, 4)];
+
   return (
-    <section 
-      id="home" 
-      className="hero-section position-relative overflow-hidden"
-      style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65)), url('${brandConfig.images.heroBackground}')`
-      }}
+    <section
+      id="home"
+      className="kb-hero"
+      style={{ '--hero-image': `url('${brandConfig.images.heroBackground}')` }}
     >
-      <Container className="pt-5 mt-4">
-        <Row className="justify-content-center text-center">
-          <Col lg={10} className="hero-content py-5">
-            <Reveal>
-              <h1 className="moto-heading mb-3" style={{ fontSize: 'clamp(3rem, 9vw, 6rem)', lineHeight: 1.02, letterSpacing: '-1px' }}>
-                {brandConfig.aboutHeroTitle}
-              </h1>
-              
-              <p className="text-accent fw-bold text-mono mb-4 text-uppercase" style={{ fontSize: 'clamp(0.9rem, 2.2vw, 1.25rem)', letterSpacing: '4px' }}>
-                {brandConfig.aboutHeroSubtitle}
-              </p>
-              
-              <p className="lead mb-5 text-secondary mx-auto" style={{ maxWidth: '680px', fontSize: '1.1rem', lineHeight: '1.7' }}>
-                {brandConfig.aboutHeroDescription}
-              </p>
-              
-              <div className="d-flex flex-wrap gap-3 justify-content-center">
-                <Link to="/inventory" className="text-decoration-none">
-                  <button className="moto-btn px-4 py-3">
-                    VIEW INVENTORY <ArrowRight size={18} className="ms-2" />
-                  </button>
-                </Link>
-                <Link to="/contact" className="text-decoration-none">
-                  <button className="moto-btn moto-btn-outline px-4 py-3">
-                    CONTACT US
-                  </button>
-                </Link>
-              </div>
-            </Reveal>
-          </Col>
-        </Row>
-      </Container>
+      <div className="container">
+        <div className="kb-hero-inner">
+          <div className="kb-hero-copy">
+            <h1 className="kb-display-xl m-0">Pre-owned big bikes in Metro Manila</h1>
+            <p className="kb-body-lg m-0" style={{ maxWidth: '500px' }}>
+              Transparent inspection, complete OR/CR papers, and low downpayment financing.
+            </p>
+            <div className="kb-hero-actions">
+              <Link to="/inventory" className="moto-btn">View inventory</Link>
+              <Link to="/contact" className="moto-btn moto-btn-outline">Contact us</Link>
+            </div>
+          </div>
+
+          <div className="kb-hero-grid">
+            {loading
+              ? [0, 1].map((col) => (
+                  <div className="kb-hero-col" key={col}>
+                    <TilePlaceholder />
+                    <TilePlaceholder />
+                  </div>
+                ))
+              : columns.map((column, col) => (
+                  <div className="kb-hero-col" key={col}>
+                    {column.map((bike) => <HeroTile key={bike._id} bike={bike} />)}
+                  </div>
+                ))}
+          </div>
+        </div>
+      </div>
     </section>
   );
 };

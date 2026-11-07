@@ -28,7 +28,7 @@ const buyers = [
 
 const HappyBuyers = () => {
   return (
-    <section id="buyers" className="section-padding">
+    <section id="buyers" className="kb-section">
       <Container>
         <Reveal>
           <div className="text-center mb-5">
@@ -41,7 +41,7 @@ const HappyBuyers = () => {
           {buyers.map((buyer, index) => (
             <Col lg={4} md={6} key={buyer.id}>
               <Reveal delay={index + 1}>
-                <div className="moto-card glass-panel d-flex flex-column h-100 p-4">
+                <div className="moto-card d-flex flex-column h-100 p-4">
                   <div className="d-flex justify-content-between align-items-center mb-3">
                     <Quote size={28} className="text-accent" strokeWidth={1.5} />
                     <div className="d-flex gap-1 text-accent">
@@ -55,7 +55,7 @@ const HappyBuyers = () => {
                     "{buyer.quote}"
                   </p>
                   
-                  <div className="d-flex align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                  <div className="d-flex align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--line)' }}>
                     <img 
                       src={buyer.image} 
                       alt={buyer.name} 
@@ -68,7 +68,7 @@ const HappyBuyers = () => {
                         <h5 className="moto-heading mb-0" style={{ fontSize: '0.98rem', textTransform: 'none' }}>{buyer.name}</h5>
                         <CheckCircle size={14} className="text-success ms-1" />
                       </div>
-                      <span className="telemetry-badge mt-1 d-inline-block px-2 py-0" style={{ fontSize: '0.7rem' }}>{buyer.bike}</span>
+                      <span className="kb-tag mt-1" style={{ fontSize: '0.7rem' }}>{buyer.bike}</span>
                     </div>
                   </div>
                 </div>

@@ -21,8 +21,8 @@ export const brandConfig = {
 
   // Theme Overrides
   theme: {
-    accent: '#D4AF37', // Gold from logo
-    bgDark: '#111111',
+    accent: '#d9a630', // Brass from the logo badge
+    bgDark: '#14161a',
   },
 
   // Brand Assets & Images

@@ -22,18 +22,21 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   const [showSplash, setShowSplash] = useState(() => {
-    // Skip splash screen if the user has already loaded/seen it in this session
+    // Only play the splash on the first load of a session, not on refreshes
     return !sessionStorage.getItem('hasSeenSplash');
   });
 
-  // Lock body scroll during splash
+  // Lock scroll during splash. html sets overflow-x: clip, which stops the
+  // body value propagating to the viewport, so lock both or a scrollbar
+  // shows beside the splash.
   useEffect(() => {
-    if (showSplash) {
-      document.body.style.overflow = 'hidden';
-    } else {
+    const lock = showSplash ? 'hidden' : '';
+    document.documentElement.style.overflow = lock;
+    document.body.style.overflow = lock;
+    return () => {
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
+    };
   }, [showSplash]);
 
   const handleSplashComplete = useCallback(() => {
@@ -47,11 +50,12 @@ function App() {
 
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
-      {/* Navbar & Footer hidden during splash to prevent flash-through */}
-      {!showSplash && <NavigationBar />}
+      {/* The whole app renders underneath the splash so the homepage is
+          already there when it lifts */}
+      <NavigationBar />
       <ErrorBoundary>
         <Suspense fallback={
-          <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '85vh', backgroundColor: '#080808' }}>
+          <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '85vh' }}>
             <div className="spinner-border text-accent" role="status" style={{ width: '3rem', height: '3rem' }}>
               <span className="visually-hidden">Loading...</span>
             </div>
@@ -73,7 +77,7 @@ function App() {
           </Routes>
         </Suspense>
       </ErrorBoundary>
-      {!showSplash && <Footer />}
+      <Footer />
     </Router>
   );
 }

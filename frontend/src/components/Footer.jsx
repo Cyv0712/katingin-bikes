@@ -1,126 +1,90 @@
-import { useState, useEffect } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
-import { Phone, Mail } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { MessageCircle } from 'lucide-react';
+import { FiFacebook, FiInstagram } from 'react-icons/fi';
+import { Container } from 'react-bootstrap';
 import { brandConfig } from '../data/brandConfig';
 import { contactInfo } from '../data/contactInfo';
-import { apiUrl } from '../config/api';
+import { openViber, getContactLinks } from '../utils/contactLinks';
+import useBikes from '../hooks/useBikes';
 
-import { FaViber, FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa';
+const DEFAULT_BRANDS = ['Honda', 'Yamaha', 'Kawasaki', 'BMW', 'Ducati'];
 
 const Footer = () => {
-  const [topBrands, setTopBrands] = useState(['Honda', 'Yamaha', 'Kawasaki', 'BMW', 'Ducati']);
+  const { bikes } = useBikes();
 
-  useEffect(() => {
-    fetch(apiUrl('/api/bikes'))
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const counts = {};
-          data.filter(bike => bike.status === 'Available' || !bike.status).forEach(bike => {
-            if (bike.brand) {
-              const brand = bike.brand.trim();
-              counts[brand] = (counts[brand] || 0) + 1;
-            }
-          });
+  // The five brands we have the most available units of
+  const topBrands = useMemo(() => {
+    const counts = {};
+    bikes.forEach((bike) => {
+      if (bike.brand) {
+        const brand = bike.brand.trim();
+        counts[brand] = (counts[brand] || 0) + 1;
+      }
+    });
 
-          const sorted = Object.keys(counts)
-            .sort((a, b) => {
-              const diff = counts[b] - counts[a];
-              if (diff !== 0) return diff;
-              return a.localeCompare(b);
-            })
-            .slice(0, 5);
+    const sorted = Object.keys(counts)
+      .sort((a, b) => counts[b] - counts[a] || a.localeCompare(b))
+      .slice(0, 5);
 
-          if (sorted.length > 0) {
-            setTopBrands(sorted);
-          }
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to aggregate top brands for footer:', err);
-      });
-  }, []);
+    return sorted.length > 0 ? sorted : DEFAULT_BRANDS;
+  }, [bikes]);
 
   return (
-    <footer className="footer border-top border-secondary-subtle" style={{ backgroundColor: 'var(--bg-void)', paddingTop: '80px', paddingBottom: '40px' }}>
+    <footer className="kb-footer">
       <Container>
-        <Row className="gy-5 mb-5">
-          <Col lg={4} md={12}>
-            <div className="d-flex align-items-center gap-3 mb-4">
-              <img 
-                src="/static_data/Katingin_logo.webp" 
-                alt="Katingin Bikes Logo" 
-                style={{ height: '40px', width: 'auto', borderRadius: '4px' }} 
-              />
-              <h3 className="moto-heading mb-0" style={{ fontSize: '1.4rem', fontWeight: 800 }}>
-                {brandConfig.name}
-              </h3>
+        <div className="kb-footer-main">
+          <div className="d-flex flex-column align-items-start gap-3">
+            <div className="kb-brand">
+              <img src="/static_data/Katingin_logo.webp" alt="" width="40" height="40" />
+              <span className="kb-brand-name">{brandConfig.fullName}</span>
             </div>
-            <p className="text-secondary mb-4 mx-lg-0 mx-auto" style={{ fontSize: '0.92rem', lineHeight: '1.8', maxWidth: '360px' }}>
+            <p className="m-0" style={{ maxWidth: '420px', color: 'var(--ink-muted)' }}>
               {brandConfig.description}
             </p>
-            <div className="d-flex gap-3 mt-4">
-              <a href={contactInfo.facebook} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Follow Katingin Bikes on Facebook">
-                <FaFacebookF size={18} />
+            <div className="d-flex gap-2">
+              <a href={contactInfo.facebook} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Katingin Bikes on Facebook">
+                <FiFacebook size={18} strokeWidth={1.75} aria-hidden="true" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Follow Katingin Bikes on Instagram">
-                <FaInstagram size={18} />
+              <a href={contactInfo.instagram} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Katingin Bikes on Instagram">
+                <FiInstagram size={18} strokeWidth={1.75} aria-hidden="true" />
               </a>
-              <a href="#" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Subscribe to Katingin Bikes on YouTube">
-                <FaYoutube size={18} />
-              </a>
-              <a href={`viber://chat?number=%2B${contactInfo.viber.replace(/^0/, '63')}`} target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Chat with Katingin Bikes on Viber">
-                <FaViber size={18} />
+              <a href={getContactLinks().viber} onClick={openViber} className="social-link" aria-label="Chat with Katingin Bikes on Viber">
+                <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
               </a>
             </div>
-          </Col>
-          
-          <Col lg={2} md={4}>
-            <h5 className="moto-heading mb-4 text-mono" style={{ fontSize: '0.95rem', letterSpacing: '1px' }}>QUICK NAVIGATION</h5>
-            <ul className="list-unstyled d-flex flex-column gap-3 mb-0" style={{ fontSize: '0.92rem' }}>
-              <li><Link to="/" className="text-secondary text-decoration-none hover-accent">Home</Link></li>
-              <li><Link to="/inventory" className="text-secondary text-decoration-none hover-accent">Showroom Inventory</Link></li>
-              <li><Link to="/financing" className="text-secondary text-decoration-none hover-accent">Loan Financing</Link></li>
-              <li><Link to="/contact" className="text-secondary text-decoration-none hover-accent">Contact Support</Link></li>
-              <li><Link to="/privacy-policy" className="text-secondary text-decoration-none hover-accent">Privacy Policy</Link></li>
-            </ul>
-          </Col>
+          </div>
 
-          <Col lg={3} md={4}>
-            <h5 className="moto-heading mb-4 text-mono" style={{ fontSize: '0.95rem', letterSpacing: '1px' }}>TOP BRANDS</h5>
-            <ul className="list-unstyled d-flex flex-column gap-3 mb-0" style={{ fontSize: '0.92rem' }}>
-              {topBrands.map((brand) => (
-                <li key={brand}>
-                  <Link to={`/inventory?brand=${encodeURIComponent(brand)}`} className="text-secondary text-decoration-none hover-accent">
-                    Pre-Owned {brand}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Col>
-          
-          <Col lg={3} md={4}>
-            <h5 className="moto-heading mb-4 text-mono" style={{ fontSize: '0.95rem', letterSpacing: '1px' }}>DIRECT CONTACT</h5>
-            <ul className="list-unstyled d-flex flex-column gap-3 text-secondary mb-0" style={{ fontSize: '0.92rem' }}>
-              <li className="d-flex align-items-center gap-3 p-2 rounded glass-panel">
-                <Phone size={18} className="text-accent flex-shrink-0" />
-                <span className="text-mono">{contactInfo.phone}</span>
-              </li>
-              <li className="d-flex align-items-center gap-3 p-2 rounded glass-panel">
-                <Mail size={18} className="text-accent flex-shrink-0" />
-                <span className="text-break text-mono">{contactInfo.email}</span>
-              </li>
-            </ul>
-          </Col>
-        </Row>
-        
-        <div className="text-center pt-5 mt-4" style={{ borderTop: '1px solid var(--border-color)', opacity: 0.9 }}>
-          <p className="text-secondary mb-0 text-mono" style={{ fontSize: '0.82rem', letterSpacing: '0.5px' }}>
-            &copy; {new Date().getFullYear()} {brandConfig.fullName}. All rights reserved.
-          </p>
-          <p className="text-muted mt-3 mb-0 mx-auto" style={{ fontSize: '0.75rem', letterSpacing: '0.5px', maxWidth: '640px', lineHeight: '1.6' }}>
-            Disclaimer: All motorcycle brand names, logos, and trademarks displayed on this website are the property of their respective owners. {brandConfig.fullName} is an independent platform and does not claim ownership or official affiliation with these brands.
+          <nav aria-label="Footer" className="kb-footer-links">
+            <span className="kb-footer-title">Quick navigation</span>
+            <Link to="/" className="kb-footer-link">Home</Link>
+            <Link to="/inventory" className="kb-footer-link">Inventory</Link>
+            <Link to="/financing" className="kb-footer-link">Financing</Link>
+            <Link to="/contact" className="kb-footer-link">Contact</Link>
+            <Link to="/privacy-policy" className="kb-footer-link">Privacy policy</Link>
+            <Link to="/admin" className="kb-footer-link">Admin</Link>
+          </nav>
+
+          <nav aria-label="Top brands" className="kb-footer-links">
+            <span className="kb-footer-title">Top brands</span>
+            {topBrands.map((brand) => (
+              <Link key={brand} to={`/inventory?brand=${encodeURIComponent(brand)}`} className="kb-footer-link">
+                Pre-owned {brand}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="kb-footer-links">
+            <span className="kb-footer-title">Direct contact</span>
+            <a href={`tel:${contactInfo.phone}`} className="kb-footer-link kb-num">{contactInfo.phone}</a>
+            <a href={`mailto:${contactInfo.email}`} className="kb-footer-link" style={{ overflowWrap: 'anywhere' }}>{contactInfo.email}</a>
+          </div>
+        </div>
+
+        <div className="kb-footer-legal">
+          <span className="kb-caption">&copy; {new Date().getFullYear()} {brandConfig.fullName}. All rights reserved.</span>
+          <p className="kb-caption m-0" style={{ maxWidth: '760px' }}>
+            All motorcycle brand names, logos, and trademarks shown on this website are the property of their respective owners. {brandConfig.fullName} is an independent platform and does not claim ownership or official affiliation with these brands.
           </p>
         </div>
       </Container>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Container, Table, Form, Modal, Row, Col } from 'react-bootstrap';
+import { Table, Form, Modal, Row, Col } from 'react-bootstrap';
 import { Trash, Plus, Bike, Banknote, LogOut, Check, Database, Lock, ShieldAlert, Eye, EyeOff, Pencil, Search, Bookmark } from 'lucide-react';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
 import { Helmet } from 'react-helmet-async';
@@ -477,21 +477,22 @@ const Admin = () => {
   // ── Login Screen ──
   if (!isAuthenticated) {
     return (
-      <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+      <div className="container d-flex align-items-center justify-content-center" style={{ minHeight: '80vh' }}>
         <Helmet><title>Katingin Bikes - Admin</title></Helmet>
-        <div className="moto-card glass-panel p-4 p-sm-5" style={{ width: '100%', maxWidth: '420px', border: '1px solid var(--border-color)' }}>
+        <div className="moto-card p-4 p-sm-5" style={{ width: '100%', maxWidth: '420px' }}>
           <div className="text-center mb-4">
             <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-3 text-destructive">
-              <ShieldAlert size={36} />
+              <ShieldAlert size={36} strokeWidth={1.75} aria-hidden="true" />
             </div>
-            <h3 className="moto-heading mb-1">ADMIN ACCESS</h3>
-            <span className="text-accent text-mono d-block mb-2" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>KATINGIN BIKES</span>
-            <p className="text-destructive fw-bold mb-0" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>AUTHORIZED PERSONNEL ONLY</p>
+            <h1 className="kb-h3 mb-1">Admin access</h1>
+            <span className="kb-caption d-block mb-2">Katingin Bikes</span>
+            <p className="kb-label text-destructive mb-0">Authorized personnel only</p>
           </div>
           <Form onSubmit={handleLogin}>
-            <Form.Group className="mb-4">
+            <Form.Group className="mb-4" controlId="admin-password">
+              <Form.Label className="visually-hidden">Password</Form.Label>
               <div className="position-relative">
-                <Lock size={16} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <Lock size={18} strokeWidth={1.75} className="kb-input-icon" aria-hidden="true" />
                 <Form.Control
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
@@ -501,216 +502,195 @@ const Admin = () => {
                 />
                 <button
                   type="button"
-                  className="position-absolute text-muted p-0"
+                  className="kb-input-action"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  title={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={18} strokeWidth={1.75} aria-hidden="true" /> : <Eye size={18} strokeWidth={1.75} aria-hidden="true" />}
                 </button>
               </div>
             </Form.Group>
-            <button type="submit" className="moto-btn w-100 py-3">
-              LOGIN
+            <button type="submit" className="moto-btn moto-btn-lg moto-btn-block">
+              Log in
             </button>
           </Form>
         </div>
-      </Container>
+      </div>
     );
   }
 
   // ── Dashboard ──
   return (
-    <div style={{ paddingTop: '100px', paddingBottom: '100px', minHeight: '100vh', backgroundColor: 'var(--bg-void)' }}>
+    <div className="admin-page" style={{ paddingBottom: '96px' }}>
       <Helmet><title>Katingin Bikes - Admin</title></Helmet>
-      <Container>
+      <div className="container">
         {/* Header */}
-        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-5">
-          <div>
-            <h2 className="moto-heading mb-0" style={{ fontSize: '2.5rem' }}>DASHBOARD</h2>
-          </div>
-          <div className="d-flex flex-wrap gap-2 gap-sm-3">
-            <button
-              onClick={handleLogout}
-              className="moto-btn moto-btn-outline"
-              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-            >
-              <LogOut size={16} className="me-2" /> LOGOUT
+        <div className="kb-page-head d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+          <h1 className="kb-h1 m-0">Dashboard</h1>
+          <div className="d-flex flex-wrap gap-2">
+            <button onClick={handleLogout} className="moto-btn moto-btn-outline moto-btn-sm">
+              <LogOut size={16} strokeWidth={1.75} aria-hidden="true" /> Log out
             </button>
-            <button 
+            <button
               onClick={() => {
                 setEditingBike(null);
                 setFormData(EMPTY_FORM);
                 setImageFiles([]);
                 setShowModal(true);
-              }} 
-              className="moto-btn" 
-              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              }}
+              className="moto-btn moto-btn-sm"
             >
-              <Plus size={16} className="me-2" /> ADD NEW UNIT
+              <Plus size={16} strokeWidth={1.75} aria-hidden="true" /> Add new unit
             </button>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <Row className="g-4 mb-5">
+        <Row className="g-3 mb-5">
           {[
             {
-              icon: <Bike size={28} className="text-accent" />,
-              label: 'UNITS IN STOCK',
+              icon: <Bike size={28} strokeWidth={1.75} className="text-accent" aria-hidden="true" />,
+              label: 'Units in stock',
               value: stats.count,
-              sub: 'Operational Units Available',
+              sub: 'Operational units available',
             },
             {
-              icon: <Banknote size={28} className="text-accent" />,
-              label: 'TOTAL ASSET VALUE',
+              icon: <Banknote size={28} strokeWidth={1.75} className="text-accent" aria-hidden="true" />,
+              label: 'Total asset value',
               value: `₱${stats.totalInventoryValue.toLocaleString()}`,
-              sub: 'Inventory Liquidity Valuation',
+              sub: 'Inventory liquidity valuation',
             },
           ].map((card) => (
             <Col md={6} key={card.label}>
-              <div className="moto-card glass-panel metallic-glow p-4 h-100">
-                <div className="d-flex justify-content-between align-items-start mb-3">
-                  {card.icon}
-                  <span className="telemetry-badge">LIVE METRICS</span>
-                </div>
-                <div className="text-secondary fw-bold text-mono mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>{card.label}</div>
-                <div className="text-accent fw-bold text-mono" style={{ fontSize: '2.2rem' }}>{card.value}</div>
-                <div className="text-muted text-mono" style={{ fontSize: '0.78rem', marginTop: '8px' }}>{card.sub}</div>
+              <div className="moto-card p-4 h-100">
+                <div className="mb-3">{card.icon}</div>
+                <div className="kb-label mb-1" style={{ color: 'var(--ink-muted)' }}>{card.label}</div>
+                <div className="kb-stat-value">{card.value}</div>
+                <div className="kb-caption mt-2">{card.sub}</div>
               </div>
             </Col>
           ))}
         </Row>
 
         {/* View Selector & Search */}
-        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 mt-5">
-          <h4 className="moto-heading mb-0" style={{ fontSize: '1.4rem' }}>
-             <Database size={20} className="text-accent me-2" /> 
-             {view === 'Available' ? 'ACTIVE INVENTORY TELEMETRY' : 'SOLD UNITS LOG'}
-          </h4>
+        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4">
+          <h2 className="kb-h3 m-0 d-flex align-items-center gap-2">
+            <Database size={22} strokeWidth={1.75} className="text-accent" aria-hidden="true" />
+            {view === 'Available' ? 'Active inventory' : 'Sold units log'}
+          </h2>
           <div className="d-flex flex-column flex-sm-row gap-3 align-items-sm-end" style={{ width: '100%', maxWidth: '500px' }}>
-            <Form.Group className="flex-grow-1">
-              <small className="text-secondary fw-bold text-mono d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>SEARCH INVENTORY</small>
+            <Form.Group className="kb-field flex-grow-1" controlId="admin-search">
+              <Form.Label>Search inventory</Form.Label>
               <div className="position-relative">
-                <Search size={16} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <Search size={18} strokeWidth={1.75} className="kb-input-icon" aria-hidden="true" />
                 <Form.Control
                   type="text"
-                  placeholder="Search brand, model, type..."
+                  placeholder="Brand, model, or type"
                   className="moto-input moto-input-with-icon"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </Form.Group>
-            <Form.Group style={{ minWidth: '180px' }}>
-               <small className="text-secondary fw-bold text-mono d-block mb-1" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>VIEW STATUS</small>
-               <Form.Select 
-                value={view} 
+            <Form.Group className="kb-field" controlId="admin-view" style={{ minWidth: '180px' }}>
+              <Form.Label>View status</Form.Label>
+              <Form.Select
+                value={view}
                 onChange={(e) => setView(e.target.value)}
-                className="moto-input text-white"
+                className="moto-input"
               >
-                <option value="Available">Active Inventory</option>
-                <option value="Sold">Sold Units</option>
+                <option value="Available">Active inventory</option>
+                <option value="Sold">Sold units</option>
               </Form.Select>
             </Form.Group>
           </div>
         </div>
 
         <div className="admin-table-wrapper">
-          <div className="moto-card glass-panel overflow-hidden p-0 border-0">
-            <Table responsive variant="dark" className="mb-0 align-middle" style={{ backgroundColor: 'transparent' }}>
-            <thead style={{ backgroundColor: 'rgba(212, 175, 55, 0.08)', borderBottom: '1px solid var(--border-color)' }}>
-              <tr className="text-mono" style={{ fontSize: '0.82rem' }}>
-                <th className="py-3 ps-4 text-accent" style={{ fontWeight: 700 }}>BRAND</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>MODEL</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>TYPE</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>YEAR</th>
-                <th className="py-3 text-accent" style={{ fontWeight: 700 }}>PRICE</th>
-                <th className="py-3 pe-4 text-center text-accent" style={{ fontWeight: 700 }}>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBikes.length === 0 ? (
+          <div className="moto-card overflow-hidden p-0">
+            <Table responsive className="mb-0 align-middle">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="text-center text-muted py-5 text-mono">
-                    {searchQuery ? 'No matching units found in query.' : `No ${view === 'Available' ? 'available' : 'sold'} units in database.`}
-                  </td>
+                  <th className="py-3 ps-4">Brand</th>
+                  <th className="py-3">Model</th>
+                  <th className="py-3">Type</th>
+                  <th className="py-3">Year</th>
+                  <th className="py-3">Price</th>
+                  <th className="py-3 pe-4 text-center">Actions</th>
                 </tr>
-              ) : (
-                filteredBikes.map((bike) => (
-                  <tr key={bike._id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td className="py-3 ps-4 fw-bold">{bike.brand}</td>
-                    <td className="py-3">
-                      <span className="fw-semibold">{bike.model}</span>
-                      {bike.isReserved && view === 'Available' && (
-                        <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.65rem', fontWeight: 800 }}>RESERVED</span>
-                      )}
-                    </td>
-                    <td className="py-3"><span className="telemetry-badge" style={{ fontSize: '0.7rem' }}>{bike.type ? bike.type.toUpperCase() : '—'}</span></td>
-                    <td className="py-3 text-mono">{bike.year || '—'}</td>
-                    <td className={`py-3 fw-bold text-mono ${view === 'Available' ? 'text-accent' : 'text-muted'}`}>{bike.price}</td>
-                    <td className="py-3 pe-4">
-                      {view === 'Available' ? (
-                        <div className="d-flex justify-content-center gap-2">
-                          <button className="btn btn-sm btn-outline-info p-1" onClick={() => handleEditClick(bike)} title="Edit Unit">
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            className={`btn btn-sm ${bike.isReserved ? 'btn-warning text-dark' : 'btn-outline-warning'}`}
-                            onClick={() => handleToggleReserved(bike)}
-                            title={bike.isReserved ? 'Unmark as Reserved' : 'Mark as Reserved'}
-                          >
-                            <Bookmark size={15} fill={bike.isReserved ? 'currentColor' : 'none'} />
-                          </button>
-                          <button className="btn btn-sm btn-outline-success p-1" onClick={() => handleMarkAsSold(bike._id)} title="Mark as Sold">
-                            <Check size={15} />
-                          </button>
-                          <button className="btn btn-sm btn-outline-danger p-1" onClick={() => handleDelete(bike._id)} title="Delete Unit">
-                            <Trash size={15} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="d-flex justify-content-center">
-                          <button className="btn btn-sm btn-outline-danger p-1" onClick={() => handleDelete(bike._id)} title="Delete Unit">
-                            <Trash size={15} />
-                          </button>
-                        </div>
-                      )}
+              </thead>
+              <tbody>
+                {filteredBikes.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-5" style={{ color: 'var(--ink-muted)' }}>
+                      {searchQuery ? 'No matching units found.' : `No ${view === 'Available' ? 'available' : 'sold'} units in the database.`}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </Table>
+                ) : (
+                  filteredBikes.map((bike) => (
+                    <tr key={bike._id}>
+                      <td className="py-3 ps-4 fw-bold">{bike.brand}</td>
+                      <td className="py-3">
+                        <span className="fw-semibold">{bike.model}</span>
+                        {bike.isReserved && view === 'Available' && (
+                          <span className="kb-badge kb-badge-reserved kb-badge-sm ms-2">Reserved</span>
+                        )}
+                      </td>
+                      <td className="py-3">{bike.type ? <span className="kb-tag">{bike.type}</span> : '—'}</td>
+                      <td className="py-3 kb-num">{bike.year || '—'}</td>
+                      <td className="py-3 fw-bold kb-num" style={{ color: view === 'Available' ? 'var(--ink)' : 'var(--ink-subtle)' }}>{bike.price}</td>
+                      <td className="py-3 pe-4">
+                        {view === 'Available' ? (
+                          <div className="d-flex justify-content-center gap-2">
+                            <button className="kb-icon-btn" onClick={() => handleEditClick(bike)} title="Edit unit" aria-label={`Edit ${bike.brand} ${bike.model}`}>
+                              <Pencil size={16} strokeWidth={1.75} aria-hidden="true" />
+                            </button>
+                            <button
+                              className={`kb-icon-btn kb-icon-btn-brass ${bike.isReserved ? 'is-on' : ''}`}
+                              onClick={() => handleToggleReserved(bike)}
+                              title={bike.isReserved ? 'Unmark as reserved' : 'Mark as reserved'}
+                              aria-label={bike.isReserved ? `Unmark ${bike.brand} ${bike.model} as reserved` : `Mark ${bike.brand} ${bike.model} as reserved`}
+                              aria-pressed={!!bike.isReserved}
+                            >
+                              <Bookmark size={16} strokeWidth={1.75} fill={bike.isReserved ? 'currentColor' : 'none'} aria-hidden="true" />
+                            </button>
+                            <button className="kb-icon-btn kb-icon-btn-success" onClick={() => handleMarkAsSold(bike._id)} title="Mark as sold" aria-label={`Mark ${bike.brand} ${bike.model} as sold`}>
+                              <Check size={16} strokeWidth={1.75} aria-hidden="true" />
+                            </button>
+                            <button className="kb-icon-btn kb-icon-btn-danger" onClick={() => handleDelete(bike._id)} title="Delete unit" aria-label={`Delete ${bike.brand} ${bike.model}`}>
+                              <Trash size={16} strokeWidth={1.75} aria-hidden="true" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="d-flex justify-content-center">
+                            <button className="kb-icon-btn kb-icon-btn-danger" onClick={() => handleDelete(bike._id)} title="Delete unit" aria-label={`Delete ${bike.brand} ${bike.model}`}>
+                              <Trash size={16} strokeWidth={1.75} aria-hidden="true" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </Table>
           </div>
         </div>
 
         {/* Add/Edit Bike Modal */}
         <Modal show={showModal} onHide={() => { setShowModal(false); setEditingBike(null); }} size="lg" centered>
-          <Modal.Header className="border-0 p-4 pb-0 bg-dark text-white" closeVariant="white">
-            <Modal.Title className="moto-heading" style={{ fontSize: '1.4rem' }}>
-              {editingBike ? 'EDIT MOTORCYCLE UNIT' : 'ADD NEW UNIT'}
+          <Modal.Header className="border-0 p-4 pb-0" closeButton>
+            <Modal.Title as="h2" className="kb-h3">
+              {editingBike ? 'Edit motorcycle unit' : 'Add new unit'}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body className="p-4 bg-dark text-white">
+          <Modal.Body className="p-4">
             <Form onSubmit={handleSubmit}>
               <div className="row g-4">
                 {/* ── Custom Identity Inputs ── */}
                 <div className="col-md-12">
-                  <Form.Group>
-                    <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                      Motorcycle Identity <span className="text-accent">*</span>
-                    </label>
+                  <Form.Group className="kb-field" controlId="unit-identity">
+                    <Form.Label>Motorcycle identity <span className="text-accent" aria-hidden="true">*</span></Form.Label>
                     <Form.Control
                       placeholder="BRAND MODEL ENGINE_SIZE (e.g. KAWASAKI Z 1000)"
                       name="combinedIdentity"
@@ -727,7 +707,7 @@ const Admin = () => {
                   if (isHidden) return null;
 
                   const isRequired = ['type', 'year', 'mileage', 'price'].includes(key);
-                  
+
                   const placeholders = {
                     type: 'e.g. Adventure, Sport, Touring',
                     year: 'e.g. 2023',
@@ -746,10 +726,10 @@ const Admin = () => {
 
                   return (
                     <div className="col-md-6" key={key}>
-                      <Form.Group>
-                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          {labelMapping[key] || key} {isRequired && <span className="text-accent">*</span>}
-                        </label>
+                      <Form.Group className="kb-field" controlId={`unit-${key}`}>
+                        <Form.Label>
+                          {labelMapping[key] || key} {isRequired && <span className="text-accent" aria-hidden="true">*</span>}
+                        </Form.Label>
                         <Form.Control
                           as={key === 'description' ? 'textarea' : 'input'}
                           name={key}
@@ -762,8 +742,8 @@ const Admin = () => {
                           type={['year'].includes(key) ? 'number' : 'text'}
                         />
                         {key === 'description' && (
-                          <div className="d-flex justify-content-center align-items-center gap-2 mt-2 text-white-50" style={{ fontSize: '0.75rem' }}>
-                             Press <kbd style={{ backgroundColor: '#333', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', border: '1px solid #444' }}>Shift</kbd> + <kbd style={{ backgroundColor: '#333', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', border: '1px solid #444' }}>Enter</kbd> to move to next bullet
+                          <div className="kb-caption d-flex flex-wrap align-items-center gap-1">
+                            Press <kbd className="kb-kbd">Shift</kbd> + <kbd className="kb-kbd">Enter</kbd> to move to the next bullet
                           </div>
                         )}
                       </Form.Group>
@@ -773,164 +753,108 @@ const Admin = () => {
 
                 {/* ── Financing Settings ── */}
                 <div className="col-md-12 mt-2">
-                  <hr className="border-secondary my-3" />
+                  <hr className="my-3" style={{ borderColor: 'var(--line)', opacity: 1 }} />
                   <Form.Group className="mb-2">
-                    <Form.Check 
+                    <Form.Check
                       type="switch"
                       id="isReserved-switch"
-                      label="Mark as Reserved"
+                      label="Mark as reserved"
                       name="isReserved"
                       checked={formData.isReserved}
                       onChange={(e) => setFormData({ ...formData, isReserved: e.target.checked })}
-                      className="text-warning fw-bold"
                     />
                   </Form.Group>
                   <Form.Group className="mb-2">
-                    <Form.Check 
+                    <Form.Check
                       type="switch"
                       id="isFinanceable-switch"
-                      label="Available for Financing"
+                      label="Available for financing"
                       name="isFinanceable"
                       checked={formData.isFinanceable}
                       onChange={(e) => setFormData({ ...formData, isFinanceable: e.target.checked })}
-                      className="text-accent fw-bold"
                     />
                   </Form.Group>
                 </div>
 
                 {formData.isFinanceable && (
                   <>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          Minimum Downpayment
-                        </label>
-                        <Form.Control
-                          type="text"
-                          name="minDownpayment"
-                          className="moto-input"
-                          value={formData.minDownpayment}
-                          onChange={handleInputChange}
-                          placeholder="e.g. 150000 (just the number)"
-                        />
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          12 Months Monthly Payment
-                        </label>
-                        <Form.Control
-                          type="text"
-                          name="monthly12"
-                          className="moto-input"
-                          value={formData.monthly12}
-                          onChange={handleInputChange}
-                          placeholder="e.g. 45000 (just the number)"
-                        />
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          24 Months Monthly Payment
-                        </label>
-                        <Form.Control
-                          type="text"
-                          name="monthly24"
-                          className="moto-input"
-                          value={formData.monthly24}
-                          onChange={handleInputChange}
-                          placeholder="e.g. 25000 (just the number)"
-                        />
-                      </Form.Group>
-                    </div>
-                    <div className="col-md-6">
-                      <Form.Group>
-                        <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                          36 Months Monthly Payment
-                        </label>
-                        <Form.Control
-                          type="text"
-                          name="monthly36"
-                          className="moto-input"
-                          value={formData.monthly36}
-                          onChange={handleInputChange}
-                          placeholder="e.g. 18000 (just the number)"
-                        />
-                      </Form.Group>
-                    </div>
+                    {[
+                      ['minDownpayment', 'Minimum downpayment', 'e.g. 150000 (just the number)'],
+                      ['monthly12', '12 months monthly payment', 'e.g. 45000 (just the number)'],
+                      ['monthly24', '24 months monthly payment', 'e.g. 25000 (just the number)'],
+                      ['monthly36', '36 months monthly payment', 'e.g. 18000 (just the number)'],
+                    ].map(([name, label, placeholder]) => (
+                      <div className="col-md-6" key={name}>
+                        <Form.Group className="kb-field" controlId={`unit-${name}`}>
+                          <Form.Label>{label}</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name={name}
+                            className="moto-input"
+                            value={formData[name]}
+                            onChange={handleInputChange}
+                            placeholder={placeholder}
+                          />
+                        </Form.Group>
+                      </div>
+                    ))}
                   </>
                 )}
 
                 <div className="col-md-12">
-                  <Form.Group>
-                    <label className="text-white opacity-75 fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '1px' }}>UNIT IMAGES</label>
+                  <Form.Group className="kb-field" controlId="unit-images">
+                    <Form.Label>Unit images</Form.Label>
                     <Form.Control
                       type="file"
                       onChange={handleFileChange}
                       multiple
                       accept="image/*"
                       required={!editingBike}
-                      className="moto-input text-white"
+                      className="moto-input"
                     />
                     {imageFiles.length > 0 && (
-                      <div className="d-flex flex-wrap gap-2 mt-3 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                      <div className="kb-preview-tray">
                         {imageFiles.map((file, idx) => (
-                          <div 
-                            key={idx} 
-                            className="position-relative" 
-                            style={{ cursor: 'pointer', width: '80px', height: '80px' }}
+                          <button
+                            type="button"
+                            key={idx}
+                            className={`kb-preview ${idx === 0 ? 'is-main' : ''}`}
                             onClick={() => setAsThumbnail(idx)}
-                            title={idx === 0 ? 'Current Thumbnail' : 'Click to set as thumbnail'}
+                            title={idx === 0 ? 'Current thumbnail' : 'Click to set as thumbnail'}
+                            aria-label={idx === 0 ? `Image ${idx + 1}, current thumbnail` : `Set image ${idx + 1} as thumbnail`}
                           >
-                            <img 
-                              src={URL.createObjectURL(file)} 
-                              alt="preview" 
-                              className={`w-100 h-100 rounded object-fit-cover ${idx === 0 ? 'border border-accent border-2' : 'opacity-50'}`}
-                            />
+                            <img src={URL.createObjectURL(file)} alt="" />
                             {idx === 0 ? (
-                              <div className="position-absolute bottom-0 start-0 w-100 bg-accent text-dark text-center" style={{ fontSize: '0.6rem', fontWeight: 900 }}>
-                                THUMBNAIL
-                              </div>
+                              <span className="kb-preview-tag">Thumbnail</span>
                             ) : (
-                              <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white opacity-0 hover-opacity-100" style={{ fontSize: '0.6rem', background: 'rgba(0,0,0,0.4)' }}>
-                                SET MAIN
-                              </div>
+                              <span className="kb-preview-overlay">Set main</span>
                             )}
-                          </div>
+                          </button>
                         ))}
                       </div>
                     )}
                     {editingBike && currentImages && currentImages.length > 0 && imageFiles.length === 0 && (
-                      <div className="mt-3">
-                        <small className="text-secondary d-block mb-2" style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px' }}>
-                          CURRENT IMAGES (Click an image to set as thumbnail. Uploading new files will replace these):
-                        </small>
-                        <div className="d-flex flex-wrap gap-2 p-3 rounded" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.05)' }}>
+                      <div className="mt-2">
+                        <span className="kb-caption d-block mb-2">
+                          Current images. Click an image to set it as the thumbnail. Uploading new files will replace these.
+                        </span>
+                        <div className="kb-preview-tray">
                           {currentImages.map((imgUrl, idx) => (
-                            <div 
-                              key={idx} 
-                              className="position-relative" 
-                              style={{ cursor: 'pointer', width: '80px', height: '80px' }}
+                            <button
+                              type="button"
+                              key={idx}
+                              className={`kb-preview ${idx === 0 ? 'is-main' : ''}`}
                               onClick={() => setAsCurrentThumbnail(idx)}
-                              title={idx === 0 ? 'Current Thumbnail' : 'Click to set as thumbnail'}
+                              title={idx === 0 ? 'Current thumbnail' : 'Click to set as thumbnail'}
+                              aria-label={idx === 0 ? `Image ${idx + 1}, current thumbnail` : `Set image ${idx + 1} as thumbnail`}
                             >
-                              <img 
-                                src={toAbsoluteUploadUrl(imgUrl)} 
-                                alt="current" 
-                                className={`w-100 h-100 rounded object-fit-cover ${idx === 0 ? 'border border-accent border-2' : 'opacity-50'}`}
-                              />
+                              <img src={toAbsoluteUploadUrl(imgUrl)} alt="" />
                               {idx === 0 ? (
-                                <div className="position-absolute bottom-0 start-0 w-100 bg-accent text-dark text-center" style={{ fontSize: '0.6rem', fontWeight: 900 }}>
-                                  THUMBNAIL
-                                </div>
+                                <span className="kb-preview-tag">Thumbnail</span>
                               ) : (
-                                <div className="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white opacity-0 hover-opacity-100" style={{ fontSize: '0.6rem', background: 'rgba(0,0,0,0.4)' }}>
-                                  SET MAIN
-                                </div>
+                                <span className="kb-preview-overlay">Set main</span>
                               )}
-                            </div>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -940,39 +864,33 @@ const Admin = () => {
               </div>
               <button
                 type="submit"
-                className="moto-btn w-100 mt-5 py-3"
+                className="moto-btn moto-btn-lg moto-btn-block mt-5"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'SAVING...' : (editingBike ? 'SAVE CHANGES' : 'SAVE UNIT')}
+                {isSubmitting ? 'Saving...' : (editingBike ? 'Save changes' : 'Save unit')}
               </button>
             </Form>
           </Modal.Body>
         </Modal>
-      </Container>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Body className="p-5 bg-dark text-white text-center">
+        <Modal.Body className="p-5 text-center">
           <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-4 text-destructive">
-            <Trash size={40} />
+            <Trash size={40} strokeWidth={1.75} aria-hidden="true" />
           </div>
-          <h3 className="moto-heading mb-3">DELETE UNIT?</h3>
-          <p className="text-secondary mb-5" style={{ fontSize: '0.9rem' }}>
+          <h2 className="kb-h3 mb-3">Delete unit?</h2>
+          <p className="mb-5" style={{ color: 'var(--ink-muted)' }}>
             Are you sure you want to remove this bike from your inventory? <br />
-            <strong>This action cannot be undone.</strong>
+            <strong style={{ color: 'var(--ink)' }}>This action cannot be undone.</strong>
           </p>
           <div className="d-flex flex-column flex-sm-row gap-3">
-            <button 
-              className="moto-btn moto-btn-outline w-100 py-3" 
-              onClick={() => setShowDeleteModal(false)}
-            >
-              CANCEL
+            <button className="moto-btn moto-btn-outline w-100" onClick={() => setShowDeleteModal(false)}>
+              Cancel
             </button>
-            <button 
-              className="moto-btn bg-destructive w-100 py-3 border-0" 
-              onClick={confirmDelete}
-            >
-              DELETE
+            <button className="moto-btn moto-btn-danger w-100" onClick={confirmDelete}>
+              Delete
             </button>
           </div>
         </Modal.Body>
@@ -980,27 +898,21 @@ const Admin = () => {
 
       {/* Mark as Sold Confirmation Modal */}
       <Modal show={showSoldModal} onHide={() => setShowSoldModal(false)} centered>
-        <Modal.Body className="p-5 bg-dark text-white text-center">
-          <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-4 text-accent" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)' }}>
-            <Check size={40} />
+        <Modal.Body className="p-5 text-center">
+          <div className="d-inline-flex p-3 rounded-circle mb-4 text-accent" style={{ backgroundColor: 'var(--brass-soft)' }}>
+            <Check size={40} strokeWidth={1.75} aria-hidden="true" />
           </div>
-          <h3 className="moto-heading mb-3">MARK AS SOLD?</h3>
-          <p className="text-secondary mb-5" style={{ fontSize: '0.9rem' }}>
+          <h2 className="kb-h3 mb-3">Mark as sold?</h2>
+          <p className="mb-5" style={{ color: 'var(--ink-muted)' }}>
             Are you sure you want to mark this bike as sold? <br />
-            <strong>This will delete its images and specifications.</strong>
+            <strong style={{ color: 'var(--ink)' }}>This will delete its images and specifications.</strong>
           </p>
           <div className="d-flex flex-column flex-sm-row gap-3">
-            <button 
-              className="moto-btn moto-btn-outline w-100 py-3" 
-              onClick={() => setShowSoldModal(false)}
-            >
-              CANCEL
+            <button className="moto-btn moto-btn-outline w-100" onClick={() => setShowSoldModal(false)}>
+              Cancel
             </button>
-            <button 
-              className="moto-btn w-100 py-3" 
-              onClick={confirmMarkAsSold}
-            >
-              CONFIRM
+            <button className="moto-btn w-100" onClick={confirmMarkAsSold}>
+              Confirm
             </button>
           </div>
         </Modal.Body>
@@ -1008,19 +920,15 @@ const Admin = () => {
 
       {/* Success Notification Modal */}
       <Modal show={successModal.show} onHide={() => setSuccessModal({ show: false, message: '' })} centered size="sm">
-        <Modal.Body className="p-4 bg-dark text-white text-center" style={{ border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
-          <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-3 text-accent" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)' }}>
-            <Check size={32} />
+        <Modal.Body className="p-4 text-center">
+          <div className="d-inline-flex p-3 rounded-circle mb-3 text-accent" style={{ backgroundColor: 'var(--brass-soft)' }}>
+            <Check size={32} strokeWidth={1.75} aria-hidden="true" />
           </div>
-          <h5 className="moto-heading mb-2 text-primary" style={{ fontSize: '1.2rem', letterSpacing: '1px' }}>SUCCESS</h5>
-          <p className="text-secondary mb-4" style={{ fontSize: '0.85rem', lineHeight: '1.5' }}>
+          <h2 className="kb-h4 mb-2">Success</h2>
+          <p className="kb-body-sm mb-4" style={{ color: 'var(--ink-muted)' }}>
             {successModal.message}
           </p>
-          <button 
-            className="moto-btn w-100 py-2" 
-            onClick={() => setSuccessModal({ show: false, message: '' })}
-            style={{ fontSize: '0.85rem' }}
-          >
+          <button className="moto-btn moto-btn-sm w-100" onClick={() => setSuccessModal({ show: false, message: '' })}>
             OK
           </button>
         </Modal.Body>
