@@ -1,15 +1,18 @@
+import { useMemo } from 'react';
 import HeroSection from '../components/HeroSection';
-import BrandMarquee from '../components/BrandMarquee';
 import FeaturedBikes from '../components/FeaturedBikes';
 import AboutUs from '../components/AboutUs';
+import FinancingContactPanel from '../components/FinancingContactPanel';
 import { Helmet } from 'react-helmet-async';
 import { contactInfo } from '../data/contactInfo';
-
-import { useReveal } from '../hooks/useReveal';
+import useBikes from '../hooks/useBikes';
+import { pickHomeBikes } from '../utils/homeBikes';
 
 const Home = () => {
-  useReveal();
-  
+  const { bikes, loading } = useBikes();
+
+  const { heroBikes, featuredBikes } = useMemo(() => pickHomeBikes(bikes), [bikes]);
+
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "MotorcycleDealer",
@@ -20,7 +23,7 @@ const Home = () => {
     "priceRange": "₱150,000 - ₱1,500,000",
     "sameAs": [
       contactInfo.facebook,
-      "https://www.instagram.com/katinginbikes"
+      contactInfo.instagram
     ].filter(Boolean),
     "address": {
       "@type": "PostalAddress",
@@ -58,10 +61,11 @@ const Home = () => {
           {JSON.stringify(schemaData)}
         </script>
       </Helmet>
-      <HeroSection />
-      <BrandMarquee />
-      <FeaturedBikes />
+      <HeroSection bikes={heroBikes} loading={loading} />
+
+      <FeaturedBikes bikes={featuredBikes} loading={loading} />
       <AboutUs />
+      <FinancingContactPanel />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Row, Col, Badge, Carousel } from 'react-bootstrap';
-import { ArrowLeft, Check, Database, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Carousel } from 'react-bootstrap';
+import { ArrowLeft, Check, Zap } from 'lucide-react';
 import { showcaseBikes } from '../data/showcase';
 import { apiUrl } from '../config/api';
 import { findShowcaseInventoryMatch } from '../utils/showcaseStockMatch';
@@ -39,13 +39,13 @@ const ShowcaseDetails = () => {
     if (!text) return null;
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
     if (lines.length <= 1) {
-      return <p className="text-secondary mb-5" style={{ fontSize: '1.05rem', lineHeight: '1.8' }}>{text}</p>;
+      return <p className="kb-body-lg m-0">{text}</p>;
     }
     return (
-      <ul className="mb-5 ps-0" style={{ listStyle: 'none' }}>
+      <ul className="m-0 p-0 d-flex flex-column gap-2" style={{ listStyle: 'none' }}>
         {lines.map((line, i) => (
-          <li key={i} className="text-secondary d-flex align-items-start gap-2 mb-2" style={{ fontSize: '1.05rem', lineHeight: '1.8' }}>
-            <Check className="text-accent mt-1 flex-shrink-0" size={20} />
+          <li key={i} className="d-flex align-items-start gap-2" style={{ color: 'var(--ink-muted)' }}>
+            <Check className="text-accent flex-shrink-0 mt-1" size={20} strokeWidth={1.75} aria-hidden="true" />
             {line}
           </li>
         ))}
@@ -55,9 +55,9 @@ const ShowcaseDetails = () => {
 
   if (!bike) {
     return (
-      <div style={{ paddingTop: '150px', minHeight: '100vh', textAlign: 'center' }}>
-        <h2 className="moto-heading text-destructive">SHOWCASE BIKE NOT FOUND</h2>
-        <Link to="/" className="moto-btn mt-4">BACK TO SHOWCASE</Link>
+      <div className="container text-center" style={{ padding: '96px 0' }}>
+        <h1 className="kb-h2" style={{ color: 'var(--danger)' }}>Showcase bike not found</h1>
+        <Link to="/inventory" className="moto-btn mt-4">Browse inventory</Link>
       </div>
     );
   }
@@ -81,7 +81,7 @@ const ShowcaseDetails = () => {
   };
 
   return (
-    <div style={{ paddingTop: '120px', paddingBottom: '100px', minHeight: '100vh', backgroundColor: 'var(--bg-void)' }}>
+    <div className="showcase-page">
       <Helmet>
         <title>{`${bike.brand} ${bike.model} | Katingin Bikes Showcase`}</title>
         <meta name="description" content={`Discover the ${bike.brand} ${bike.model} at Katingin Bikes Hall of Fame. ${bike.tagline || ''}. Specifications, features, and live availability.`} />
@@ -93,139 +93,97 @@ const ShowcaseDetails = () => {
           {JSON.stringify(schemaData)}
         </script>
       </Helmet>
-      <Container>
-        <Link to="/" className="text-accent text-decoration-none mb-5 d-inline-flex align-items-center gap-2" style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '1px' }}>
-          <ArrowLeft size={16} /> BACK TO SHOWCASE
+
+      <div className="container pt-3">
+        <Link to="/" className="kb-link">
+          <ArrowLeft size={18} strokeWidth={1.75} aria-hidden="true" />
+          Back to home
         </Link>
-        
-        <Row className="g-5 align-items-center">
-          <Col lg={6}>
-            <div className="moto-card overflow-hidden position-relative border-0" style={{ background: 'transparent' }}>
-              <div className="position-absolute top-0 start-0 p-3" style={{ zIndex: 10 }}>
-                {inStock ? (
-                  <Badge className="bg-success" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>AVAILABLE IN INVENTORY</Badge>
-                ) : (
-                  <Badge className="bg-danger" style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 12px' }}>SOLD OUT</Badge>
-                )}
-              </div>
-              
+      </div>
+
+      <div className="container pt-2">
+        <div className="kb-detail">
+          <div>
+            <div className="kb-gallery-main">
               <Carousel activeIndex={activeIndex} onSelect={(selectedIdx) => setActiveIndex(selectedIdx)} interval={null} controls={false} indicators={false}>
                 {bike.images.map((imgSrc, idx) => (
                   <Carousel.Item key={idx}>
-                    <img 
-                      src={imgSrc} 
-                      alt={`${bike.model} detail ${idx + 1}`} 
-                      className="d-block w-100 rounded" 
-                      style={{ height: 'clamp(260px, 45vw, 600px)', objectFit: 'cover' }} 
-                    />
+                    <img src={imgSrc} alt={`${bike.brand} ${bike.model} photo ${idx + 1}`} />
                   </Carousel.Item>
                 ))}
               </Carousel>
             </div>
 
-            {/* Mini Image Thumbnails Navigation Strip */}
             {bike.images.length > 1 && (
-              <div className="d-flex align-items-center justify-content-center gap-2 mt-3 px-2">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-link p-1 text-secondary text-decoration-none"
-                  onClick={() => setActiveIndex(prev => (prev === 0 ? bike.images.length - 1 : prev - 1))}
-                  aria-label="Previous image thumbnail"
-                >
-                  <ChevronLeft size={22} />
-                </button>
-
-                <div className="d-flex align-items-center gap-2 overflow-x-auto py-1 px-1 no-scrollbar" style={{ maxWidth: '100%' }}>
-                  {bike.images.map((imgSrc, idx) => {
-                    const isActive = activeIndex === idx;
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setActiveIndex(idx)}
-                        className="p-0 border-0 bg-transparent flex-shrink-0"
-                        aria-label={`Select photo ${idx + 1}`}
-                      >
-                        <img
-                          src={imgSrc}
-                          alt={`Thumbnail ${idx + 1}`}
-                          style={{
-                            width: '78px',
-                            height: '78px',
-                            objectFit: 'cover',
-                            borderRadius: '14px',
-                            border: isActive ? '2px solid var(--accent-primary)' : '1px solid rgba(255, 255, 255, 0.15)',
-                            opacity: isActive ? 1 : 0.55,
-                            transform: isActive ? 'scale(1.04)' : 'scale(1)',
-                            transition: 'all 0.2s ease',
-                            boxShadow: isActive ? '0 0 14px rgba(212, 175, 55, 0.35)' : 'none',
-                            cursor: 'pointer'
-                          }}
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <button
-                  type="button"
-                  className="btn btn-sm btn-link p-1 text-secondary text-decoration-none"
-                  onClick={() => setActiveIndex(prev => (prev === bike.images.length - 1 ? 0 : prev + 1))}
-                  aria-label="Next image thumbnail"
-                >
-                  <ChevronRight size={22} />
-                </button>
+              <div className="kb-thumbs">
+                {bike.images.map((imgSrc, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="kb-thumb"
+                    aria-label={`Photo ${idx + 1}${activeIndex === idx ? ', selected' : ''}`}
+                    aria-pressed={activeIndex === idx}
+                    onClick={() => setActiveIndex(idx)}
+                  >
+                    <img src={imgSrc} alt="" loading="lazy" />
+                  </button>
+                ))}
               </div>
             )}
-          </Col>
-          
-          <Col lg={6}>
-            <div className="p-2">
-              <span className="text-secondary mb-2 d-block" style={{ letterSpacing: '2px', fontSize: '0.9rem', fontWeight: 600 }}>{bike.brand.toUpperCase()} HALL OF FAME</span>
-              <h1 className="moto-heading mb-3" style={{ fontSize: 'clamp(2rem, 8vw, 4rem)' }}>{bike.model}</h1>
-              <h4 className="text-accent mb-5 font-italic" style={{ fontSize: '1.2rem', fontStyle: 'italic' }}>"{bike.tagline}"</h4>
-              
-              {renderList(bike.description)}
+          </div>
 
-              <div className="mb-5 p-4 rounded" style={{ border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
-                <h5 className="moto-heading mb-4" style={{ fontSize: '1.1rem' }}><Zap size={20} className="text-accent me-2" /> CORE SPECIFICATIONS</h5>
-                <Row className="g-3">
-                  {bike.features.map((feature, idx) => (
-                    <Col sm={6} key={idx}>
-                      <div className="d-flex align-items-center text-secondary" style={{ fontSize: '0.9rem' }}>
-                        <Check className="text-accent me-2" size={18} />
-                        <span>{feature}</span>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-              
-              {inStock && matchedLiveBike ? (
-                <div className="p-4 rounded glass-panel metallic-glow" style={{ border: '1px solid var(--accent-primary)' }}>
-                  <h5 className="moto-heading mb-2 text-accent" style={{ fontSize: '1.1rem' }}>CURRENTLY AVAILABLE SHOWROOM UNIT</h5>
-                  <p className="text-secondary mb-4" style={{ fontSize: '0.95rem' }}>Great news! We currently have a {bike.model} available in our live inventory. Click below to view the actual unit.</p>
-                  <Link to={`/bike/${createSlug(matchedLiveBike)}-${matchedLiveBike._id}`} className="text-decoration-none">
-                    <button className="moto-btn w-100 py-3" style={{ fontSize: '1rem' }}>
-                       VIEW LIVE INVENTORY UNIT <Database size={18} className="ms-2" />
-                    </button>
-                  </Link>
-                </div>
+          <div className="d-flex flex-column align-items-start gap-4">
+            <div className="d-flex flex-column align-items-start gap-3">
+              {inStock ? (
+                <span className="kb-badge kb-badge-success"><span className="kb-badge-dot" />Available in inventory</span>
               ) : (
-                <div className="p-4 rounded glass-panel" style={{ border: '1px solid var(--border-color)' }}>
-                  <h5 className="moto-heading mb-2 text-white" style={{ fontSize: '1.1rem' }}>OUT OF STOCK</h5>
-                  <p className="text-secondary mb-0" style={{ fontSize: '0.95rem' }}>We don't have any pre-owned {bike.model} units right now. Check back later or browse our other inventory!</p>
-                  <Link to="/inventory" className="text-decoration-none">
-                    <button className="moto-btn moto-btn-outline w-100 mt-4 py-3" style={{ fontSize: '1rem' }}>
-                      BROWSE ALL BIKES
-                    </button>
-                  </Link>
-                </div>
+                <span className="kb-badge kb-badge-danger"><span className="kb-badge-dot" />Sold out</span>
               )}
+              <span className="kb-label" style={{ color: 'var(--ink-muted)' }}>{bike.brand} Hall of Fame</span>
+              <h1 className="kb-h1 m-0">{bike.model}</h1>
+              <p className="kb-h4 m-0" style={{ color: 'var(--brass-text)', fontStyle: 'italic' }}>&ldquo;{bike.tagline}&rdquo;</p>
             </div>
-          </Col>
-        </Row>
-      </Container>
+
+            {renderList(bike.description)}
+
+            <div className="moto-card w-100 p-4">
+              <h2 className="kb-h4 mb-4 d-flex align-items-center gap-2">
+                <Zap size={20} strokeWidth={1.75} className="text-accent" aria-hidden="true" /> Core specifications
+              </h2>
+              <ul className="m-0 p-0 d-grid gap-3" style={{ listStyle: 'none', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                {bike.features.map((feature, idx) => (
+                  <li key={idx} className="d-flex align-items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
+                    <Check className="text-accent flex-shrink-0" size={18} strokeWidth={1.75} aria-hidden="true" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {inStock && matchedLiveBike ? (
+              <div className="moto-card w-100 p-4">
+                <h2 className="kb-h4 mb-2">Currently available showroom unit</h2>
+                <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>
+                  Great news! We currently have a {bike.model} available in our live inventory. View the actual unit below.
+                </p>
+                <Link to={`/bike/${createSlug(matchedLiveBike)}-${matchedLiveBike._id}`} className="moto-btn moto-btn-lg moto-btn-block">
+                  View live inventory unit
+                </Link>
+              </div>
+            ) : (
+              <div className="moto-card w-100 p-4">
+                <h2 className="kb-h4 mb-2">Out of stock</h2>
+                <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>
+                  We don&apos;t have any pre-owned {bike.model} units right now. Check back later or browse our other inventory!
+                </p>
+                <Link to="/inventory" className="moto-btn moto-btn-outline moto-btn-lg moto-btn-block">
+                  Browse all bikes
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

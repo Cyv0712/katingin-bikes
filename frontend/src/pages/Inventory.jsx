@@ -1,53 +1,47 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Container, Row, Col, Badge, Collapse } from 'react-bootstrap';
-import { Route, Calendar, Filter, Info, Search, X, ChevronDown, ArrowUpDown } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
-import SkeletonCard from '../components/SkeletonCard';
-import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
-import Reveal from '../components/Reveal';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Info, Search, X } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import SkeletonCard from '../components/SkeletonCard';
+import BikeCard from '../components/BikeCard';
+import BikeFilters from '../components/BikeFilters';
+import useBikes from '../hooks/useBikes';
 import { createSlug } from '../config/slug';
-
-// --- Helper ---
-const parsePrice = (priceStr) => {
-  if (!priceStr) return 0;
-  return parseFloat(String(priceStr).replace(/[^0-9.]/g, '')) || 0;
-};
-
-const withUnit = (value, suffix) => {
-  if (!value) return '—';
-  const str = String(value).trim();
-  if (str.toLowerCase().endsWith(suffix.toLowerCase())) return str;
-  return `${str} ${suffix}`;
-};
-
-const withPeso = (value) => {
-  if (!value) return '—';
-  const str = String(value).trim();
-  return str.startsWith('₱') ? str : `₱${str}`;
-};
-
-const getImageUrl = (bike) => {
-  if (bike.images && bike.images.length > 0) {
-    return toAbsoluteUploadUrl(bike.images[0]);
-  }
-  return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop';
-};
+import { parsePrice, getBikeImage } from '../utils/format';
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest Listed' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
-  { value: 'year-desc', label: 'Year: Newest First' },
-  { value: 'year-asc', label: 'Year: Oldest First' },
-  { value: 'mileage-asc', label: 'Mileage: Low to High' },
+  { value: 'newest', label: 'Newest listed' },
+  { value: 'price-asc', label: 'Price, low to high' },
+  { value: 'price-desc', label: 'Price, high to low' },
+  { value: 'year-desc', label: 'Year, newest first' },
+  { value: 'year-asc', label: 'Year, oldest first' },
+  { value: 'mileage-asc', label: 'Mileage, low to high' },
 ];
 
+// Bikes added per batch as the visitor scrolls. 12 divides evenly into the
+// 2, 3 and 4 column grids, so the last row is never ragged.
+const PAGE_SIZE = 12;
+// The next batch is added while its sentinel is still this far below the
+// viewport, so new cards are already in place long before they scroll into view.
+const LOAD_AHEAD = '0px 0px 1800px 0px';
+const MIN_SKELETON_MS = 900;
+// Without IntersectionObserver there is no way to know when to load more,
+// so show everything at once rather than strand the visitor.
+const CAN_OBSERVE = typeof IntersectionObserver !== 'undefined';
+
 const Inventory = () => {
-  const [bikesData, setBikesData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const { bikes: bikesData, loading: fetching } = useBikes();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Keep the skeleton up briefly on a cold load so the grid doesn't flash.
+  // If the inventory is already cached, skip the wait.
+  const [minElapsed, setMinElapsed] = useState(!fetching);
+  useEffect(() => {
+    if (minElapsed) return undefined;
+    const timer = setTimeout(() => setMinElapsed(true), MIN_SKELETON_MS);
+    return () => clearTimeout(timer);
+  }, [minElapsed]);
+  const loading = fetching || !minElapsed;
 
   const filters = useMemo(() => ({
     search: searchParams.get('search') || '',
@@ -58,42 +52,12 @@ const Inventory = () => {
     sort: searchParams.get('sort') || 'newest'
   }), [searchParams]);
 
-  useEffect(() => {
-    const MIN_SKELETON_MS = 900;
-    const startedAt = Date.now();
-
-    const fetchBikes = async () => {
-      try {
-        const res = await fetch(apiUrl('/api/bikes'));
-        const data = await res.json();
-        
-        // Handle cases where the backend returns an error object instead of an array
-        if (Array.isArray(data)) {
-          const availableOnly = data.filter(b => b.status === 'Available' || !b.status);
-          setBikesData(availableOnly);
-        } else {
-          console.error('API Error: Expected array but received:', data);
-          setBikesData([]);
-        }
-      } catch (err) {
-        console.error('Fetch Error:', err);
-        setBikesData([]);
-      } finally {
-        const elapsed = Date.now() - startedAt;
-        const remaining = Math.max(0, MIN_SKELETON_MS - elapsed);
-        setTimeout(() => setLoading(false), remaining);
-      }
-    };
-
-    fetchBikes();
-  }, []);
-
   const brands = useMemo(
-    () => ['All', ...new Set(bikesData.map((b) => b.brand).filter(Boolean))].sort(),
+    () => [...new Set(bikesData.map((b) => b.brand).filter(Boolean))].sort(),
     [bikesData]
   );
   const types = useMemo(
-    () => ['All', ...new Set(bikesData.map((b) => b.type).filter(Boolean))].sort(),
+    () => [...new Set(bikesData.map((b) => b.type).filter(Boolean))].sort(),
     [bikesData]
   );
 
@@ -131,8 +95,8 @@ const Inventory = () => {
       case 'mileage-asc':
         return matched.sort((a, b) => parsePrice(a.mileage) - parsePrice(b.mileage));
       default:
-        // "Newest Listed" — explicitly sort by the backend's createdAt timestamp
-        // (set on upload) rather than relying on fetch order.
+        // "Newest listed": sort by the backend's createdAt timestamp (set on
+        // upload) rather than relying on fetch order.
         return matched.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
   }, [bikesData, filters]);
@@ -171,74 +135,43 @@ const Inventory = () => {
     filters.priceMax && { key: 'priceMax', label: `Max ₱${Number(filters.priceMax).toLocaleString()}` },
   ].filter(Boolean), [filters]);
 
-  const filterFields = (
-    <>
-      {/* Search */}
-      <div className="mb-4">
-        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>SEARCH</label>
-        <div className="position-relative">
-          <Search size={14} className="text-muted position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-          <input
-            type="text"
-            className="form-control moto-input moto-input-with-icon w-100"
-            placeholder="Brand, model..."
-            value={filters.search}
-            onChange={(e) => setFilter('search', e.target.value)}
-          />
-          {filters.search && (
-            <X size={14} className="text-secondary position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} onClick={() => setFilter('search', '')} />
-          )}
-        </div>
-      </div>
+  // Infinite scroll: the visible count belongs to one set of filters, so any
+  // change to the filters or sort (the URL) starts again from the first batch.
+  const querySignature = searchParams.toString();
+  const [visible, setVisible] = useState({ signature: querySignature, count: PAGE_SIZE });
+  const visibleCount = !CAN_OBSERVE
+    ? Infinity
+    : visible.signature === querySignature ? visible.count : PAGE_SIZE;
 
-      {/* Brand */}
-      <div className="mb-4">
-        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>BRAND</label>
-        <select className="form-select moto-input" value={filters.brand} onChange={(e) => setFilter('brand', e.target.value)}>
-          {brands.map((b) => <option key={b} value={b}>{b}</option>)}
-        </select>
-      </div>
+  const shownBikes = filteredBikes.slice(0, visibleCount);
+  const hasMore = shownBikes.length < filteredBikes.length;
+  const resultsLabel = `${filteredBikes.length} ${filteredBikes.length === 1 ? 'bike' : 'bikes'}`;
 
-      {/* Type */}
-      <div className="mb-4">
-        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>TYPE</label>
-        <select className="form-select moto-input" value={filters.type} onChange={(e) => setFilter('type', e.target.value)}>
-          {types.map((t) => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
+  // A sentinel under the grid asks for the next batch while it is still
+  // 1800px below the viewport. The observer is recreated after every batch, so
+  // if the sentinel is still inside that margin (tall screen, short batch) it
+  // reports straight away and keeps going until the grid is far enough ahead.
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (loading || !hasMore || !node) return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setVisible({ signature: querySignature, count: visibleCount + PAGE_SIZE });
+      }
+    }, { rootMargin: LOAD_AHEAD });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loading, hasMore, querySignature, visibleCount]);
 
-      {/* Price Range */}
-      <div className="mb-4">
-        <label className="text-secondary fw-bold d-block mb-2" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
-          PRICE RANGE (₱)
-        </label>
-        <div className="d-flex gap-2">
-          <input
-            type="number"
-            className="form-control moto-input"
-            placeholder="MIN"
-            value={filters.priceMin}
-            onChange={(e) => setFilter('priceMin', e.target.value)}
-          />
-          <input
-            type="number"
-            className="form-control moto-input"
-            placeholder="MAX"
-            value={filters.priceMax}
-            onChange={(e) => setFilter('priceMax', e.target.value)}
-          />
-        </div>
-      </div>
-
-      <button
-        className="moto-btn moto-btn-outline w-100 mt-2"
-        onClick={clearAllFilters}
-        style={{ fontSize: '0.8rem', padding: '10px' }}
-      >
-        RESET FILTERS
-      </button>
-    </>
-  );
+  // Warm the browser cache with the photos of the batch after the visible one,
+  // so when its cards are added their images are already there.
+  useEffect(() => {
+    filteredBikes.slice(visibleCount, visibleCount + PAGE_SIZE).forEach((bike) => {
+      const img = new Image();
+      img.src = getBikeImage(bike);
+    });
+  }, [filteredBikes, visibleCount]);
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -273,7 +206,7 @@ const Inventory = () => {
   };
 
   return (
-    <div className="inventory-page py-5" style={{ minHeight: '100vh' }}>
+    <div className="inventory-page">
       <Helmet>
         <title>Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes</title>
         <meta name="description" content="Browse fresh pre-owned motorcycles and big bikes for sale in the Philippines. Filter by brand (BMW, Ducati, Kawasaki, Yamaha, Honda), price, engine CC, and flexible installment terms." />
@@ -290,113 +223,40 @@ const Inventory = () => {
           {JSON.stringify(breadcrumbSchema)}
         </script>
       </Helmet>
-      <Container fluid className="inventory-container" style={{ paddingTop: '80px' }}>
-        {/* Page Header */}
-        <Reveal>
-          <div className="inventory-page-header mb-5 text-center">
-            <span className="text-accent mb-2 d-block" style={{ fontSize: '0.85rem', letterSpacing: '4px', fontWeight: 600 }}>PRE-OWNED MOTORCYCLES & BIG BIKES</span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: '3rem' }}>KATINGIN BIKES</h1>
+
+      <div className="kb-wide">
+        <header className="kb-page-head d-flex flex-column align-items-start gap-3">
+          <h1 className="kb-display-lg kb-page-title">Inventory</h1>
+          {!loading && bikesData.length > 0 && (
+            <p className="m-0 d-md-none" style={{ color: 'var(--ink-muted)' }}>
+              {bikesData.length} pre-owned motorcycles and big bikes, each with complete papers.
+            </p>
+          )}
+          <div className="kb-notice w-100 mt-2">
+            <Info size={20} strokeWidth={1.75} aria-hidden="true" />
+            <span>Stocks and prices can change without notice. Contact us on Facebook or Viber to confirm availability and the unit&apos;s condition.</span>
           </div>
-        </Reveal>
+        </header>
 
-        {/* Disclaimer */}
-        <Reveal delay={1}>
-          <div className="inventory-disclaimer mb-5 p-4" style={{ backgroundColor: 'rgba(212, 175, 55, 0.05)', border: '1px solid var(--accent-primary)', borderRadius: '8px' }}>
-            <div className="d-flex align-items-center">
-              <Info className="text-accent fs-4 me-3 flex-shrink-0" />
-              <div className="text-secondary" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-primary">NOTE:</strong> All stocks and prices are subject to change without prior notice. Contact us via Facebook or Viber to verify availability and actual unit condition.
-              </div>
-            </div>
-          </div>
-        </Reveal>
+        <BikeFilters
+          filters={filters}
+          brands={brands}
+          types={types}
+          onChange={setFilter}
+          onReset={clearAllFilters}
+          activeCount={activeChips.length}
+        />
 
-        <Row className="g-3 g-xl-4">
-          {/* ── Sidebar Filters ── */}
-          <Col lg={3} xl={2} className="mb-4 inventory-sidebar-col">
-              <div className="moto-card inventory-filters glass-panel p-4 sticky-lg-top-100">
-                {/* Mobile: collapsible toggle */}
-                <button
-                  type="button"
-                  className="inventory-filters-toggle moto-btn moto-btn-outline w-100 d-lg-none d-flex align-items-center justify-content-between"
-                  onClick={() => setFiltersOpen((open) => !open)}
-                  aria-expanded={filtersOpen}
-                  style={{ fontSize: '0.85rem', padding: '10px 14px' }}
-                >
-                  <span className="d-flex align-items-center gap-2">
-                    <Filter size={16} className="text-accent" />
-                    FILTERS
-                    {activeChips.length > 0 && (
-                      <span className="badge bg-accent text-dark" style={{ fontSize: '0.7rem', fontWeight: 800 }}>
-                        {activeChips.length}
-                      </span>
-                    )}
-                  </span>
-                  <ChevronDown
-                    size={16}
-                    style={{
-                      transition: 'transform 0.2s ease',
-                      transform: filtersOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    }}
-                  />
-                </button>
-
-                {/* Desktop: always-visible heading */}
-                <h5 className="mb-4 d-none d-lg-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
-                  <Filter size={18} className="text-accent" /> FILTERS
-                </h5>
-
-                {/* Mobile: collapsible fields (default closed) */}
-                <div className="d-lg-none">
-                  <Collapse in={filtersOpen}>
-                    <div className="inventory-filters-body pt-3">
-                      {filterFields}
-                    </div>
-                  </Collapse>
-                </div>
-
-                {/* Desktop: always-visible fields */}
-                <div className="d-none d-lg-block">
-                  {filterFields}
-                </div>
-              </div>
-          </Col>
-
-          {/* ── Bike Grid ── */}
-          <Col lg={9} xl={10}>
-            {/* Results count + active chips */}
-            {!loading && (
-              <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
-                <span className="text-secondary text-mono" style={{ fontSize: '0.85rem' }}>
-                  SHOWROOM UNITS: <strong className="text-accent">{filteredBikes.length}</strong> / {bikesData.length}
-                </span>
-                {activeChips.map((chip) => (
-                  <span
-                    key={chip.key}
-                    className="badge border border-secondary-subtle glass-panel"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-primary)' }}
-                    onClick={() => setFilter(chip.key, chip.key === 'brand' || chip.key === 'type' ? 'All' : '')}
-                  >
-                    {chip.label} <X size={12} className="ms-1" />
-                  </span>
-                ))}
-                {activeChips.length > 1 && (
-                  <span
-                    className="text-accent ms-2 text-mono"
-                    style={{ fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}
-                    onClick={clearAllFilters}
-                  >
-                    RESET FILTERS
-                  </span>
-                )}
-                <div className="d-flex align-items-center gap-2 ms-auto">
-                  <span className="d-flex align-items-center gap-2 moto-heading" style={{ fontSize: '1rem' }}>
-                    <ArrowUpDown size={18} className="text-accent flex-shrink-0" />
-                    <span className="d-none d-sm-inline">SORT BY</span>
-                  </span>
+        <section aria-label="Results" className="mt-4">
+          {!loading && (
+            <>
+              <div className="kb-results-bar">
+                <span style={{ color: 'var(--ink-muted)' }} aria-live="polite">{resultsLabel}</span>
+                <div className="kb-sort">
+                  <label htmlFor="inventory-sort" className="kb-label kb-sort-label">Sort by</label>
                   <select
+                    id="inventory-sort"
                     className="form-select moto-input"
-                    style={{ width: 'auto', fontSize: '0.9rem', fontWeight: 700 }}
                     value={filters.sort}
                     onChange={(e) => setSort(e.target.value)}
                   >
@@ -404,81 +264,54 @@ const Inventory = () => {
                   </select>
                 </div>
               </div>
-            )}
 
-            <Row className="g-2 g-md-3">
-              {loading ? (
-                Array.from({ length: 12 }).map((_, i) => (
-                  <Col xs={6} xl={3} key={i}>
-                    <SkeletonCard />
-                  </Col>
-                ))
-              ) : filteredBikes.length > 0 ? (
-                filteredBikes.map((bike) => (
-                  <Col xs={6} xl={3} key={bike._id}>
-                    <div className="h-100">
-                      <div className="moto-card inventory-card glass-panel d-flex flex-column h-100">
-                        <div className="bike-img-wrapper inventory-card-img position-relative overflow-hidden">
-                          <img src={getImageUrl(bike)} alt={`Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle for sale - Katingin Bikes`} className="bike-img w-100 h-100" />
-                          {bike.isReserved && (
-                            <Badge
-                              className="position-absolute top-0 start-0 m-2 bg-danger text-white"
-                              style={{ fontSize: '0.7rem', fontWeight: 700, zIndex: 1, letterSpacing: '0.5px' }}
-                            >
-                              RESERVED
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="inventory-card-body p-3 p-xl-4 d-flex flex-column flex-grow-1">
-                          <span className="telemetry-badge mb-2 d-inline-block text-accent" style={{ fontSize: '0.7rem', width: 'fit-content' }}>{bike.type?.toUpperCase()}</span>
-                          <h4 className="inventory-card-title moto-heading mb-2" style={{ fontSize: '1.15rem', lineHeight: '1.2' }}>
-                            <span className="text-accent">{bike.brand}</span> {bike.model}
-                          </h4>
-
-                          <div className="inventory-card-meta d-flex gap-3 mb-3 text-mono" style={{ fontSize: '0.82rem' }}>
-                            <div className="d-flex align-items-center gap-1 text-secondary">
-                              <Calendar size={13} className="text-accent flex-shrink-0" />
-                              <span>{bike.year}</span>
-                            </div>
-                            <div className="inventory-card-mileage d-flex align-items-center gap-1 text-secondary min-w-0">
-                              <Route size={13} className="text-accent flex-shrink-0" />
-                              <span className="text-truncate">{withUnit(bike.mileage, 'km')}</span>
-                            </div>
-                          </div>
-
-                          <div className="inventory-card-footer d-flex justify-content-between align-items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
-                            <div>
-                              <span className="inventory-card-price text-accent fw-bold text-mono d-block" style={{ fontSize: '1.2rem', lineHeight: '1' }}>{withPeso(bike.price)}</span>
-                            </div>
-                            <Link
-                              to={`/bike/${createSlug(bike)}-${bike._id}`}
-                              className="moto-btn inventory-card-btn flex-shrink-0"
-                              style={{ padding: '8px 16px', fontSize: '0.78rem' }}
-                            >
-                              DETAILS
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Col>
-                ))
-              ) : (
-                <Col>
-                  <div className="text-center p-5 text-secondary glass-panel rounded border-0">
-                    <Search size={48} className="text-accent mb-3 opacity-50" />
-                    <h5 className="moto-heading mb-2">NO MATCHING UNITS FOUND</h5>
-                    <p style={{ fontSize: '0.9rem' }}>Try adjusting your search criteria or price boundaries.</p>
-                    <button onClick={clearAllFilters} className="moto-btn mt-2">
-                      RESET ALL FILTERS
+              {activeChips.length > 0 && (
+                <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
+                  {activeChips.map((chip) => (
+                    <button
+                      type="button"
+                      key={chip.key}
+                      className="kb-tag kb-tag-lg"
+                      aria-label={`Remove filter ${chip.label}`}
+                      onClick={() => setFilter(chip.key, chip.key === 'brand' || chip.key === 'type' ? 'All' : '')}
+                    >
+                      {chip.label}
+                      <X size={14} strokeWidth={1.75} aria-hidden="true" />
                     </button>
-                  </div>
-                </Col>
+                  ))}
+                  {activeChips.length > 1 && (
+                    <button type="button" className="kb-link border-0 bg-transparent p-0 ms-2" onClick={clearAllFilters}>
+                      Reset filters
+                    </button>
+                  )}
+                </div>
               )}
-            </Row>
-          </Col>
-        </Row>
-      </Container>
+            </>
+          )}
+
+          {loading ? (
+            <div className="kb-grid" aria-busy="true" aria-label="Loading bikes">
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          ) : filteredBikes.length > 0 ? (
+            <>
+              <div className="kb-grid">
+                {shownBikes.map((bike) => <BikeCard key={bike._id} bike={bike} />)}
+              </div>
+              {hasMore && <div ref={sentinelRef} aria-hidden="true" style={{ height: '1px' }} />}
+            </>
+          ) : (
+            <div className="moto-card kb-empty">
+              <Search size={40} strokeWidth={1.75} className="mb-3" style={{ color: 'var(--ink-subtle)' }} aria-hidden="true" />
+              <h2 className="kb-h3 mb-2">No matching bikes</h2>
+              <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>Try adjusting your search or price range.</p>
+              <button type="button" onClick={clearAllFilters} className="moto-btn">
+                Reset all filters
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 };

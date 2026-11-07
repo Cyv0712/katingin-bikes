@@ -1,18 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Container, Row, Col, Form, Spinner } from 'react-bootstrap';
+import { Row, Col, Form, Spinner } from 'react-bootstrap';
 import { FileText, CheckCircle, ArrowRight, Info } from 'lucide-react';
 import { apiUrl } from '../config/api';
-import Reveal from '../components/Reveal';
 import { Helmet } from 'react-helmet-async';
+import useBikes from '../hooks/useBikes';
+
+const getBikeName = (bike) => `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
 
 const Financing = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const bikeNameParam = queryParams.get('bikeName') || '';
 
-  const [availableBikes, setAvailableBikes] = useState([]);
-  const [loadingBikes, setLoadingBikes] = useState(true);
+  const { bikes, loading: loadingBikes } = useBikes();
+  // Units that can still take an inquiry
+  const availableBikes = bikes.filter((b) => !b.isReserved);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,39 +24,19 @@ const Financing = () => {
     unitInterested: '',
     message: ''
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
 
-  // Fetch active inventory
-  useEffect(() => {
-    fetch(apiUrl('/api/bikes'))
-      .then((res) => res.json())
-      .then((data) => {
-        const activeList = data.filter(b => b.status === 'Available' && !b.isReserved);
-        setAvailableBikes(activeList);
-
-        const getBikeName = (bike) => `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
-
-        if (bikeNameParam) {
-          const matched = activeList.find(b => getBikeName(b) === bikeNameParam);
-          if (matched) {
-            setFormData(prev => ({ ...prev, unitInterested: bikeNameParam }));
-          } else if (activeList.length > 0) {
-            setFormData(prev => ({ ...prev, unitInterested: getBikeName(activeList[0]) }));
-          }
-        } else if (activeList.length > 0) {
-          setFormData(prev => ({ ...prev, unitInterested: getBikeName(activeList[0]) }));
-        }
-        setLoadingBikes(false);
-      })
-      .catch((err) => {
-        console.error('Failed to load bikes list:', err);
-        setLoadingBikes(false);
-      });
-  }, [bikeNameParam]);
+  // Until the visitor picks a unit: the one they came from (?bikeName=), else the first available
+  const defaultUnit = availableBikes.some((b) => getBikeName(b) === bikeNameParam)
+    ? bikeNameParam
+    : availableBikes.length > 0
+      ? getBikeName(availableBikes[0])
+      : '';
+  const selectedUnit = formData.unitInterested || defaultUnit;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -75,7 +59,7 @@ const Financing = () => {
       const res = await fetch(apiUrl('/api/inquiries'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, unitInterested: selectedUnit })
       });
 
       const result = await res.json();
@@ -100,8 +84,10 @@ const Financing = () => {
     }
   };
 
+  const required = <span className="text-accent" aria-hidden="true"> *</span>;
+
   return (
-    <div className="financing-page pb-5" style={{ backgroundColor: 'var(--bg-void)', minHeight: '100vh', paddingTop: '76px' }}>
+    <div className="financing-page">
       <Helmet>
         <title>Big Bike & Motorcycle Financing Philippines | Katingin Bikes</title>
         <meta name="description" content="Apply for motorcycle financing and installment options in the Philippines. Easy pre-approval for pre-owned big bikes with low downpayment terms." />
@@ -112,204 +98,181 @@ const Financing = () => {
         <meta property="og:url" content="https://katinginbikes.com/financing" />
       </Helmet>
 
-      {/* Hero Section */}
-      <section className="position-relative d-flex align-items-center justify-content-center text-center py-5">
-        <Container>
-          <Reveal>
-            <span className="text-accent mb-2 d-block" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
-              ACQUISITION DEFERRALS
-            </span>
-            <h1 className="moto-heading mb-0" style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)' }}>FINANCING INQUIRY</h1>
-          </Reveal>
-        </Container>
-      </section>
+      <header className="container kb-page-head">
+        <h1 className="kb-display-lg kb-page-title">Financing inquiry</h1>
+      </header>
 
-      <section className="py-4">
-        <Container>
-          <Row className="justify-content-center">
-            <Col lg={8} md={10}>
-              <Reveal delay={1}>
-                {submitSuccess ? (
-                  <div className="moto-card glass-panel p-5 text-center my-4">
-                    <div className="mb-4 d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style={{ width: '70px', height: '70px' }}>
-                      <CheckCircle size={40} />
-                    </div>
-                    <h2 className="moto-heading mb-3" style={{ fontSize: '1.8rem' }}>APPLICATION SUBMITTED</h2>
-                    <p className="text-secondary mb-5 mx-auto" style={{ maxWidth: '500px', fontSize: '1rem', lineHeight: '1.7' }}>
-                      Thank you for applying. We have received your financing inquiry details. A representative will review your request and get in touch with you shortly.
-                    </p>
-                    <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
-                      <Link to="/inventory" className="moto-btn py-3 px-4 text-decoration-none">
-                        BACK TO CATALOG <ArrowRight size={16} className="ms-2" />
-                      </Link>
-                      <button onClick={() => setSubmitSuccess(false)} className="moto-btn-outline py-3 px-4">
-                        SUBMIT ANOTHER REQUEST
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="moto-card glass-panel p-4 p-md-5 my-4">
-                    <h3 className="moto-heading mb-4 d-flex align-items-center gap-2" style={{ fontSize: '1.3rem' }}>
-                      <FileText className="text-accent" size={24} /> FINANCING DETAILS FORM
-                    </h3>
-                    <p className="text-secondary mb-4" style={{ fontSize: '0.95rem' }}>
-                      Please supply clean, verified contact information. We will use these details to contact you directly regarding your financing options.
-                    </p>
-                    <p className="mb-4" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', borderLeft: '3px solid var(--accent-primary)', paddingLeft: '12px', fontStyle: 'italic' }}>
-                      <strong>Privacy Notice:</strong> We collect your name, email, and phone number solely to respond to your motorcycle inquiry. We do not sell, share, or use your data for unsolicited marketing.
-                    </p>
+      <section className="container pt-3" style={{ maxWidth: '864px' }}>
+        {submitSuccess ? (
+          <div className="moto-card p-5 text-center">
+            <div
+              className="kb-badge-success mb-4 d-inline-flex align-items-center justify-content-center rounded-circle"
+              style={{ width: '64px', height: '64px' }}
+            >
+              <CheckCircle size={36} strokeWidth={1.75} aria-hidden="true" />
+            </div>
+            <h2 className="kb-h2 mb-3">Application submitted</h2>
+            <p className="kb-body-lg mx-auto mb-5" style={{ maxWidth: '500px' }}>
+              Thank you for applying. We have received your financing inquiry details. A representative will review your request and get in touch with you shortly.
+            </p>
+            <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
+              <Link to="/inventory" className="moto-btn">
+                Back to catalog <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" />
+              </Link>
+              <button type="button" onClick={() => setSubmitSuccess(false)} className="moto-btn moto-btn-outline">
+                Submit another request
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="moto-card kb-form-panel">
+            <h2 className="kb-h3 mb-3 d-flex align-items-center gap-2">
+              <FileText className="text-accent" size={26} strokeWidth={1.75} aria-hidden="true" /> Financing details form
+            </h2>
+            <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>
+              Please supply clean, verified contact information. We will use these details to contact you directly regarding your financing options.
+            </p>
+            <div className="kb-notice mb-4">
+              <Info size={20} strokeWidth={1.75} aria-hidden="true" />
+              <span><strong>Privacy notice:</strong> We collect your name, email, and phone number solely to respond to your motorcycle inquiry. We do not sell, share, or use your data for unsolicited marketing.</span>
+            </div>
 
-                    {errorMsg && (
-                      <div className="mb-4 p-3 rounded" style={{ backgroundColor: 'rgba(220, 53, 69, 0.08)', border: '1px solid rgba(220, 53, 69, 0.2)', color: '#f87171', fontSize: '0.9rem' }}>
-                        <Info size={16} className="me-2 d-inline-block align-text-bottom" /> {errorMsg}
+            {errorMsg && (
+              <div className="kb-notice kb-notice-danger mb-4" role="alert">
+                <Info size={20} strokeWidth={1.75} aria-hidden="true" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <Form onSubmit={handleSubmit}>
+              <Row className="g-4">
+                <Col md={12}>
+                  <Form.Group controlId="financing-name" className="kb-field">
+                    <Form.Label>Applicant full name{required}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      placeholder="e.g. John Doe"
+                      className="moto-input"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group controlId="financing-email" className="kb-field">
+                    <Form.Label>Email address{required}</Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      placeholder="e.g. johndoe@gmail.com"
+                      className="moto-input"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Group controlId="financing-phone" className="kb-field">
+                    <Form.Label>Contact / mobile number{required}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      inputMode="tel"
+                      name="contactNumber"
+                      placeholder="e.g. 09171234567"
+                      className="moto-input"
+                      value={formData.contactNumber}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={12}>
+                  <Form.Group controlId="financing-unit" className="kb-field">
+                    <Form.Label>Motorcycle unit of interest{required}</Form.Label>
+                    {loadingBikes ? (
+                      <div className="d-flex align-items-center gap-2" style={{ minHeight: '48px' }}>
+                        <Spinner animation="border" size="sm" variant="accent" />
+                        <span style={{ color: 'var(--ink-subtle)' }}>Loading available units...</span>
                       </div>
+                    ) : (
+                      <Form.Select
+                        name="unitInterested"
+                        className="moto-input"
+                        value={selectedUnit}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        {availableBikes.length === 0 ? (
+                          <option value="">No available units in inventory</option>
+                        ) : (
+                          availableBikes.map((bike) => {
+                            const fullName = getBikeName(bike);
+                            return (
+                              <option key={bike._id} value={fullName}>
+                                {fullName} (₱{parseFloat(String(bike.price).replace(/[^0-9.]/g, '') || 0).toLocaleString()})
+                              </option>
+                            );
+                          })
+                        )}
+                      </Form.Select>
                     )}
+                  </Form.Group>
+                </Col>
 
-                    <Form onSubmit={handleSubmit}>
-                      <Row className="g-4">
-                        <Col md={12}>
-                          <Form.Group>
-                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                              Applicant Full Name <span className="text-accent">*</span>
-                            </label>
-                            <Form.Control
-                              type="text"
-                              name="name"
-                              placeholder="e.g. John Doe"
-                              className="moto-input"
-                              value={formData.name}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </Form.Group>
-                        </Col>
+                <Col md={12}>
+                  <Form.Group controlId="financing-message" className="kb-field">
+                    <Form.Label>Message / downpayment options <span style={{ color: 'var(--ink-subtle)', fontWeight: 400 }}>(optional)</span></Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="message"
+                      rows={4}
+                      placeholder="Describe your preferred financing terms (e.g. 30% downpayment, 36 months term)..."
+                      className="moto-input"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                    />
+                  </Form.Group>
+                </Col>
 
-                        <Col md={6}>
-                          <Form.Group>
-                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                              Email Address <span className="text-accent">*</span>
-                            </label>
-                            <Form.Control
-                              type="email"
-                              name="email"
-                              placeholder="e.g. johndoe@gmail.com"
-                              className="moto-input"
-                              value={formData.email}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </Form.Group>
-                        </Col>
+                <Col md={12} className="mt-4">
+                  <Form.Check
+                    type="checkbox"
+                    id="privacy-consent"
+                    checked={consentChecked}
+                    onChange={(e) => setConsentChecked(e.target.checked)}
+                    label={
+                      <span className="kb-body-sm" style={{ color: 'var(--ink-muted)' }}>
+                        I agree to the <Link to="/privacy-policy" className="kb-link" style={{ minHeight: 0 }}>Privacy Policy</Link> and consent to Katingin Bikes processing my contact details to handle my <span style={{ whiteSpace: 'nowrap' }}>inquiry.{required}</span>
+                      </span>
+                    }
+                  />
+                </Col>
 
-                        <Col md={6}>
-                          <Form.Group>
-                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                              Contact / Mobile Number <span className="text-accent">*</span>
-                            </label>
-                            <Form.Control
-                              type="text"
-                              name="contactNumber"
-                              placeholder="e.g. 09171234567"
-                              className="moto-input"
-                              value={formData.contactNumber}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </Form.Group>
-                        </Col>
-
-                        <Col md={12}>
-                          <Form.Group>
-                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                              Motorcycle Unit of Interest <span className="text-accent">*</span>
-                            </label>
-                            
-                            {loadingBikes ? (
-                              <div className="d-flex align-items-center gap-2 p-2 rounded glass-panel">
-                                <Spinner animation="border" size="sm" variant="accent" />
-                                <span className="text-muted" style={{ fontSize: '0.85rem' }}>Loading active units inventory...</span>
-                              </div>
-                            ) : (
-                              <Form.Select
-                                name="unitInterested"
-                                className="moto-input text-white"
-                                value={formData.unitInterested}
-                                onChange={handleInputChange}
-                                required
-                              >
-                                {availableBikes.length === 0 ? (
-                                  <option value="">No available units in inventory</option>
-                                ) : (
-                                  availableBikes.map((bike) => {
-                                    const fullName = `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
-                                    return (
-                                      <option key={bike._id} value={fullName} className="bg-dark text-white">
-                                        {fullName} (₱{parseFloat(bike.price.replace(/[^0-9.]/g, '') || 0).toLocaleString()})
-                                      </option>
-                                    );
-                                  })
-                                )}
-                              </Form.Select>
-                            )}
-                          </Form.Group>
-                        </Col>
-
-                        <Col md={12}>
-                          <Form.Group>
-                            <label className="text-white fw-bold d-block mb-1" style={{ fontSize: '0.8rem', letterSpacing: '0.5px' }}>
-                              Message / Downpayment Options <span className="text-muted">(Optional)</span>
-                            </label>
-                            <Form.Control
-                              as="textarea"
-                              name="message"
-                              rows={4}
-                              placeholder="Describe your preferred financing terms (e.g. 30% downpayment, 36 months term)..."
-                              className="moto-input"
-                              value={formData.message}
-                              onChange={handleInputChange}
-                            />
-                          </Form.Group>
-                        </Col>
-
-                        <Col md={12} className="mt-4">
-                          <Form.Group>
-                            <Form.Check 
-                              type="checkbox"
-                              id="privacy-consent"
-                              checked={consentChecked}
-                              onChange={(e) => setConsentChecked(e.target.checked)}
-                              label={
-                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                  I agree to the <Link to="/privacy-policy" className="text-accent text-decoration-none">Privacy Policy</Link> and consent to Katingin Bikes processing my contact details to handle my inquiry. <span className="text-accent">*</span>
-                                </span>
-                              }
-                            />
-                          </Form.Group>
-                        </Col>
-
-                        <Col md={12} className="text-end mt-4">
-                          <button
-                            type="submit"
-                            className="moto-btn w-100 py-3"
-                            disabled={isSubmitting || loadingBikes || availableBikes.length === 0}
-                          >
-                            {isSubmitting ? (
-                              <>
-                                <Spinner animation="border" size="sm" className="me-2" /> SUBMITTING APPLICATION...
-                              </>
-                            ) : (
-                              'SUBMIT FINANCING APPLICATION'
-                            )}
-                          </button>
-                        </Col>
-                      </Row>
-                    </Form>
-                  </div>
-                )}
-              </Reveal>
-            </Col>
-          </Row>
-        </Container>
+                <Col md={12} className="mt-4">
+                  <button
+                    type="submit"
+                    className="moto-btn moto-btn-lg moto-btn-block"
+                    disabled={isSubmitting || loadingBikes || availableBikes.length === 0}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner animation="border" size="sm" /> Submitting application...
+                      </>
+                    ) : (
+                      'Submit financing application'
+                    )}
+                  </button>
+                </Col>
+              </Row>
+            </Form>
+          </div>
+        )}
       </section>
     </div>
   );

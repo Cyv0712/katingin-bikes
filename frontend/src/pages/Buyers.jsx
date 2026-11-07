@@ -11,13 +11,12 @@ const Buyers = () => {
         className="buyers-hero position-relative d-flex align-items-center justify-content-center text-center"
         style={{
           minHeight: '40vh',
-          marginTop: '76px', // Offset for navbar
-          backgroundColor: 'var(--bg-void)'
+          backgroundColor: 'var(--bg)'
         }}
       >
         <Container>
           <Reveal>
-            <span className="text-accent mb-3 d-block" style={{ letterSpacing: '4px', textTransform: 'uppercase', fontWeight: '700', fontSize: '0.85rem' }}>
+            <span className="text-accent mb-3 d-block">
               AUTHENTIC TESTIMONIALS
             </span>
             <h1 className="moto-heading mb-4" style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)' }}>
@@ -31,7 +30,7 @@ const Buyers = () => {
       </section>
 
       {/* ── 2. Testimonial Grid ── */}
-      <section className="section-padding py-5">
+      <section className="kb-section">
         <Container>
           <Row className="g-4">
             {buyersData.map((buyer, idx) => (
@@ -57,7 +56,7 @@ const Buyers = () => {
                         <Quote className="text-accent mb-3" size={32} strokeWidth={1.5} />
                         <p className="text-secondary flex-grow-1" style={{ fontSize: '0.95rem', lineHeight: '1.6', fontStyle: 'italic' }}>"{buyer.quote}"</p>
                         
-                        <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                        <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--line)' }}>
                           <h5 className="moto-heading mb-1" style={{ fontSize: '1.2rem', textTransform: 'none' }}>{buyer.name}</h5>
                           <div className="d-flex justify-content-between align-items-center">
                             <span className="text-accent" style={{ fontSize: '0.85rem', fontWeight: 600 }}>{buyer.location}</span>

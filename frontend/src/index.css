@@ -1,65 +1,137 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap');
+
+/* ══════════════════════════════════════════════════════════════════
+   KATINGIN BIKES — design system
+   Tokens come from the redesign canvas (Katingin Bikes tokens.json).
+   Dark is the showroom look. Colours live here and only here; pages
+   and components reference the variables, never raw hex.
+   Fonts are loaded from index.html (Sofia Sans Extra Condensed,
+   Instrument Sans).
+   ══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Surface Layers */
-  --bg-void: #080808;
-  --bg-card: #121212;
-  --bg-muted: #1a1a1a;
-  --bg-surface-elevated: #222222;
-  
-  /* Text System */
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-  
-  /* Brand Accents */
-  --accent-primary: #D4AF37; /* Katingin Gold */
-  --accent-hover: #FFD700;
-  
-  /* Structural Tokens */
-  --border-color: #242424;
-  --border-color-glow: rgba(212, 175, 55, 0.3);
-  --color-destructive: #dc3545;
-  
-  /* Typography Tokens */
-  --font-heading: 'Outfit', 'Montserrat', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  /* Surfaces */
+  --bg: #14161a;
+  --surface: #1b1e23;
+  --surface-raised: #252930;
+  --line: #2e333b;
+  --line-strong: #7b828d;
+
+  /* Ink */
+  --ink: #f3f4f2;
+  --ink-muted: #b8bdc4;
+  --ink-subtle: #98a0a9;
+
+  /* Brass (the logo badge colour; flat fills only) */
+  --brass: #d9a630;
+  --brass-strong: #e9bb4b;
+  --brass-soft: #2c2615;
+  --brass-text: #e9bb4b;
+  --on-brass: #14161a;
+
+  /* Status */
+  --focus: var(--ink);
+  --success: #4fd1b8;
+  --success-soft: #143530;
+  --danger: #ff8a7a;
+  --danger-soft: #3d1f1b;
+  --scrim: rgba(10, 11, 13, 0.6);
+
+  /* Type */
+  --font-display: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif;
+  --font-text: 'Instrument Sans', system-ui, sans-serif;
+
+  /* Spacing (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* Shadow: cards have none; only things that float */
+  --shadow-plate: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  /* Layout */
+  --gutter: 32px;
+  --nav-height: 72px;
 }
 
-/* Accessible Global Focus Rings */
-*:focus-visible {
-  outline: 2px solid var(--accent-primary) !important;
-  outline-offset: 2px !important;
+@media (max-width: 767.98px) {
+  :root {
+    --gutter: 20px;
+    --nav-height: 64px;
+  }
 }
 
+/* Bootstrap bridge: the site is dark only, so map Bootstrap's own
+   variables to the tokens instead of fighting its classes. */
+:root[data-bs-theme='dark'] {
+  --bs-body-bg: var(--bg);
+  --bs-body-bg-rgb: 20, 22, 26;
+  --bs-body-color: var(--ink);
+  --bs-body-color-rgb: 243, 244, 242;
+  --bs-body-font-family: var(--font-text);
+  --bs-body-line-height: 1.6;
+  --bs-emphasis-color: var(--ink);
+  --bs-secondary-color: var(--ink-muted);
+  --bs-secondary-color-rgb: 184, 189, 196;
+  --bs-tertiary-color: var(--ink-subtle);
+  --bs-secondary-bg: var(--surface-raised);
+  --bs-tertiary-bg: var(--surface);
+  --bs-border-color: var(--line);
+  --bs-heading-color: var(--ink);
+  --bs-link-color: var(--brass-text);
+  --bs-link-color-rgb: 233, 187, 75;
+  --bs-link-hover-color: var(--brass-text);
+  --bs-link-hover-color-rgb: 233, 187, 75;
+  --bs-primary-rgb: 243, 244, 242;
+  --bs-secondary-rgb: 184, 189, 196;
+  --bs-success-rgb: 79, 209, 184;
+  --bs-danger-rgb: 255, 138, 122;
+  --bs-warning-rgb: 233, 187, 75;
+  --bs-info-rgb: 184, 189, 196;
+}
+
+/* ── Base ── */
 html {
   /* clip avoids creating a scroll container (hidden breaks position:sticky) */
   overflow-x: clip;
 }
 
 body {
-  background-color: var(--bg-void);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 1.6;
   margin: 0;
   padding: 0;
-  position: relative;
 }
 
-/* Subtle Carbon Fiber / Noise Overlay */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  z-index: -2;
-  pointer-events: none;
+a {
+  text-decoration: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--brass);
+  color: var(--on-brass);
 }
 
 /* ── Typography ── */
@@ -70,517 +142,885 @@ h4,
 h5,
 h6,
 .moto-heading {
-  font-family: var(--font-heading);
-  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.kb-display-xl {
+  font-size: clamp(56px, 12vw, 96px);
+  line-height: 0.92;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
+.kb-display-lg {
+  font-size: 72px;
+  line-height: 0.95;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.kb-h1 {
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.kb-h2 {
+  font-size: 40px;
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.kb-h3 {
+  font-size: 30px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.kb-h4 {
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .kb-display-lg {
+    font-size: 48px;
+  }
+
+  .kb-h1 {
+    font-size: 48px;
+  }
+
+  .kb-h2 {
+    font-size: 32px;
+  }
+}
+
+.kb-body-lg {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.kb-body-sm {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.kb-caption {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--ink-subtle);
+}
+
+.kb-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.kb-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Colour helpers kept for existing markup */
 .text-accent {
-  color: var(--accent-primary) !important;
+  color: var(--brass-text) !important;
 }
 
-/* Override Bootstrap .text-primary so it never turns neon blue */
-.text-primary {
-  color: #ffffff !important;
+.text-destructive {
+  color: var(--danger) !important;
 }
 
-.text-secondary {
-  color: var(--text-secondary) !important;
+.bg-destructive-soft {
+  background-color: var(--danger-soft) !important;
 }
 
-.text-muted {
-  color: var(--text-muted) !important;
+.bg-destructive {
+  background-color: var(--danger) !important;
+  color: var(--on-brass) !important;
 }
 
-.text-mono {
-  font-family: var(--font-mono) !important;
+.bg-accent {
+  background-color: var(--brass) !important;
+  color: var(--on-brass) !important;
+}
+
+/* Bootstrap status badges, mapped to the soft status pairs */
+.bg-success {
+  background-color: var(--success-soft) !important;
+  color: var(--success) !important;
+}
+
+.bg-danger {
+  background-color: var(--danger-soft) !important;
+  color: var(--danger) !important;
+}
+
+.border-accent {
+  border-color: var(--brass) !important;
+}
+
+/* ── Layout ── */
+.container {
+  --bs-gutter-x: calc(var(--gutter) * 2);
+  max-width: 1264px;
+}
+
+.kb-wide {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.kb-section {
+  padding-top: var(--space-9);
+}
+
+@media (max-width: 767.98px) {
+  .kb-section {
+    padding-top: var(--space-8);
+  }
+}
+
+.kb-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-7);
+}
+
+@media (max-width: 767.98px) {
+  .kb-section-head {
+    margin-bottom: var(--space-5);
+    gap: var(--space-4);
+  }
+}
+
+.kb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  color: var(--brass-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.kb-link:hover {
+  color: var(--brass-text);
+  text-decoration: underline;
 }
 
 /* ── Buttons ── */
 .moto-btn {
-  font-family: var(--font-heading);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: var(--accent-primary);
-  color: #080808;
-  border: 1px solid var(--accent-primary);
-  padding: 12px 28px;
-  font-weight: 800;
-  font-size: 0.88rem;
-  transition: all 0.25s ease;
-  border-radius: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: var(--brass);
+  color: var(--on-brass);
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.moto-btn:hover {
-  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-primary) 100%);
-  border-color: var(--accent-hover);
-  color: #000000;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+.moto-btn:hover,
+.moto-btn:focus-visible {
+  background: var(--brass-strong);
+  color: var(--on-brass);
 }
 
-.moto-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+.moto-btn:disabled,
+.moto-btn.disabled,
+.moto-btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .moto-btn-outline {
-  background: rgba(18, 20, 28, 0.6);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
 }
 
-.moto-btn-outline:hover {
-  background: var(--bg-surface-elevated);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+.moto-btn-outline:hover,
+.moto-btn-outline:focus-visible {
+  background: var(--surface-raised);
+  color: var(--ink);
 }
 
-/* ── Anti-Slop High-Octane Utilities ── */
-.glass-panel {
-  background: rgba(18, 20, 28, 0.75) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid var(--border-color) !important;
+.moto-btn-lg {
+  min-height: 52px;
 }
 
-.metallic-glow {
-  box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+.moto-btn-sm {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
-.telemetry-badge {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  background: rgba(26, 29, 39, 0.8);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 4px 10px;
-  border-radius: 4px;
-}
-
-.pulse-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--color-cyan-glow);
-  box-shadow: 0 0 8px var(--color-cyan-glow);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 240, 255, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
-}
-
-.inquiry-block-tooltip .tooltip-inner {
-  background-color: var(--bg-card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  max-width: 260px;
-  text-align: center;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  padding: 8px 12px;
-}
-
-.inquiry-block-tooltip.bs-tooltip-top .tooltip-arrow::before {
-  border-top-color: var(--border-color);
-}
-
-/* ── Cards & Containers ── */
-.moto-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  height: 100%;
-}
-
-.moto-card:hover {
-  border-color: rgba(212, 175, 55, 0.5);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  transform: translateY(-4px);
-}
-
-.moto-card-static:hover {
-  transform: none !important;
-  border-color: var(--border-color) !important;
-  box-shadow: none !important;
-}
-
-/* ── Inventory page layout ── */
-.inventory-container {
-  max-width: 1680px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-}
-
-@media (min-width: 1200px) {
-  .inventory-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
-
-/* ── Inventory cards (desktop base; mobile overrides below) ── */
-.inventory-card-img {
-  height: 260px;
-  overflow: hidden;
-  position: relative;
-}
-
-.inventory-card-img .bike-img {
-  object-fit: cover;
-  object-position: center 45%;
-}
-
-.inventory-card-body {
-  min-width: 0;
-}
-
-.inventory-card-title {
-  word-break: break-word;
-}
-
-.inventory-card-mileage {
-  min-width: 0;
-  flex: 1;
-}
-
-.inventory-card-footer {
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.inventory-card-btn {
-  white-space: nowrap;
-}
-
-/* Desktop 4-col: stack footer so price + button never collide */
-@media (min-width: 1200px) {
-  .inventory-card-img {
-    height: 240px;
-  }
-
-  .inventory-card-body {
-    padding: 1rem !important;
-  }
-
-  .inventory-card-title {
-    font-size: 1.1rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .inventory-card-meta {
-    margin-bottom: 0.75rem !important;
-  }
-
-  .inventory-card-footer {
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 0.6rem;
-    padding-top: 0.75rem !important;
-  }
-
-  .inventory-card-price {
-    font-size: 1.15rem !important;
-  }
-
-  .inventory-card-btn {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-}
-
-.inventory-filters-toggle {
-  border: 1px solid var(--border-color);
-}
-
-/* Sticky sidebar must size to content — height:100% from .moto-card breaks sticky */
-.inventory-filters.moto-card {
-  height: auto;
-  overflow: visible;
+.moto-btn-block {
+  display: flex;
   width: 100%;
 }
 
-.inventory-filters.moto-card:hover {
-  transform: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+.moto-btn-danger {
+  background: var(--danger);
+  color: var(--on-brass);
 }
 
-/* ── Social Links ── */
-.social-link {
-  display: flex;
+.moto-btn-danger:hover,
+.moto-btn-danger:focus-visible {
+  background: var(--danger);
+  color: var(--on-brass);
+  filter: brightness(1.1);
+}
+
+/* ── Cards ── */
+.moto-card {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: border-color 0.15s ease;
+}
+
+.moto-card-link:hover {
+  border-color: var(--line-strong);
+  color: inherit;
+}
+
+/* ── Tags, badges, notices ── */
+.kb-tag {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: var(--bg-muted);
-  color: var(--text-primary);
-  text-decoration: none !important;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-color);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
-.social-link:hover {
-  background: var(--accent-primary);
-  color: var(--bg-void) !important;
-  transform: translateY(-3px);
-  border-color: var(--accent-primary);
+.kb-tag-lg {
+  padding: 2px 12px;
+  font-size: 14px;
+}
+
+button.kb-tag {
+  border: 0;
+  gap: var(--space-1);
+  cursor: pointer;
+}
+
+button.kb-tag:hover {
+  background: var(--line);
+}
+
+.kb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.kb-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.kb-badge-success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+/* Reserved is the one status a visitor must not miss: a solid brass fill with
+   dark text (7:1), bold, and the plate shadow so it lifts off a photo. */
+.kb-badge-reserved {
+  gap: var(--space-1);
+  background: var(--brass);
+  color: var(--on-brass);
+  font-weight: 700;
+  box-shadow: var(--shadow-plate);
+}
+
+.kb-badge-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.kb-badge-sm {
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.kb-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--brass-soft);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.kb-notice > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--brass-text);
+}
+
+.kb-notice-danger {
+  background: var(--danger-soft);
+}
+
+.kb-notice-danger > svg {
+  color: var(--danger);
+}
+
+.kb-notice-success {
+  background: var(--success-soft);
+}
+
+.kb-notice-success > svg {
+  color: var(--success);
+}
+
+/* Brass price plate: flat fill, the only brass on a photo */
+.kb-price-plate {
+  display: inline-flex;
+  background: var(--brass);
+  color: var(--on-brass);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-plate);
+}
+
+.kb-price-plate-overlay {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+}
+
+.kb-price-plate-lg {
+  padding: 12px 16px;
+  font-size: 40px;
+}
+
+@media (max-width: 767.98px) {
+  .kb-price-plate {
+    padding: 4px 8px;
+    font-size: 17px;
+  }
+
+  .kb-price-plate-overlay {
+    left: 8px;
+    bottom: 8px;
+  }
+
+  .kb-price-plate-lg {
+    padding: 10px 14px;
+    font-size: 36px;
+  }
+}
+
+/* ── Forms ── */
+.kb-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.kb-field > label,
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 0;
+}
+
+.moto-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-strong);
+  background-color: var(--surface-raised);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+textarea.moto-input {
+  padding: 12px 14px;
+}
+
+.moto-input[type='file'] {
+  padding: 10px 14px;
+}
+
+select.moto-input {
+  padding-right: 40px;
+}
+
+.moto-input:focus {
+  background-color: var(--surface-raised);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  box-shadow: none;
+}
+
+.moto-input::placeholder {
+  color: var(--ink-subtle);
+  opacity: 1;
+}
+
+.moto-input:disabled {
+  opacity: 0.6;
+}
+
+.moto-input option {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.moto-input-with-icon {
+  padding-left: 42px;
+}
+
+.moto-input-with-icon-right {
+  padding-right: 42px;
+}
+
+.kb-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 15px;
+  color: var(--ink-subtle);
+  pointer-events: none;
+}
+
+.form-check-input {
+  background-color: var(--surface-raised);
+  border-color: var(--line-strong);
+}
+
+.form-check-input:checked {
+  background-color: var(--brass);
+  border-color: var(--brass);
+}
+
+.form-check-input:focus {
+  border-color: var(--line-strong);
+  box-shadow: none;
+}
+
+.form-check-input:checked[type='checkbox'] {
+  --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%2314161a' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2314161a'/%3e%3c/svg%3e");
 }
 
 /* ── Navigation ── */
 .moto-nav {
-  background: rgba(8, 8, 8, 0.95) !important;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 0;
-  transition: all 0.3s ease;
-}
-
-.nav-link {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 1.2rem !important;
-  color: var(--text-primary) !important;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--accent-primary);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: var(--accent-primary) !important;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 50%;
-}
-
-/* ── Inputs ── */
-.moto-input {
-  background-color: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-  font-family: 'Inter', sans-serif;
-  padding: 12px 16px !important;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.moto-input:focus {
-  border-color: var(--accent-primary) !important;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2) !important;
-  outline: none;
-}
-
-.moto-input-with-icon {
-  padding-left: 38px !important;
-}
-
-.moto-input-with-icon-right {
-  padding-right: 38px !important;
-}
-
-.moto-input::placeholder {
-  color: var(--text-muted) !important;
-}
-
-/* ── Layout Elements ── */
-.section-padding {
-  padding: 100px 0;
-}
-
-section {
-  background-color: transparent;
-}
-
-@media (max-width: 768px) {
-  .section-padding {
-    padding: 60px 0;
-  }
-}
-
-/* Hero */
-.hero-section {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  background-size: cover;
-  background-position: center;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(8, 8, 8, 0.92) 0%, rgba(8, 8, 8, 0.65) 50%, rgba(8, 8, 8, 0.92) 100%);
-  z-index: 1;
+  z-index: 1030;
+  padding: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
 }
 
-.hero-content {
-  position: relative;
-  z-index: 2;
+.moto-nav .container {
+  min-height: var(--nav-height);
+  gap: var(--space-5);
 }
 
-/* ── Bootstrap Overrides ── */
-.bg-accent {
-  background-color: var(--accent-primary) !important;
-  color: var(--bg-void) !important;
-}
-
-.bg-success {
-  background-color: #1a8754 !important;
-  color: white !important;
-}
-
-.bg-danger {
-  background-color: #dc3545 !important;
-  color: white !important;
-}
-
-.bg-destructive {
-  background-color: var(--color-destructive) !important;
-  color: white !important;
-}
-
-.bg-destructive-soft {
-  background-color: rgba(220, 53, 69, 0.1) !important;
-}
-
-.text-destructive {
-  color: var(--color-destructive) !important;
-}
-
-/* ── Brand Marquee ── */
-.marquee-container {
-  overflow: hidden;
-  white-space: nowrap;
-  background-color: transparent;
-  padding: 40px 0;
-  margin-top: 40px;
+.kb-brand {
   display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+}
+
+.kb-brand:hover {
+  color: var(--ink);
+}
+
+.kb-brand img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+}
+
+.kb-brand-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1;
+}
+
+@media (max-width: 767.98px) {
+  .kb-brand {
+    gap: 10px;
+  }
+
+  .kb-brand img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .kb-brand-name {
+    font-size: 26px;
+  }
+}
+
+.moto-nav .navbar-nav {
+  gap: var(--space-1);
   align-items: center;
 }
 
-.marquee-content {
-  display: inline-block;
-  animation: marquee 30s linear infinite;
+.moto-nav .nav-link {
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
+  color: var(--ink-muted);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
-.marquee-container:hover .marquee-content {
-  animation-play-state: paused;
+.moto-nav .nav-link:hover,
+.moto-nav .nav-link:focus-visible {
+  background: var(--surface);
+  color: var(--ink);
 }
 
-.brand-logo {
-  display: inline-block;
-  margin: 0 50px;
-  height: 60px;
-  object-fit: contain;
-  filter: invert(1) opacity(60%);
-  mix-blend-mode: screen;
-  transition: all 0.3s ease;
-  cursor: default;
+.moto-nav .nav-link.active {
+  background: var(--surface-raised);
+  color: var(--ink);
 }
 
-.brand-logo:hover {
-  filter: invert(1) opacity(100%);
-  transform: scale(1.06);
+.kb-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
 }
 
-.brand-logo.no-invert {
-  filter: grayscale(100%) invert(1) opacity(60%);
-  mix-blend-mode: screen;
+.kb-nav-toggle:hover {
+  background: var(--surface-raised);
 }
 
-.brand-logo.no-invert:hover {
-  filter: grayscale(100%) invert(1) opacity(100%);
-  transform: scale(1.06);
+.kb-nav-toggle:focus {
+  box-shadow: none;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
+@media (max-width: 991.98px) {
+  /* The mobile menu is a sheet that floats under the bar */
+  .moto-nav .navbar-collapse {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: var(--space-2) var(--gutter) var(--space-4);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow-overlay);
   }
 
-  100% {
-    transform: translateX(-50%);
+  .moto-nav .navbar-nav {
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .moto-nav .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 14px;
   }
 }
 
-/* ── Skeleton Loading ── */
+/* ── Footer ── */
+.kb-footer {
+  margin-top: var(--space-9);
+  border-top: 1px solid var(--line);
+}
+
+.kb-footer-main {
+  padding: var(--space-8) 0 var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.kb-footer-title {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.kb-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.kb-footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  color: var(--ink-muted);
+}
+
+a.kb-footer-link:hover {
+  color: var(--ink-muted);
+  text-decoration: underline;
+}
+
+.kb-footer-legal {
+  margin-top: var(--space-7);
+  padding: var(--space-5) 0 var(--space-6);
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (max-width: 991.98px) {
+  .kb-footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .kb-footer-main > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .kb-footer {
+    margin-top: var(--space-8);
+  }
+
+  .kb-footer-main {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-7) 0 var(--space-6);
+  }
+
+  .kb-footer-link {
+    min-height: 44px;
+  }
+
+  .kb-footer-legal {
+    margin-top: 0;
+  }
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+}
+
+.social-link:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+/* ── Bike card (Home, Inventory, Bike detail) ── */
+.kb-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  color: var(--ink);
+}
+
+.kb-card-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+/* Absolute so the photo's own proportions can never resize the 4:3 box */
+.kb-card-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kb-card-flag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.kb-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.kb-card-title {
+  margin: 0;
+  min-height: 55px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.kb-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.kb-card-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.kb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 1199.98px) {
+  .kb-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .kb-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kb-card-body {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .kb-card-meta {
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .kb-card-type {
+    display: none !important;
+  }
+
+  .kb-card-flag {
+    top: 8px;
+    left: 8px;
+  }
+}
+
+/* Loading skeleton (same footprint as a bike card) */
 @keyframes skeleton-pulse {
-
   0%,
   100% {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: var(--surface-raised);
   }
 
   50% {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--line);
   }
 }
 
 .skeleton-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  overflow: hidden;
 }
 
 .skeleton-img {
   width: 100%;
-  height: 280px;
+  aspect-ratio: 4 / 3;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
 .skeleton-body {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
 }
 
 .skeleton-line {
   height: 14px;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  border-radius: var(--radius-sm);
   width: 100%;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
@@ -595,17 +1035,610 @@ section {
   animation-delay: 0.2s;
 }
 
-.skeleton-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.1);
-  margin: 14px 0;
+.skeleton-line.title {
+  height: 24px;
 }
 
-/* ── Reveal Animations ── */
+@media (max-width: 767.98px) {
+  .skeleton-body {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+}
+
+/* ── Filter panel (Home search + Inventory) ── */
+.kb-filters {
+  display: grid;
+  gap: var(--space-4);
+  align-items: end;
+  padding: var(--space-5);
+}
+
+.kb-filters-inventory {
+  grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) auto;
+  padding: 20px var(--space-5);
+}
+
+.kb-filters .kb-search-wrap {
+  position: relative;
+}
+
+.kb-filters-toggle {
+  display: none;
+}
+
+.kb-filters-clear,
+.kb-input-action {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-muted);
+}
+
+.kb-filters-clear:hover,
+.kb-input-action:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+
+@media (max-width: 1199.98px) {
+  .kb-filters-inventory {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kb-filters-inventory .kb-search-row > .kb-field {
+    grid-column: 1 / -1;
+  }
+
+  .kb-filters-inventory > .kb-filters-reset {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .kb-filters {
+    padding: var(--space-4);
+  }
+
+  .kb-filters-inventory {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Phone: Search plus a Filters button that opens the rest */
+
+  .kb-filters-inventory .kb-filters-more {
+    display: none;
+  }
+
+  .kb-filters-inventory.is-open .kb-filters-more {
+    display: flex;
+  }
+
+  .kb-filters-inventory .kb-filters-reset {
+    display: none;
+  }
+
+  .kb-filters-inventory.is-open .kb-filters-reset {
+    display: inline-flex;
+  }
+}
+
+.kb-search-row {
+  display: contents;
+}
+
+@media (max-width: 767.98px) {
+  .kb-search-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+  }
+
+  .kb-search-row > .kb-field {
+    flex: 1;
+  }
+
+  .kb-filters-toggle {
+    display: inline-flex;
+    flex: none;
+  }
+}
+
+.kb-results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.kb-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.kb-sort-label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.kb-sort .moto-input {
+  min-height: 44px;
+  min-width: 220px;
+  font-size: 15px;
+}
+
+@media (max-width: 767.98px) {
+  .kb-sort .moto-input {
+    min-width: 0;
+    font-size: 14px;
+  }
+
+  /* Visually hidden on phone (the select still has its label) */
+  .kb-sort-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+.kb-empty {
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+}
+
+/* ── Home ── */
+/* The site's hero photo (--hero-image, set on the element) under a dark wash:
+   heavy at the top so the nav and headline stay legible, easing off through
+   the middle, and fading fully into the page background at the bottom edge so
+   there is no visible seam with the section below. */
+.kb-hero {
+  display: flex;
+  align-items: center;
+  /* A little taller than its content so the photo shows, but not a full screen */
+  min-height: clamp(540px, 68vh, 680px);
+  padding: var(--space-8) 0;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--bg) 55%, transparent) 0%,
+      transparent 65%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg) 82%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 58%, transparent) 50%,
+      var(--bg) 100%
+    ),
+    var(--hero-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.kb-hero > .container {
+  width: 100%;
+}
+
+.kb-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.kb-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.kb-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.kb-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.kb-hero-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.kb-hero-col + .kb-hero-col {
+  padding-top: 40px;
+}
+
+.kb-hero-tile {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+.kb-hero-tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kb-hero-tile .kb-price-plate {
+  font-size: 18px;
+  padding: 6px 10px;
+}
+
+@media (max-width: 991.98px) {
+  .kb-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .kb-hero {
+    min-height: clamp(420px, 56vh, 520px);
+    padding: var(--space-6) 0 var(--space-7);
+  }
+
+  .kb-hero-copy {
+    gap: var(--space-4);
+  }
+
+  .kb-hero-actions {
+    flex-direction: column;
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+
+  .kb-hero-actions .moto-btn {
+    width: 100%;
+  }
+
+  /* The phone hero is text only, like the mockup */
+  .kb-hero-grid {
+    display: none;
+  }
+}
+
+.kb-panel-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+  align-items: center;
+  padding: var(--space-7);
+}
+
+.kb-panel-split > div {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 991.98px) {
+  .kb-panel-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+}
+
+.kb-contact-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 72px;
+  padding: 16px 20px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+
+.kb-contact-link:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.kb-contact-link svg {
+  flex: none;
+  color: var(--brass-text);
+}
+
+.kb-contact-link .kb-contact-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kb-contact-link .kb-contact-value {
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767.98px) {
+  .kb-contact-link {
+    min-height: 64px;
+    padding: 12px 16px;
+  }
+}
+
+/* ── Feature cards (Katingin difference, included with every unit) ── */
+.kb-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 767.98px) {
+  .kb-grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+.kb-feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.kb-feature svg {
+  color: var(--brass-text);
+}
+
+.kb-feature p {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+@media (max-width: 767.98px) {
+  .kb-feature {
+    gap: var(--space-2);
+    padding: 20px;
+  }
+}
+
+.kb-check-card {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: 20px var(--space-5);
+}
+
+.kb-check-card > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--brass-text);
+}
+
+.kb-check-card p {
+  margin: 4px 0 0;
+  color: var(--ink-muted);
+}
+
+@media (max-width: 767.98px) {
+  .kb-check-card {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+}
+
+/* ── Bike detail ── */
+.kb-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: var(--space-7);
+  align-items: start;
+}
+
+.kb-gallery-main {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: var(--surface-raised);
+}
+
+.kb-gallery-main .carousel,
+.kb-gallery-main .carousel-inner,
+.kb-gallery-main .carousel-item {
+  height: 100%;
+}
+
+.kb-gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kb-thumbs {
+  --thumb-gap: var(--space-3);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--thumb-gap);
+  margin-top: var(--space-4);
+}
+
+/* More than four photos: one scrolling row instead of wrapping rows, so the
+   gallery doesn't grow far taller than the details beside it. Showing four and
+   a half thumbnails makes it obvious the row scrolls. */
+.kb-thumbs-scroll {
+  position: relative;
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 4 * var(--thumb-gap)) / 4.5);
+  padding: 3px 2px 8px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.kb-thumbs-scroll .kb-thumb {
+  scroll-snap-align: start;
+}
+
+.kb-thumb {
+  padding: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-strong);
+  background: var(--surface-raised);
+  cursor: pointer;
+}
+
+.kb-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kb-thumb[aria-pressed='true'] {
+  border: 2px solid var(--ink);
+}
+
+.kb-spec-list {
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.kb-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kb-spec-row dt {
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.kb-spec-row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Financing breakdown card on the bike page (rows reuse .kb-spec-row) */
+.kb-fin {
+  padding: 0 var(--space-5);
+}
+
+.kb-fin .kb-spec-list {
+  border-top: 0;
+}
+
+.kb-fin .kb-spec-row:last-child {
+  border-bottom: 0;
+}
+
+/* Stands in for the financing card when there are no terms to show */
+.kb-fin-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: 20px var(--space-5);
+  border-style: dashed;
+  border-color: var(--line-strong);
+}
+
+.kb-fin-empty > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink-subtle);
+}
+
+.kb-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@media (max-width: 991.98px) {
+  .kb-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .kb-two-col {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .kb-thumbs {
+    --thumb-gap: var(--space-2);
+  }
+
+  .kb-spec-row {
+    padding: 14px 0;
+  }
+}
+
+.inquiry-block-tooltip .tooltip-inner {
+  background-color: var(--surface-raised);
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  max-width: 260px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+}
+
+.inquiry-block-tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: var(--line-strong);
+}
+
+/* ── Page chrome ── */
+.kb-page-head {
+  padding-block: var(--space-7) var(--space-5);
+}
+
+.kb-page-title {
+  margin: 0;
+}
+
+/* ── Reveal + page transitions ── */
 .reveal {
   opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
   visibility: hidden;
 }
 
@@ -615,59 +1648,22 @@ section {
   visibility: visible;
 }
 
-/* Stagger delays for grids */
 .reveal-delay-1 {
-  transition-delay: 0.1s;
+  transition-delay: 0.05s;
 }
 
 .reveal-delay-2 {
-  transition-delay: 0.2s;
+  transition-delay: 0.1s;
 }
 
 .reveal-delay-3 {
-  transition-delay: 0.3s;
+  transition-delay: 0.15s;
 }
 
 .reveal-delay-4 {
-  transition-delay: 0.4s;
+  transition-delay: 0.2s;
 }
 
-/* ── Custom Carousel Controls ── */
-.carousel-control-prev,
-.carousel-control-next {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(0, 0, 0, 0.8);
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: 0 15px;
-  opacity: 0.7;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  z-index: 10;
-}
-
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-  background-color: var(--accent-primary);
-  opacity: 1;
-  border-color: var(--accent-primary);
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.carousel-control-prev:hover .carousel-control-prev-icon,
-.carousel-control-next:hover .carousel-control-next-icon {
-  filter: brightness(0);
-  /* Make arrows dark when background is gold */
-}
-
-/* ── Page Transitions ── */
 /* Opacity only — a lingering transform (even translateY(0)) breaks position:sticky */
 @keyframes pageFadeIn {
   0% {
@@ -680,213 +1676,371 @@ section {
 }
 
 .page-fade-in {
-  animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: pageFadeIn 0.4s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition: none;
+  }
+
+  .page-fade-in,
+  .skeleton-img,
+  .skeleton-line {
+    animation: none !important;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   SPLASH SCREEN  (GSAP-driven — CSS is structural only)
+   SPLASH SCREEN  (phases driven by SplashScreen.jsx via data-phase)
+   The live app renders underneath. On reveal, a circular hole opens in
+   the splash (a mask whose radius is animated) so the real homepage
+   shows through. Durations must match TIMING in SplashScreen.jsx.
    ══════════════════════════════════════════════════════════════════ */
 
-.splash-screen {
+@property --splash-r {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+.splash {
+  --splash-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --splash-ease-io: cubic-bezier(0.76, 0, 0.24, 1);
+  --splash-r: 0%;
+
   position: fixed;
   inset: 0;
   z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #050505;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
   overflow: hidden;
+  contain: layout paint;
+  /* Opaque outside --splash-r (a % of the distance to the far corner),
+     transparent inside it. */
+  -webkit-mask-image: radial-gradient(
+    circle farthest-corner at 50% 50%,
+    transparent var(--splash-r),
+    #000 calc(var(--splash-r) + 0.4%)
+  );
+  mask-image: radial-gradient(
+    circle farthest-corner at 50% 50%,
+    transparent var(--splash-r),
+    #000 calc(var(--splash-r) + 0.4%)
+  );
 }
 
-/* The "card" wrapper — GSAP animates width, height, borderRadius */
-.splash-img-wrap {
-  position: absolute;
-  overflow: hidden;
-  opacity: 0;
-  /* GSAP fades it in */
-  /* Keep image centered as wrapper expands */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.splash[data-phase='reveal'] {
+  --splash-r: 100%;
+  pointer-events: none;
+  transition: --splash-r 1.2s var(--splash-ease-io) 0.1s;
 }
 
-/* The actual image fills the viewport and stays cover-fit.
-   position: absolute + centering ensures the middle of the image
-   is always visible, even when the wrapper is small. */
-.splash-img {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100vw;
-  min-height: 100vh;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-.splash-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at center, rgba(5, 5, 5, 0.15) 0%, rgba(5, 5, 5, 0.8) 100%);
-  z-index: 1;
-  opacity: 0;
-  /* GSAP fades in */
-}
-
+/* Logo + wordmark */
 .splash-content {
   position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: clamp(14px, 3vw, 22px);
+  transition: opacity 0.45s ease, transform 0.6s var(--splash-ease-out);
+}
+
+.splash[data-phase='reveal'] .splash-content {
+  opacity: 0;
+  transform: scale(0.94);
+}
+
+.splash-mark {
+  position: relative;
+  width: clamp(104px, 18vw, 140px);
+  aspect-ratio: 1;
+  animation: splash-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .splash-logo {
-  width: clamp(56px, 10vw, 90px);
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 18px;
-  opacity: 0;
-  /* Hide initially to prevent FOUC/glitch before GSAP initializes */
+  position: absolute;
+  inset: 13%;
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.splash-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.splash-ring circle {
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.splash-ring-track {
+  stroke: var(--line);
+}
+
+.splash-ring-fill {
+  stroke: var(--brass);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.7s var(--splash-ease-out);
 }
 
 .splash-title {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: baseline;
-  gap: clamp(6px, 2vw, 14px);
+  column-gap: clamp(8px, 2vw, 16px);
+}
+
+/* Each word is a mask; letters rise out of it one after another */
+.splash-word {
+  display: inline-flex;
   overflow: hidden;
+  padding-bottom: 0.08em;
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 11vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
 }
 
-.splash-title-main,
-.splash-title-accent {
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(2.2rem, 10vw, 5.5rem);
-  font-weight: 900;
-  letter-spacing: 4px;
-  line-height: 1.1;
-  opacity: 0;
-  /* Hide initially to prevent FOUC/glitch before GSAP initializes */
+.splash-word-main {
+  color: var(--ink);
 }
 
-.splash-title-main {
-  color: var(--text-primary);
+.splash-word-accent {
+  color: var(--brass);
 }
 
-.splash-title-accent {
-  color: var(--accent-primary);
+.splash-char {
+  display: inline-block;
+  animation: splash-rise 0.75s var(--splash-ease-out) both;
+  animation-delay: calc(0.3s + var(--i) * 45ms);
 }
 
-.splash-tagline {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(0.65rem, 1.8vw, 0.9rem);
-  color: var(--text-muted);
-  text-transform: uppercase;
+@keyframes splash-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-rise {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-mark,
+  .splash-char {
+    animation: none;
+  }
+
+  /* No moving hole: just a quick fade */
+  .splash[data-phase='reveal'] {
+    --splash-r: 0%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .splash-content,
+  .splash-ring-fill {
+    transition-duration: 0.01s;
+  }
+}
+
+/* ── Admin & other Bootstrap-built screens ── */
+.modal-content {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--line);
+}
+
+.modal-backdrop {
+  --bs-backdrop-bg: #0a0b0d;
+  --bs-backdrop-opacity: 0.6;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ink);
+  --bs-table-border-color: var(--line);
+  --bs-table-hover-bg: var(--surface-raised);
+  --bs-table-hover-color: var(--ink);
+  --bs-table-striped-bg: transparent;
+}
+
+.table > thead > tr > th {
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: 14px;
   font-weight: 600;
-  margin-top: 14px;
-  letter-spacing: 4px;
-  will-change: transform, opacity;
+  white-space: nowrap;
 }
 
-/* ── Responsive Sticky Utilities (Desktop Only) ── */
-@media (min-width: 992px) {
-  .sticky-lg-top-100 {
-    position: sticky !important;
-    top: 100px !important;
-    z-index: 10;
-    align-self: flex-start;
-  }
-
-  .sticky-lg-top-120 {
-    position: sticky !important;
-    top: 120px !important;
-    z-index: 10;
-    align-self: flex-start;
-  }
-
-  /* Inventory filter: sticky while scrolling the bike grid */
-  .inventory-sidebar-col {
-    align-self: stretch;
-  }
-
-  .inventory-filters.sticky-lg-top-100 {
-    position: sticky !important;
-    top: 100px !important;
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-    overflow-x: visible;
-  }
+.admin-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ── Mobile Responsive ── */
-@media (max-width: 767px) {
+.kb-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
 
-  /* Typography scale-down */
-  .moto-heading {
-    letter-spacing: -0.01em;
-  }
+.kb-icon-btn:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
 
-  h1.moto-heading {
-    font-size: clamp(1.8rem, 8vw, 2.8rem) !important;
-  }
+.kb-icon-btn-danger {
+  color: var(--danger);
+}
 
-  h2.moto-heading {
-    font-size: clamp(1.5rem, 7vw, 2.2rem) !important;
-  }
+.kb-icon-btn-success {
+  color: var(--success);
+}
 
-  h3.moto-heading {
-    font-size: clamp(1.3rem, 6vw, 1.8rem) !important;
-  }
+.kb-icon-btn-brass {
+  color: var(--brass-text);
+}
 
-  /* Hero adjustments */
-  .hero-section {
-    min-height: 85vh;
-    background-position: 60% center;
-  }
+.kb-icon-btn-brass.is-on {
+  background: var(--brass-soft);
+  border-color: var(--brass);
+}
 
-  /* Lead paragraphs */
-  .lead {
-    font-size: 0.95rem !important;
-  }
+/* Admin image previews: the main image has a brass border and tag */
+.kb-preview-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+}
 
-  /* Card hover: disable transform on touch */
-  .moto-card:hover {
-    transform: none;
-  }
+.kb-preview {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  cursor: pointer;
+}
 
-  /* Navbar: tighter brand on mobile */
-  .navbar-brand span {
-    font-size: 1rem !important;
-  }
+.kb-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.6;
+}
 
-  .navbar-brand img:first-child {
-    height: 32px !important;
-  }
+.kb-preview.is-main {
+  border: 2px solid var(--brass);
+}
 
-  /* Navbar collapse menu spacing */
-  .navbar-collapse .nav-link {
-    padding: 0.75rem 0 !important;
-    border-bottom: 1px solid var(--border-color);
-  }
+.kb-preview.is-main img {
+  opacity: 1;
+}
 
-  .navbar-collapse .nav-link:last-child {
-    border-bottom: none;
-  }
+.kb-preview-tag,
+.kb-preview-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+}
 
-  /* Section padding reduction */
-  .section-padding {
-    padding: 50px 0;
-  }
+.kb-preview-tag {
+  bottom: 0;
+  background: var(--brass);
+  color: var(--on-brass);
+}
 
-  /* Bike detail image height */
-  .bike-detail-carousel img,
-  .bike-detail-single-img {
-    height: 280px !important;
-  }
+.kb-preview-overlay {
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--scrim);
+  color: var(--ink);
+  opacity: 0;
+}
 
-  /* Buyer cards: stack vertically on mobile */
+.kb-preview:hover .kb-preview-overlay,
+.kb-preview:focus-visible .kb-preview-overlay {
+  opacity: 1;
+}
+
+.kb-kbd {
+  padding: 2px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 12px;
+}
+
+.kb-stat-value {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.buyer-card-img {
+  object-fit: cover;
+}
+
+@media (max-width: 767.98px) {
   .buyer-card-row {
     flex-direction: column !important;
   }
@@ -896,309 +2050,34 @@ section {
     max-height: 260px !important;
     width: 100% !important;
   }
-
-  /* Admin table: allow horizontal scroll */
-  .admin-table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Stat cards on admin */
-  .admin-stat-value {
-    font-size: 1.3rem !important;
-  }
-
-  /* Inventory sidebar: not sticky on mobile */
-  .moto-card[style*="position: sticky"] {
-    position: static !important;
-  }
-
-  /* Inventory page: tighter chrome so more cards enter the viewport */
-  .inventory-page-header {
-    margin-bottom: 1.25rem !important;
-  }
-
-  .inventory-disclaimer {
-    margin-bottom: 1.25rem !important;
-    padding: 0.75rem 1rem !important;
-  }
-
-  .inventory-disclaimer .fs-4 {
-    font-size: 1.1rem !important;
-  }
-
-  .inventory-disclaimer .text-secondary {
-    font-size: 0.85rem !important;
-  }
-
-  .inventory-filters {
-    padding: 0.75rem !important;
-  }
-
-  /* Inventory cards: 2-col grid — compact chrome for half-width cells */
-  .inventory-card-body {
-    padding: 0.5rem 0.6rem !important;
-  }
-
-  .inventory-card-type {
-    font-size: 0.65rem !important;
-    letter-spacing: 0.5px !important;
-  }
-
-  .inventory-card-title {
-    font-size: 0.9rem !important;
-    margin-bottom: 0.35rem !important;
-    line-height: 1.25 !important;
-  }
-
-  .inventory-card-meta {
-    margin-bottom: 0.35rem !important;
-    gap: 0.4rem !important;
-    flex-wrap: wrap;
-  }
-
-  .inventory-card-meta .text-secondary {
-    font-size: 0.7rem !important;
-  }
-
-  .inventory-card-meta svg {
-    width: 11px;
-    height: 11px;
-  }
-
-  .inventory-card-footer {
-    padding-top: 0.4rem !important;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-
-  .inventory-card-price {
-    font-size: 0.9rem !important;
-  }
-
-  .inventory-card-btn {
-    padding: 5px 8px !important;
-    font-size: 0.65rem !important;
-  }
-
-  /* Loading skeletons match compact 2-col inventory cards */
-  .skeleton-img {
-    height: 150px !important;
-  }
-
-  .skeleton-body {
-    padding: 8px 10px !important;
-  }
-
-  .skeleton-line {
-    margin-bottom: 6px !important;
-    height: 10px !important;
-  }
-
-  .skeleton-divider {
-    margin: 6px 0 !important;
-  }
-
-  /* FeaturedBikes carousel image height */
-  .bike-img-wrapper {
-    height: 260px !important;
-  }
-
-  /* Inventory overrides FeaturedBikes global image height */
-  .inventory-card .bike-img-wrapper,
-  .inventory-card-img {
-    height: 150px !important;
-  }
-
-  /* About page quote border */
-  .about-quote-card {
-    border-left: none !important;
-    border-top: 4px solid var(--accent-primary) !important;
-    padding-left: 0 !important;
-    padding-top: 20px !important;
-  }
-
-  /* Brand marquee logo size */
-  .brand-logo {
-    height: 40px;
-    margin: 0 30px;
-  }
-
-  /* Buttons: full-width stacking on very small screens */
-  .hero-content .d-flex.flex-wrap {
-    gap: 0.75rem !important;
-  }
-
-  .hero-content .moto-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Footer columns spacing */
-  .footer .col-lg-4,
-  .footer .col-lg-2,
-  .footer .col-lg-4 {
-    text-align: center;
-  }
-
-  .footer .d-flex.gap-3 {
-    justify-content: center;
-  }
-}
-
-/* ── Tablet Responsive (768px - 991px) ── */
-@media (min-width: 768px) and (max-width: 991px) {
-  .hero-section {
-    background-position: 65% center;
-  }
-
-  .bike-img-wrapper {
-    height: 320px !important;
-  }
-
-  .inventory-card .bike-img-wrapper,
-  .inventory-card-img {
-    height: 200px !important;
-  }
-
-  .moto-card:hover {
-    transform: translateY(-2px);
-  }
-}
-
-/* ── Featured Bikes Carousel Card ── */
-.featured-carousel-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 40px;
-}
-
-/* Image gallery on the right */
-.featured-gallery-main {
-  width: 100%;
-  height: 520px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background-color: #000;
-  position: relative;
-}
-
-.featured-gallery-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(15px) brightness(0.4);
-  transform: scale(1.08);
-  /* Avoid white edges from blur */
-  pointer-events: none;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-}
-
-.featured-gallery-fg {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  z-index: 2;
-  transition: opacity 0.3s ease;
-}
-
-/* Thumbnail wrapper */
-.featured-gallery-thumbnails {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-  justify-content: center;
-}
-
-.featured-gallery-thumb {
-  width: 80px;
-  height: 60px;
-  border-radius: 4px;
-  overflow: hidden;
-  border: 2px solid var(--border-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.6;
-}
-
-.featured-gallery-thumb:hover {
-  opacity: 1;
-  border-color: rgba(212, 175, 55, 0.5);
-}
-
-.featured-gallery-thumb.active {
-  opacity: 1;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-}
-
-/* Specifications pills inside the carousel */
-.featured-specs-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 24px 0;
-}
-
-.featured-spec-badge {
-  background-color: var(--bg-muted);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 0.8rem;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-}
-
-/* Custom indicator dots for the main carousel */
-.featured-carousel {
-  position: relative;
-}
-
-.featured-carousel .carousel-indicators {
-  bottom: -40px;
-}
-
-.featured-carousel .carousel-indicators [data-bs-target] {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--text-muted);
-  border: none;
-  opacity: 0.5;
-  transition: all 0.3s ease;
-}
-
-.featured-carousel .carousel-indicators .active {
-  background-color: var(--accent-primary);
-  opacity: 1;
-  transform: scale(1.2);
-}
-
-/* Adjust responsiveness */
-@media (max-width: 991px) {
-  .featured-carousel-card {
-    padding: 24px;
-  }
-
-  .featured-gallery-main {
-    height: 280px;
-  }
 }
 
 /* Hide scrollbars for thumbnail strip */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Privacy policy: bold terms read as ink against the muted body copy */
+.privacy-content strong {
+  color: var(--ink);
+}
+
+/* Form panel (Financing) */
+.kb-form-panel {
+  padding: var(--space-6);
+}
+
+@media (max-width: 767.98px) {
+  .kb-form-panel {
+    padding: var(--space-5) var(--space-4);
+  }
+}
+
+.kb-bg-raised {
+  background-color: var(--surface-raised);
 }
