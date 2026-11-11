@@ -33,8 +33,21 @@ const inquiryLimiter = rateLimit({
   }
 });
 
+// Owner-report limiter: only FAILED attempts (404 from a bad key) count, so the
+// dashboard can reload freely but a key can't be brute-forced. No rate-limit
+// headers, and once locked out the route just 404s like any unknown path.
+const ownerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: false,
+  legacyHeaders: false,
+  handler: (req, res, next) => next('route')
+});
+
 module.exports = {
   globalLimiter,
   authLimiter,
-  inquiryLimiter
+  inquiryLimiter,
+  ownerLimiter
 };

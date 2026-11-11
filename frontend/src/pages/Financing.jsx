@@ -12,6 +12,7 @@ const Financing = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const bikeNameParam = queryParams.get('bikeName') || '';
+  const bikeIdParam = queryParams.get('bikeId') || '';
 
   const { bikes, loading: loadingBikes } = useBikes();
   // Units that can still take an inquiry
@@ -30,13 +31,16 @@ const Financing = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
 
-  // Until the visitor picks a unit: the one they came from (?bikeName=), else the first available
-  const defaultUnit = availableBikes.some((b) => getBikeName(b) === bikeNameParam)
-    ? bikeNameParam
-    : availableBikes.length > 0
-      ? getBikeName(availableBikes[0])
-      : '';
-  const selectedUnit = formData.unitInterested || defaultUnit;
+  // Until the visitor picks a unit: the one they came from (?bikeId=, or ?bikeName= for old
+  // links), else the first available. formData.unitInterested holds the picked bike's _id.
+  const defaultBikeId = (
+    availableBikes.find((b) => b._id === bikeIdParam) ||
+    availableBikes.find((b) => getBikeName(b) === bikeNameParam) ||
+    availableBikes[0]
+  )?._id || '';
+  const selectedBikeId = formData.unitInterested || defaultBikeId;
+  const selectedBike = availableBikes.find((b) => b._id === selectedBikeId);
+  const selectedUnit = selectedBike ? getBikeName(selectedBike) : '';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,7 +63,7 @@ const Financing = () => {
       const res = await fetch(apiUrl('/api/inquiries'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, unitInterested: selectedUnit })
+        body: JSON.stringify({ ...formData, unitInterested: selectedUnit, bikeId: selectedBikeId })
       });
 
       const result = await res.json();
@@ -204,7 +208,7 @@ const Financing = () => {
                       <Form.Select
                         name="unitInterested"
                         className="moto-input"
-                        value={selectedUnit}
+                        value={selectedBikeId}
                         onChange={handleInputChange}
                         required
                       >
@@ -214,7 +218,7 @@ const Financing = () => {
                           availableBikes.map((bike) => {
                             const fullName = getBikeName(bike);
                             return (
-                              <option key={bike._id} value={fullName}>
+                              <option key={bike._id} value={bike._id}>
                                 {fullName} (₱{parseFloat(String(bike.price).replace(/[^0-9.]/g, '') || 0).toLocaleString()})
                               </option>
                             );

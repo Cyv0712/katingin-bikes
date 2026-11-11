@@ -4,6 +4,7 @@ const multer = require('multer');
 const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
+const { recordRemoval } = require('../utils/recordBikeLead');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -186,6 +187,7 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
       },
       { new: true }
     );
+    await recordRemoval(bike._id, 'sold');
     res.json(updatedBike);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -201,6 +203,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     await deleteBikeImages(bike.images);
 
     await Bike.findByIdAndDelete(req.params.id);
+    await recordRemoval(bike._id, 'deleted');
     console.log(`[Inventory] Bike DELETED: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
     res.json({ message: 'Bike and all associated images deleted' });
   } catch (err) {

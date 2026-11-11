@@ -28,7 +28,16 @@
     rel="stylesheet" />
   <title>Katingin Bikes</title>
   <!-- Umami Analytics -->
-  <script defer src="https://analytics.katinginbikes.com/script.js" data-website-id="ffdf570b-2057-48b7-9084-fbf8a915a783"></script>
+  <script>
+    // Skipped on /insights so that page leaves no trace in analytics.
+    if (!location.pathname.startsWith('/insights')) {
+      var umami = document.createElement('script');
+      umami.defer = true;
+      umami.src = 'https://analytics.katinginbikes.com/script.js';
+      umami.setAttribute('data-website-id', 'ffdf570b-2057-48b7-9084-fbf8a915a783');
+      document.head.appendChild(umami);
+    }
+  </script>
 </head>
 
 <body>

@@ -83,10 +83,12 @@ app.use('/api', globalLimiter);
 const bikesRouter = require('./routes/bikes');
 const authRouter = require('./routes/auth');
 const inquiriesRouter = require('./routes/inquiries');
+const internalRouter = require('./routes/internal');
 
 app.use('/api/bikes', bikesRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/inquiries', inquiriesRouter);
+app.use('/api/internal', internalRouter);
 
 // Root Route
 app.get('/', (req, res) => {
