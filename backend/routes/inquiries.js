@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { inquiryLimiter } = require('../middleware/rateLimiter');
+const { recordInquiry } = require('../utils/recordBikeLead');
 
 const LOGO_URL = 'https://www.katinginbikes.com/static_data/Katingin_logo.webp';
 
@@ -20,6 +21,7 @@ const escapeHtml = (unsafe) => {
 router.post('/', inquiryLimiter, async (req, res) => {
   try {
     let { name, email, contactNumber, unitInterested, message } = req.body;
+    const { bikeId } = req.body; // optional; used only by recordInquiry, never emailed
 
     // Validation
     if (!name || !email || !contactNumber || !unitInterested) {
@@ -131,6 +133,8 @@ router.post('/', inquiryLimiter, async (req, res) => {
       console.warn('[Resend] Inquiries email not configured. Missing RESEND_API_KEY or INQUIRY_RECEIVER_EMAIL.');
       return res.status(500).json({ message: 'Email system not configured on the server.' });
     }
+
+    recordInquiry(bikeId); // fire-and-forget; never throws
 
     res.status(200).json({
       success: true,

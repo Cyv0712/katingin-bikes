@@ -17,6 +17,7 @@ const ShowcaseDetails = lazy(() => import('./pages/ShowcaseDetails'));
 const Financing = lazy(() => import('./pages/Financing'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Admin = lazy(() => import('./pages/Admin'));
+const Owner = lazy(() => import('./pages/Owner'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -72,6 +73,7 @@ function App() {
             <Route path="/contact" element={<AnimatedPage><Contact /></AnimatedPage>} />
             <Route path="/privacy-policy" element={<AnimatedPage><PrivacyPolicy /></AnimatedPage>} />
             <Route path="/admin" element={<AnimatedPage><Admin /></AnimatedPage>} />
+            <Route path="/insights" element={<AnimatedPage><Owner /></AnimatedPage>} />
             {/* Wildcard 404 Route */}
             <Route path="*" element={<AnimatedPage><NotFound /></AnimatedPage>} />
           </Routes>

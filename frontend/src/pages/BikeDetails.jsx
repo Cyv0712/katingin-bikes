@@ -125,7 +125,7 @@ const BikeDetailsContent = ({ id }) => {
   const links = getContactLinks();
   const canonicalUrl = `https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`;
 
-  const financingUrl = `/financing?bikeName=${encodeURIComponent(
+  const financingUrl = `/financing?bikeId=${encodeURIComponent(bike._id)}&bikeName=${encodeURIComponent(
     `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim()
   )}`;
 
