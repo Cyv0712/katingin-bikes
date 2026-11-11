@@ -4,7 +4,7 @@ const multer = require('multer');
 const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
-const { recordRemoval } = require('../utils/recordBikeLead');
+const { recordRemoval, recordBikeAdded } = require('../utils/recordBikeLead');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -79,6 +79,9 @@ router.post('/', authMiddleware, upload.array('images', 20), async (req, res) =>
       }
     }
 
+    // Logged only once the bike (and its images) are fully saved, so a rolled
+    // back upload never leaves an "added" entry behind.
+    await recordBikeAdded(bike);
     res.status(201).json(bike);
   } catch (err) {
     // Clear the duplicate submission fingerprint so the user can immediately retry

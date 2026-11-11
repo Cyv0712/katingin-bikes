@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const router = express.Router();
 const BikeLead = require('../models/BikeLead');
+const BikeActivity = require('../models/BikeActivity');
 const { ownerLimiter } = require('../middleware/rateLimiter');
 
 const MIN_KEY_LENGTH = 24;
@@ -67,6 +68,47 @@ router.get('/attribution', ownerLimiter, ownerKeyGuard, async (req, res) => {
         daysToClose: firstInquiryAt && removedAt
           ? Math.max(0, Math.round(((removedAt - firstInquiryAt) / 86400000) * 10) / 10)
           : null,
+      })),
+    });
+  } catch {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET /api/internal/activity?limit=<1-200, default 50>&from=<ISO>&to=<ISO>
+// Newest-first log of bikes added to the site, with the exact timestamp.
+// Counts are over the whole log; from/to/limit only shape the returned list.
+router.get('/activity', ownerLimiter, ownerKeyGuard, async (req, res) => {
+  try {
+    const from = parseDate(req.query.from);
+    const to = parseDate(req.query.to);
+    const parsedLimit = Number.parseInt(req.query.limit, 10);
+    const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 200) : 50;
+
+    const filter = { event: 'added' };
+    if (from || to) {
+      filter.occurredAt = {};
+      if (from) filter.occurredAt.$gte = from;
+      if (to) filter.occurredAt.$lte = to;
+    }
+
+    const now = Date.now();
+    const since = (days) => new Date(now - days * 86400000);
+    const [events, total, last24h, last7d, last30d] = await Promise.all([
+      BikeActivity.find(filter).sort({ occurredAt: -1 }).limit(limit).lean(),
+      BikeActivity.countDocuments({ event: 'added' }),
+      BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(1) } }),
+      BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(7) } }),
+      BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(30) } }),
+    ]);
+
+    res.json({
+      total,
+      last24h,
+      last7d,
+      last30d,
+      events: events.map(({ brand, model, engineSize, price, occurredAt }) => ({
+        brand, model, engineSize, price, addedAt: occurredAt,
       })),
     });
   } catch {
