@@ -23,8 +23,19 @@ const clearKey = () => {
 
 async function requestReport(key) {
   try {
-    const res = await fetch(apiUrl('/api/internal/attribution'), { headers: { 'x-owner-key': key } });
-    if (res.ok) return { data: await res.json() };
+    const headers = { 'x-owner-key': key };
+    const res = await fetch(apiUrl('/api/internal/attribution'), { headers });
+    if (res.ok) {
+      const data = await res.json();
+      // Only asked once the key is accepted, so a wrong key costs one failed
+      // attempt, not two. A failure here just hides the section.
+      let activity = null;
+      try {
+        const act = await fetch(apiUrl('/api/internal/activity?limit=50'), { headers });
+        if (act.ok) activity = await act.json();
+      } catch { /* section stays hidden */ }
+      return { data, activity };
+    }
     if (res.status === 404) return { error: 'That key did not work. After several wrong tries, wait 15 minutes.', badKey: true };
     return { error: 'Something went wrong. Please try again.' };
   } catch {
@@ -83,6 +94,9 @@ function summarize(list) {
 const peso = (n) => `₱${Math.round(n).toLocaleString('en-PH')}`;
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const fmtDateTime = (d) => new Date(d).toLocaleString('en-PH', {
+  month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
+});
 const fmtDays = (d) => (d == null ? '—' : d < 1 ? 'Under a day' : `${Math.round(d)} day${Math.round(d) === 1 ? '' : 's'}`);
 
 function Delta({ diff, format = String, label }) {
@@ -176,6 +190,7 @@ function Owner() {
   const [input, setInput] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [data, setData] = useState(null);
+  const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(Boolean(initialKey));
   const [error, setError] = useState('');
   const [periodId, setPeriodId] = useState('this-month');
@@ -191,6 +206,7 @@ function Owner() {
       if (!live) return;
       if (r.data) {
         setData(r.data);
+        setActivity(r.activity);
       } else {
         // Only a rejected key is forgotten; a network blip keeps the session.
         if (r.badKey) {
@@ -215,6 +231,7 @@ function Owner() {
       saveKey(candidate);
       setOwnerKey(candidate);
       setData(r.data);
+      setActivity(r.activity);
       setInput('');
     } else {
       setError(r.error);
@@ -228,6 +245,7 @@ function Owner() {
     const r = await requestReport(ownerKey);
     if (r.data) {
       setData(r.data);
+      setActivity(r.activity);
       setError('');
     } else {
       setError(r.error);
@@ -239,6 +257,7 @@ function Owner() {
     clearKey();
     setOwnerKey('');
     setData(null);
+    setActivity(null);
     setError('');
   };
 
@@ -491,6 +510,50 @@ function Owner() {
             </tbody>
           </Table>
         </div>
+
+        {/* Recently added bikes */}
+        {activity && (
+          <>
+            <h2 className="kb-h4 mb-3">Bikes added</h2>
+            <Row className="g-3 mb-3">
+              <Col xs={6} lg={3}><StatTile label="Last 24 hours" value={activity.last24h} /></Col>
+              <Col xs={6} lg={3}><StatTile label="Last 7 days" value={activity.last7d} /></Col>
+              <Col xs={6} lg={3}><StatTile label="Last 30 days" value={activity.last30d} /></Col>
+              <Col xs={6} lg={3}><StatTile label="Since tracking began" value={activity.total} /></Col>
+            </Row>
+            <div className="moto-card overflow-hidden p-0 mb-4">
+              <Table responsive className="mb-0 align-middle">
+                <thead>
+                  <tr>
+                    <th className="py-3 ps-4">Bike</th>
+                    <th className="py-3">Listed price</th>
+                    <th className="py-3 pe-4">Added</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activity.events.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="text-center py-5" style={{ color: 'var(--ink-muted)' }}>
+                        No bikes added since tracking began.
+                      </td>
+                    </tr>
+                  ) : (
+                    activity.events.map((e) => (
+                      <tr key={`${e.brand}-${e.model}-${e.addedAt}`}>
+                        <td className="py-3 ps-4 fw-semibold">{[e.brand, e.model, e.engineSize].filter(Boolean).join(' ')}</td>
+                        <td className="py-3 kb-num">{e.price || '—'}</td>
+                        <td className="py-3 pe-4 kb-num">
+                          <time dateTime={new Date(e.addedAt).toISOString()}>{fmtDateTime(e.addedAt)}</time>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </Table>
+            </div>
+            <p className="kb-caption mb-4">Shows the 50 most recent. Only bikes added after tracking was switched on are logged.</p>
+          </>
+        )}
 
         {/* How it is measured */}
         <div className="moto-card p-4">
