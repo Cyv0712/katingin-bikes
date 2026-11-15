@@ -90,7 +90,7 @@ describe('POST /api/inquiries email', () => {
     assert.equal(res.status, 200);
     assert.equal(sent.length, 1);
     assert.equal(sent[0].reply_to, 'juan@example.com');
-    assert.ok(sent[0].html.includes(`https://katinginbikes.com/bike/${bike._id}`));
+    assert.ok(sent[0].html.includes(`https://www.katinginbikes.com/bike/${bike._id}`));
     assert.ok(sent[0].html.includes('View this bike on the website'));
   });
 

@@ -4,7 +4,7 @@ import { Carousel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ArrowLeft, Banknote, Bookmark, Calendar, Route, Check, Circle, MessageCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import Seo from '../seo/Seo';
-import { bikeMeta, SITE_URL } from '../seo/meta';
+import { bikeMeta, pageUrl } from '../seo/meta';
 import ShareBar from '../components/ShareBar';
 import { showcaseBikes } from '../data/showcase';
 import { findShowcaseInventoryMatch } from '../utils/showcaseStockMatch';
@@ -363,7 +363,7 @@ const BikeDetailsContent = ({ id, slugAndId }) => {
             </p>
 
             <ShareBar
-              url={`${SITE_URL}${bikePath(bike)}`}
+              url={pageUrl(bikePath(bike))}
               text={`Check out this ${bikeName} at Katingin Bikes.`}
               bikeName={bikeName}
             />

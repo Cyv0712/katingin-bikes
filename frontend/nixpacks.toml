@@ -13,4 +13,4 @@ cmds = ["npm install --include=dev"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "caddy run --config Caddyfile --adapter caddyfile"
+cmd = "caddy run --config /assets/Caddyfile"

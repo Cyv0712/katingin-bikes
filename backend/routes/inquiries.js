@@ -5,7 +5,7 @@ const { recordInquiry, recordInquirySource } = require('../utils/recordBikeLead'
 const Bike = require('../models/Bike');
 
 const LOGO_URL = 'https://www.katinginbikes.com/static_data/Katingin_logo.webp';
-const SITE_URL = (process.env.SITE_URL || 'https://katinginbikes.com').replace(/\/+$/, '');
+const SITE_URL = (process.env.SITE_URL || 'https://www.katinginbikes.com').replace(/\/+$/, '');
 
 // Loose on purpose: it only decides whether the address is worth putting in the
 // Reply-To header. Anything with whitespace, brackets, commas or double quotes is dropped.
