@@ -21,7 +21,7 @@ const NavigationBar = () => {
     <Navbar expand="lg" className="moto-nav" expanded={expanded} onToggle={setExpanded}>
       <Container>
         <Navbar.Brand as={Link} to="/" className="kb-brand" aria-label={`${brandConfig.fullName} home`} onClick={close}>
-          <img src="/static_data/Katingin_logo.webp" alt="" width="40" height="40" />
+          <img src="/static_data/Katingin_logo_96.webp" alt="" width="40" height="40" />
           <span className="kb-brand-name">{brandConfig.fullName}</span>
         </Navbar.Brand>
         <Navbar.Toggle

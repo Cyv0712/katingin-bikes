@@ -1,9 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const { inquiryLimiter } = require('../middleware/rateLimiter');
-const { recordInquiry } = require('../utils/recordBikeLead');
+const { recordInquiry, recordInquirySource } = require('../utils/recordBikeLead');
+const Bike = require('../models/Bike');
 
 const LOGO_URL = 'https://www.katinginbikes.com/static_data/Katingin_logo.webp';
+const SITE_URL = (process.env.SITE_URL || 'https://katinginbikes.com').replace(/\/+$/, '');
+
+// Loose on purpose: it only decides whether the address is worth putting in the
+// Reply-To header. Anything with whitespace, brackets, commas or double quotes is dropped.
+const PLAUSIBLE_EMAIL = /^[^\s@<>",;]+@[^\s@<>",;]+\.[^\s@<>",;]+$/;
+
+// Where the visitor came from, as sent by the site (utm_* tags on the link, or the
+// referring site). Visitor-supplied, so it is reduced to a short lowercase tag
+// before it is stored, counted or put in the email. Empty when nothing usable.
+function cleanSourceLabel(value) {
+  if (typeof value !== 'string') return '';
+  return value.toLowerCase().trim().replace(/[^a-z0-9._-]/g, '').slice(0, 40);
+}
+
+// Link to the unit the visitor asked about, built only from a database id we
+// looked up ourselves. Never from anything the visitor typed. The site
+// redirects /bike/<id> to the full canonical URL.
+async function bikeLinkFor(bikeId) {
+  try {
+    if (typeof bikeId !== 'string' || !/^[a-f\d]{24}$/i.test(bikeId)) return null;
+    const bike = await Bike.findById(bikeId).select('_id').lean();
+    return bike ? `${SITE_URL}/bike/${bike._id}` : null;
+  } catch {
+    return null;
+  }
+}
 
 // Simple HTML escaper to prevent XSS in email templates
 const escapeHtml = (unsafe) => {
@@ -27,6 +54,14 @@ router.post('/', inquiryLimiter, async (req, res) => {
     if (!name || !email || !contactNumber || !unitInterested) {
       return res.status(400).json({ message: 'Missing required fields: name, email, contactNumber, and unitInterested are required.' });
     }
+
+    // Taken before escaping: this one goes in a header, not into HTML
+    const replyTo = typeof email === 'string' && PLAUSIBLE_EMAIL.test(email.trim()) ? email.trim() : null;
+    const bikeLink = await bikeLinkFor(bikeId);
+    const attribution = req.body.attribution && typeof req.body.attribution === 'object' ? req.body.attribution : {};
+    const sourceLabel = cleanSourceLabel(attribution.source) || 'direct';
+    const sourceDetail = [sourceLabel, cleanSourceLabel(attribution.medium), cleanSourceLabel(attribution.campaign)]
+      .filter(Boolean).join(' / ');
 
     // Sanitize inputs before injecting into email HTML
     name = escapeHtml(name);
@@ -52,6 +87,7 @@ router.post('/', inquiryLimiter, async (req, res) => {
         const mailOptions = {
           from: `Katingin Bikes <${senderEmail}>`,
           to: recipients,
+          ...(replyTo && { reply_to: replyTo }),
           subject: `🔔 New Financing Inquiry: ${unitInterested} — ${name}`,
           html: `
             <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 620px; margin: 0 auto; background-color: #111111; border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a;">
@@ -86,8 +122,16 @@ router.post('/', inquiryLimiter, async (req, res) => {
                     <td style="padding: 14px 16px; background-color: #161616; border-bottom: 1px solid #222; font-size: 15px; color: #D4AF37; font-weight: 700;">${unitInterested}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 14px 16px; background-color: #1a1a1a; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #888888; text-transform: uppercase; vertical-align: top;">Message</td>
-                    <td style="padding: 14px 16px; background-color: #1a1a1a; font-size: 14px; color: #cccccc; line-height: 1.7;">${message ? message.replace(/\n/g, '<br>') : '<span style="color: #555; font-style: italic;">No message provided</span>'}</td>
+                    <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #888888; text-transform: uppercase;">Came from</td>
+                    <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 14px; color: #ffffff;">${escapeHtml(sourceDetail)}</td>
+                  </tr>
+                  ${bikeLink ? `<tr>
+                    <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #888888; text-transform: uppercase;">Listing</td>
+                    <td style="padding: 14px 16px; background-color: #1a1a1a; border-bottom: 1px solid #222; font-size: 14px;"><a href="${bikeLink}" style="color: #60a5fa;">View this bike on the website</a></td>
+                  </tr>` : ''}
+                  <tr>
+                    <td style="padding: 14px 16px; background-color: #161616; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #888888; text-transform: uppercase; vertical-align: top;">Message</td>
+                    <td style="padding: 14px 16px; background-color: #161616; font-size: 14px; color: #cccccc; line-height: 1.7;">${message ? message.replace(/\n/g, '<br>') : '<span style="color: #555; font-style: italic;">No message provided</span>'}</td>
                   </tr>
                 </table>
 
@@ -135,6 +179,7 @@ router.post('/', inquiryLimiter, async (req, res) => {
     }
 
     recordInquiry(bikeId); // fire-and-forget; never throws
+    recordInquirySource(sourceLabel); // same
 
     res.status(200).json({
       success: true,

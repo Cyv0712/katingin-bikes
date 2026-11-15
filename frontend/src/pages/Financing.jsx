@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Row, Col, Form, Spinner } from 'react-bootstrap';
-import { FileText, CheckCircle, ArrowRight, Info } from 'lucide-react';
+import { FileText, CheckCircle, ArrowRight, Info, MessageCircle } from 'lucide-react';
 import { apiUrl } from '../config/api';
-import { Helmet } from 'react-helmet-async';
+import Seo from '../seo/Seo';
+import { financingMeta } from '../seo/meta';
 import useBikes from '../hooks/useBikes';
+import { getContactLinks, openViber, bikeInquiryMessage } from '../utils/contactLinks';
+import { getAttribution } from '../utils/attribution';
+import { track } from '../utils/analytics';
 
 const getBikeName = (bike) => `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim();
 
@@ -30,13 +34,14 @@ const Financing = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [consentChecked, setConsentChecked] = useState(false);
+  const [submittedBike, setSubmittedBike] = useState(null);
 
   // Until the visitor picks a unit: the one they came from (?bikeId=, or ?bikeName= for old
-  // links), else the first available. formData.unitInterested holds the picked bike's _id.
+  // links). Arriving without one leaves the select empty, so nobody submits for a bike they
+  // never chose. formData.unitInterested holds the picked bike's _id.
   const defaultBikeId = (
     availableBikes.find((b) => b._id === bikeIdParam) ||
-    availableBikes.find((b) => getBikeName(b) === bikeNameParam) ||
-    availableBikes[0]
+    availableBikes.find((b) => getBikeName(b) === bikeNameParam)
   )?._id || '';
   const selectedBikeId = formData.unitInterested || defaultBikeId;
   const selectedBike = availableBikes.find((b) => b._id === selectedBikeId);
@@ -63,7 +68,7 @@ const Financing = () => {
       const res = await fetch(apiUrl('/api/inquiries'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, unitInterested: selectedUnit, bikeId: selectedBikeId })
+        body: JSON.stringify({ ...formData, unitInterested: selectedUnit, bikeId: selectedBikeId, attribution: getAttribution() })
       });
 
       const result = await res.json();
@@ -72,6 +77,8 @@ const Financing = () => {
         throw new Error(result.message || 'Failed to submit inquiry.');
       }
 
+      setSubmittedBike(selectedBike || null);
+      track('financing_submit', { bike: selectedUnit });
       setSubmitSuccess(true);
       setFormData({
         name: '',
@@ -88,19 +95,15 @@ const Financing = () => {
     }
   };
 
+  const viberLink = getContactLinks({
+    message: submittedBike ? bikeInquiryMessage(submittedBike) : undefined,
+  }).viber;
+
   const required = <span className="text-accent" aria-hidden="true"> *</span>;
 
   return (
     <div className="financing-page">
-      <Helmet>
-        <title>Big Bike & Motorcycle Financing Philippines | Katingin Bikes</title>
-        <meta name="description" content="Apply for motorcycle financing and installment options in the Philippines. Easy pre-approval for pre-owned big bikes with low downpayment terms." />
-        <meta name="keywords" content="Motorcycle Financing Philippines, Big Bike Installment Philippines, Used Motorcycle Financing Metro Manila" />
-        <link rel="canonical" href="https://katinginbikes.com/financing" />
-        <meta property="og:title" content="Big Bike & Motorcycle Financing Philippines | Katingin Bikes" />
-        <meta property="og:description" content="Get pre-approved for pre-owned big bike financing in the Philippines. Flexible downpayment and monthly installment plans." />
-        <meta property="og:url" content="https://katinginbikes.com/financing" />
-      </Helmet>
+      <Seo meta={financingMeta()} />
 
       <header className="container kb-page-head">
         <h1 className="kb-display-lg kb-page-title">Financing inquiry</h1>
@@ -116,11 +119,25 @@ const Financing = () => {
               <CheckCircle size={36} strokeWidth={1.75} aria-hidden="true" />
             </div>
             <h2 className="kb-h2 mb-3">Application submitted</h2>
-            <p className="kb-body-lg mx-auto mb-5" style={{ maxWidth: '500px' }}>
+            <p className="kb-body-lg mx-auto mb-3" style={{ maxWidth: '500px' }}>
               Thank you for applying. We have received your financing inquiry details. A representative will review your request and get in touch with you shortly.
             </p>
+            <p className="mx-auto mb-5" style={{ maxWidth: '500px', color: 'var(--ink-muted)' }}>
+              Want a faster answer? Message us on Viber.
+            </p>
             <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
-              <Link to="/inventory" className="moto-btn">
+              <a
+                href={viberLink}
+                onClick={openViber}
+                target="_blank"
+                rel="noreferrer"
+                className="moto-btn"
+                data-umami-event="viber_click"
+                data-umami-event-placement="financing-success"
+              >
+                <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" /> Message us on Viber
+              </a>
+              <Link to="/inventory" className="moto-btn moto-btn-outline">
                 Back to catalog <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" />
               </Link>
               <button type="button" onClick={() => setSubmitSuccess(false)} className="moto-btn moto-btn-outline">
@@ -215,14 +232,14 @@ const Financing = () => {
                         {availableBikes.length === 0 ? (
                           <option value="">No available units in inventory</option>
                         ) : (
-                          availableBikes.map((bike) => {
-                            const fullName = getBikeName(bike);
-                            return (
+                          <>
+                            <option value="" disabled>Select a motorcycle...</option>
+                            {availableBikes.map((bike) => (
                               <option key={bike._id} value={bike._id}>
-                                {fullName} (₱{parseFloat(String(bike.price).replace(/[^0-9.]/g, '') || 0).toLocaleString()})
+                                {getBikeName(bike)} (₱{parseFloat(String(bike.price).replace(/[^0-9.]/g, '') || 0).toLocaleString()})
                               </option>
-                            );
-                          })
+                            ))}
+                          </>
                         )}
                       </Form.Select>
                     )}

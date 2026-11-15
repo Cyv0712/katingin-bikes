@@ -23,9 +23,17 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
   const [showSplash, setShowSplash] = useState(() => {
-    // Only play the splash on the first load of a session, not on refreshes
-    return !sessionStorage.getItem('hasSeenSplash');
+    // Only play the splash on the first load of a session, not on refreshes, and
+    // only when landing on the homepage. Someone arriving from a shared bike link
+    // or a search result wants that page, not a 3 second intro.
+    return !sessionStorage.getItem('hasSeenSplash') && window.location.pathname === '/';
   });
+
+  // A visit that started on an inner page counts as already seen, so the intro
+  // doesn't show up later in the session when they reach the homepage or refresh
+  useEffect(() => {
+    if (!showSplash) sessionStorage.setItem('hasSeenSplash', 'true');
+  }, [showSplash]);
 
   // Lock scroll during splash. html sets overflow-x: clip, which stops the
   // body value propagating to the viewport, so lock both or a scrollbar

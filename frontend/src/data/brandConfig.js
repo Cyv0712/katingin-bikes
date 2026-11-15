@@ -28,7 +28,7 @@ export const brandConfig = {
   // Brand Assets & Images
   images: {
     // Used on the homepage
-    heroBackground: "https://images.unsplash.com/photo-1590506978404-d3e577192a18?q=80&w=1470&auto=format&fit=crop",
+    heroBackground: "/static_data/hero.webp",
 
     // Used on the About page
     aboutHeroBackground: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1470&auto=format&fit=crop",

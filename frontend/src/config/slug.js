@@ -11,3 +11,6 @@ export const createSlug = (bike) => {
     .replace(/-+/g, '-')      // Replace multiple hyphens with single hyphen
     .replace(/^-+|-+$/g, ''); // Trim hyphens from ends
 };
+
+// Pure (no browser globals) so the build-time sitemap script can import it too.
+export const bikePath = (bike) => `/bike/${createSlug(bike)}-${bike._id}`;

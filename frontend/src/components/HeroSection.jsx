@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom';
 import { brandConfig } from '../data/brandConfig';
-import { bikeAlt, bikePath, getBikeImage, withPeso } from '../utils/format';
+import { bikeAlt, bikePath, bikeImageProps, HERO_TILE_SIZES, withPeso } from '../utils/format';
 
-const HeroTile = ({ bike }) => (
+// `first` is the tile most likely to be the largest thing on screen, so it jumps
+// the queue. The others are lazy: below 768px the tiles are hidden (display: none),
+// and a lazy image in a hidden box is never downloaded, an eager one always is.
+const HeroTile = ({ bike, first }) => (
   <Link to={bikePath(bike)} className="kb-hero-tile moto-card moto-card-link" aria-label={`${bike.brand} ${bike.model}, ${withPeso(bike.price)}`}>
-    <img src={getBikeImage(bike)} alt={bikeAlt(bike)} />
+    <img
+      {...bikeImageProps(bike, HERO_TILE_SIZES)}
+      alt={bikeAlt(bike)}
+      loading={first ? 'eager' : 'lazy'}
+      fetchPriority={first ? 'high' : undefined}
+      decoding="async"
+    />
     <span className="kb-price-plate kb-price-plate-overlay">{withPeso(bike.price)}</span>
   </Link>
 );
@@ -20,6 +29,8 @@ const TilePlaceholder = () => (
  */
 const HeroSection = ({ bikes, loading }) => {
   const columns = [bikes.slice(0, 2), bikes.slice(2, 4)];
+  // The tiles are display: none below 768px; an eager image in a hidden box still downloads
+  const tilesVisible = window.matchMedia('(min-width: 768px)').matches;
 
   return (
     <section
@@ -50,7 +61,7 @@ const HeroSection = ({ bikes, loading }) => {
                 ))
               : columns.map((column, col) => (
                   <div className="kb-hero-col" key={col}>
-                    {column.map((bike) => <HeroTile key={bike._id} bike={bike} />)}
+                    {column.map((bike) => <HeroTile key={bike._id} bike={bike} first={tilesVisible && col === 0 && bike === column[0]} />)}
                   </div>
                 ))}
           </div>

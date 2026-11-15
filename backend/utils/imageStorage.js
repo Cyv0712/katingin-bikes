@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
+const { removeVariants } = require('./imageVariants');
 
 async function optimizeImageBuffer(buffer) {
   try {
@@ -57,6 +58,7 @@ function deleteSingleImageAsset(imageRef) {
   if (fs.existsSync(fullPath)) {
     fs.unlinkSync(fullPath);
   }
+  removeVariants(path.basename(imageRef)); // the resized copies go with it
 }
 
 /**
