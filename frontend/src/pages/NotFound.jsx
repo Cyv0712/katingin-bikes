@@ -8,7 +8,10 @@ const NotFound = () => {
       className="d-flex align-items-center justify-content-center text-center"
       style={{ minHeight: '70vh', padding: '64px 20px' }}
     >
-      <Helmet><title>Katingin Bikes - Page Not Found</title></Helmet>
+      <Helmet>
+        <title>Katingin Bikes - Page Not Found</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       <div className="container">
         <Compass className="text-accent mb-4" size={56} strokeWidth={1.75} aria-hidden="true" />
         <h1 className="kb-display-xl mb-3">404</h1>

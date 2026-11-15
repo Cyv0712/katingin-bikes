@@ -1,16 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Allow: /inventory
-Allow: /financing
-Allow: /contact
-Allow: /privacy-policy
-Allow: /showcase/
-Allow: /bike/
 
-# Disallow administrative dashboard
+# Private pages (also noindex in the page itself)
 Disallow: /admin
+Disallow: /insights
 
-# Sitemap Locations
 Sitemap: https://katinginbikes.com/sitemap.xml
-Sitemap: https://www.katinginbikes.com/sitemap.xml

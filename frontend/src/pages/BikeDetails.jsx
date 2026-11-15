@@ -1,22 +1,20 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useLocation, Link, Navigate } from 'react-router-dom';
 import { Carousel, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { ArrowLeft, Banknote, Bookmark, Calendar, Route, Check, Circle, MessageCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import Seo from '../seo/Seo';
+import { bikeMeta, SITE_URL } from '../seo/meta';
+import ShareBar from '../components/ShareBar';
+import { showcaseBikes } from '../data/showcase';
+import { findShowcaseInventoryMatch } from '../utils/showcaseStockMatch';
 import { apiUrl, toAbsoluteUploadUrl } from '../config/api';
-import { createSlug } from '../config/slug';
-import { withPeso, withUnit } from '../utils/format';
-import { getContactLinks, openViber } from '../utils/contactLinks';
+import { bikePath } from '../config/slug';
+import { withPeso, withUnit, imageProps, preloadImage } from '../utils/format';
+import { bikeSpecs, bikeFinancing } from '../utils/bikeFacts';
+import { getContactLinks, openViber, bikeInquiryMessage } from '../utils/contactLinks';
 import useBikes from '../hooks/useBikes';
 import BikeCard from '../components/BikeCard';
-
-const hasFinancingValue = (value) => {
-  if (!value) return false;
-  const cleaned = String(value).replace(/[^0-9.]/g, '');
-  return cleaned.length > 0 && parseFloat(cleaned) > 0;
-};
-
-const hasValue = (value) => value !== undefined && value !== null && String(value).trim() !== '';
 
 // Normalise to an array — supports both old (string) and new (array) schema
 const getImages = (bike) => {
@@ -24,6 +22,12 @@ const getImages = (bike) => {
   if (bike.image) return [bike.image]; // backwards compat with old single-image field
   return [];
 };
+
+// How wide the photos are drawn: the main photo fills the screen up to 991px, then about
+// 55% of it beside the details; thumbnails are small
+const GALLERY_SIZES = '(max-width: 991.98px) 100vw, 55vw';
+const THUMB_SIZES = '(max-width: 991.98px) 25vw, 10vw';
+const THUMB_OPTIONS = { widths: [240, 480], original: false };
 
 const INCLUDED = [
   {
@@ -61,7 +65,8 @@ const renderIssues = (text) => {
   );
 };
 
-const BikeDetailsContent = ({ id }) => {
+const BikeDetailsContent = ({ id, slugAndId }) => {
+  const location = useLocation();
   const [bike, setBike] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -76,6 +81,16 @@ const BikeDetailsContent = ({ id }) => {
     strip.scrollTo({ left: thumb.offsetLeft - (strip.clientWidth - thumb.clientWidth) / 2, behavior: 'smooth' });
   }, [activeIndex]);
 
+  // Only the selected photo is loaded up front (the others sit in hidden carousel
+  // slides), so fetch the neighbours of the one on screen ahead of the next swipe.
+  useEffect(() => {
+    if (!bike) return;
+    const photos = getImages(bike);
+    [activeIndex - 1, activeIndex + 1].forEach((i) => {
+      if (photos[i]) preloadImage(imageProps(photos[i], GALLERY_SIZES));
+    });
+  }, [bike, activeIndex]);
+
   useEffect(() => {
     fetch(apiUrl(`/api/bikes/${id}`))
       .then((res) => {
@@ -88,10 +103,9 @@ const BikeDetailsContent = ({ id }) => {
 
   // "More bikes": same brand first, then same type, then the newest
   const related = useMemo(() => {
-    if (!bike) return [];
-    const score = (b) => (b.brand === bike.brand ? 2 : 0) + (b.type && b.type === bike.type ? 1 : 0);
+    const score = (b) => (bike && b.brand === bike.brand ? 2 : 0) + (bike && b.type && b.type === bike.type ? 1 : 0);
     return bikes
-      .filter((b) => b._id !== bike._id)
+      .filter((b) => b._id !== bike?._id)
       .sort((a, b) => score(b) - score(a) || new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 4);
   }, [bikes, bike]);
@@ -114,16 +128,37 @@ const BikeDetailsContent = ({ id }) => {
   if (!bike || bike.status === 'Sold') {
     return (
       <div className="container text-center" style={{ padding: '96px 0' }}>
+        {/* The server still answers 200 for these URLs, so tell crawlers not to index them */}
+        <Helmet>
+          {/* Marking a bike sold clears its year, so only name what is still there */}
+          <title>{bike ? `Sold: ${[bike.brand, bike.model].filter(Boolean).join(' ')} | Katingin Bikes` : 'Unit not found | Katingin Bikes'}</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <h1 className="kb-h2" style={{ color: 'var(--danger)' }}>Unit sold out</h1>
         <p className="mt-3" style={{ color: 'var(--ink-muted)' }}>This motorcycle is no longer in our inventory.</p>
         <Link to="/inventory" className="moto-btn mt-4">Back to inventory</Link>
+
+        {related.length > 0 && (
+          <section className="mt-5 text-start" aria-labelledby="similar-heading">
+            <h2 id="similar-heading" className="kb-h2 mb-4">Similar bikes in stock</h2>
+            <div className="kb-grid">
+              {related.map((b) => <BikeCard key={b._id} bike={b} />)}
+            </div>
+          </section>
+        )}
       </div>
     );
   }
 
-  const images = getImages(bike).map((path) => toAbsoluteUploadUrl(path));
-  const links = getContactLinks();
-  const canonicalUrl = `https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`;
+  // Any slug text resolves (only the id matters), so send stale or mistyped
+  // slugs to the one canonical URL, keeping the query string (e.g. utm tags).
+  if (slugAndId !== bikePath(bike).replace('/bike/', '')) {
+    return <Navigate to={{ pathname: bikePath(bike), search: location.search }} replace />;
+  }
+
+  const images = getImages(bike);
+  const links = getContactLinks({ message: bikeInquiryMessage(bike) });
+  const bikeName = [bike.year, bike.brand, bike.model].filter(Boolean).join(' ');
 
   const financingUrl = `/financing?bikeId=${encodeURIComponent(bike._id)}&bikeName=${encodeURIComponent(
     `${bike.brand} ${bike.model} ${bike.engineSize || ''}`.trim()
@@ -136,14 +171,7 @@ const BikeDetailsContent = ({ id }) => {
       : null;
 
   const canInquireFinancing = !inquiryBlockReason;
-  const showDownpayment = hasFinancingValue(bike.minDownpayment);
-  const monthlyTerms = [
-    { label: '12 months', value: bike.monthly12 },
-    { label: '24 months', value: bike.monthly24 },
-    { label: '36 months', value: bike.monthly36 },
-  ].filter((term) => hasFinancingValue(term.value));
-  const showFinancingCard =
-    bike.isFinanceable !== false && !bike.isReserved && (showDownpayment || monthlyTerms.length > 0);
+  const { showDownpayment, monthlyTerms, showCard: showFinancingCard } = bikeFinancing(bike);
 
   // When there is no financing card, say why instead of leaving a gap
   const financingNote = bike.isReserved
@@ -152,57 +180,16 @@ const BikeDetailsContent = ({ id }) => {
       ? 'This unit is not available for financing.'
       : 'We have not listed financing terms for this unit yet. Message us on Viber for options.';
 
-  // Only rows with data are shown: the extra spec fields exist on a few bikes
-  const specs = [
-    ['Year', bike.year],
-    ['Mileage', hasValue(bike.mileage) ? withUnit(bike.mileage, 'km') : null],
-    ['Engine', hasValue(bike.engineSize) ? withUnit(bike.engineSize, 'cc') : null],
-    ['Type', bike.type],
-    ['Engine configuration', bike.engineConfig],
-    ['Power', bike.power],
-    ['Transmission', bike.transmission],
-    ['Fuel capacity', bike.fuelCapacity],
-    ['Edition', bike.edition],
-  ].filter(([, value]) => hasValue(value));
-
-  const cleanPrice = parseFloat(String(bike.price).replace(/[^0-9.]/g, '')) || 0;
-  const firstImage = images[0] || '';
-  const absoluteImage = firstImage.startsWith('http') ? firstImage : `https://katinginbikes.com${firstImage}`;
-
-  const schemaData = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": `${bike.brand} ${bike.model} (${bike.year})`,
-    "image": absoluteImage,
-    "description": bike.description || `Fresh pre-owned ${bike.brand} ${bike.model} big bike for sale.`,
-    "offers": {
-      "@type": "Offer",
-      "url": canonicalUrl,
-      "priceCurrency": "PHP",
-      "price": cleanPrice,
-      "availability": bike.status === 'Sold' ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
-      "itemCondition": "https://schema.org/UsedCondition"
-    }
-  };
+  const specs = bikeSpecs(bike);
+  // The showcase (model) page for this bike, when there is one
+  const modelPage = showcaseBikes.find((s) => findShowcaseInventoryMatch(s, [bike]));
 
   const photoAlt = (idx) =>
     `Pre-owned ${bike.brand} ${bike.model} ${bike.year} motorcycle photo ${idx + 1} - Katingin Bikes`;
 
   return (
     <div className="bike-details">
-      <Helmet>
-        <title>{`${bike.brand} ${bike.model} (${bike.year}) | Katingin Bikes`}</title>
-        <meta name="description" content={`Fresh pre-owned ${bike.brand} ${bike.model} (${bike.year}) for sale in Metro Manila, Philippines. Price: ${withPeso(bike.price)}, Engine: ${bike.engineSize || 'N/A'}. 100-point inspected with complete OR/CR papers.`} />
-        <meta name="keywords" content={`${bike.brand} ${bike.model}, ${bike.brand} motorcycle Philippines, pre-owned ${bike.brand} ${bike.model}, used big bikes Philippines`} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta property="og:title" content={`${bike.brand} ${bike.model} (${bike.year}) | Katingin Bikes`} />
-        <meta property="og:description" content={`Pre-owned ${bike.brand} ${bike.model} (${bike.year}) for sale at Katingin Bikes Philippines. Price: ${withPeso(bike.price)}.`} />
-        <meta property="og:image" content={absoluteImage} />
-        <meta property="og:url" content={canonicalUrl} />
-        <script type="application/ld+json">
-          {JSON.stringify(schemaData)}
-        </script>
-      </Helmet>
+      <Seo meta={bikeMeta(bike, toAbsoluteUploadUrl)} />
 
       <div className="container pt-3">
         <Link to="/inventory" className="kb-link">
@@ -226,12 +213,18 @@ const BikeDetailsContent = ({ id }) => {
                 >
                   {images.map((img, idx) => (
                     <Carousel.Item key={idx}>
-                      <img src={img} alt={photoAlt(idx)} />
+                      <img
+                        {...imageProps(img, GALLERY_SIZES)}
+                        alt={photoAlt(idx)}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={idx === 0 ? 'high' : undefined}
+                        decoding="async"
+                      />
                     </Carousel.Item>
                   ))}
                 </Carousel>
               ) : images.length === 1 ? (
-                <img src={images[0]} alt={photoAlt(0)} />
+                <img {...imageProps(images[0], GALLERY_SIZES)} alt={photoAlt(0)} fetchPriority="high" decoding="async" />
               ) : null}
             </div>
 
@@ -246,7 +239,7 @@ const BikeDetailsContent = ({ id }) => {
                     aria-pressed={activeIndex === idx}
                     onClick={() => setActiveIndex(idx)}
                   >
-                    <img src={img} alt="" loading="lazy" />
+                    <img {...imageProps(img, THUMB_SIZES, THUMB_OPTIONS)} alt="" loading="lazy" decoding="async" />
                   </button>
                 ))}
               </div>
@@ -312,7 +305,13 @@ const BikeDetailsContent = ({ id }) => {
 
             <div className="d-flex flex-column gap-3 w-100">
               {canInquireFinancing ? (
-                <Link to={financingUrl} className="moto-btn moto-btn-lg moto-btn-block">
+                <Link
+                  to={financingUrl}
+                  className="moto-btn moto-btn-lg moto-btn-block"
+                  data-umami-event="financing_click"
+                  data-umami-event-placement="page"
+                  data-umami-event-bike={bikeName}
+                >
                   Inquire for financing
                 </Link>
               ) : (
@@ -338,15 +337,36 @@ const BikeDetailsContent = ({ id }) => {
                 target="_blank"
                 rel="noreferrer"
                 className="moto-btn moto-btn-outline moto-btn-lg moto-btn-block"
+                data-umami-event="viber_click"
+                data-umami-event-placement="page"
+                data-umami-event-bike={bikeName}
               >
                 <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
                 Message us on Viber
+              </a>
+              <a
+                href={links.messenger}
+                target="_blank"
+                rel="noreferrer"
+                className="moto-btn moto-btn-outline moto-btn-lg moto-btn-block"
+                data-umami-event="messenger_click"
+                data-umami-event-placement="page"
+                data-umami-event-bike={bikeName}
+              >
+                <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
+                Message us on Messenger
               </a>
             </div>
 
             <p className="kb-body-sm m-0" style={{ color: 'var(--ink-muted)' }}>
               Stocks and prices can change without notice. Message us on Viber or Facebook to confirm availability and the unit&apos;s condition.
             </p>
+
+            <ShareBar
+              url={`${SITE_URL}${bikePath(bike)}`}
+              text={`Check out this ${bikeName} at Katingin Bikes.`}
+              bikeName={bikeName}
+            />
           </div>
         </div>
       </section>
@@ -363,6 +383,13 @@ const BikeDetailsContent = ({ id }) => {
                 </div>
               ))}
             </dl>
+            {modelPage && (
+              <p className="mt-3 mb-0">
+                <Link to={`/showcase/${modelPage.slug}`} className="kb-link">
+                  About the {modelPage.brand} {modelPage.model}
+                </Link>
+              </p>
+            )}
 
             <h2 className="kb-h3 mt-5 mb-3">Unit overview and condition</h2>
             {renderIssues(bike.description)}
@@ -398,6 +425,44 @@ const BikeDetailsContent = ({ id }) => {
           </div>
         </section>
       )}
+
+      {/* Phones: the buttons above sit below the price and financing card, so keep them in reach */}
+      <div className="kb-sticky-cta" role="region" aria-label="Contact us about this bike">
+        <a
+          href={links.viber}
+          onClick={openViber}
+          target="_blank"
+          rel="noreferrer"
+          className="moto-btn"
+          data-umami-event="viber_click"
+          data-umami-event-placement="sticky"
+          data-umami-event-bike={bikeName}
+        >
+          Viber
+        </a>
+        <a
+          href={links.messenger}
+          target="_blank"
+          rel="noreferrer"
+          className="moto-btn moto-btn-outline"
+          data-umami-event="messenger_click"
+          data-umami-event-placement="sticky"
+          data-umami-event-bike={bikeName}
+        >
+          Messenger
+        </a>
+        {canInquireFinancing && (
+          <Link
+            to={financingUrl}
+            className="moto-btn moto-btn-outline"
+            data-umami-event="financing_click"
+            data-umami-event-placement="sticky"
+            data-umami-event-bike={bikeName}
+          >
+            Financing
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
@@ -407,7 +472,7 @@ const BikeDetailsContent = ({ id }) => {
 const BikeDetails = () => {
   const { slugAndId } = useParams();
   const id = slugAndId ? slugAndId.split('-').pop() : '';
-  return <BikeDetailsContent key={id} id={id} />;
+  return <BikeDetailsContent key={id} id={id} slugAndId={slugAndId || ''} />;
 };
 
 export default BikeDetails;

@@ -474,6 +474,39 @@ function Owner() {
           )}
         </div>
 
+        {/* Where inquiries came from */}
+        {data.inquiriesBySource?.length > 0 && (
+          <>
+            <h2 className="kb-h4 mb-3">Where inquiries came from</h2>
+            <div className="moto-card overflow-hidden p-0 mb-2">
+              <Table responsive className="mb-0 align-middle">
+                <thead>
+                  <tr>
+                    <th className="py-3 ps-4">Source</th>
+                    <th className="py-3 text-end">Inquiries</th>
+                    <th className="py-3 pe-4 text-end">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(() => {
+                    const total = data.inquiriesBySource.reduce((sum, r) => sum + r.count, 0);
+                    return data.inquiriesBySource.map((r) => (
+                      <tr key={r.source}>
+                        <td className="py-3 ps-4 fw-semibold">{r.source}</td>
+                        <td className="py-3 kb-num text-end">{r.count}</td>
+                        <td className="py-3 pe-4 kb-num text-end">{total ? Math.round((r.count / total) * 100) : 0}%</td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </Table>
+            </div>
+            <p className="kb-body-sm mb-4" style={{ color: 'var(--ink-muted)' }}>
+              All time, counted since this was switched on. &quot;direct&quot; means the visitor came without a tagged link or a referring site.
+            </p>
+          </>
+        )}
+
         {/* Bikes list */}
         <h2 className="kb-h4 mb-3">Bikes helped sell · {period.label.toLowerCase()}</h2>
         <div className="moto-card overflow-hidden p-0 mb-4">

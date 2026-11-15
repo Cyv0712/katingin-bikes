@@ -9,6 +9,7 @@ const fs = require('fs');
 const dotenv = require('dotenv');
 const dns = require('dns');
 const multer = require('multer');
+const { createVariantMiddleware } = require('./utils/imageVariants');
 
 // Force Node.js to resolve IPv4 addresses first. This prevents ETIMEDOUT fetch errors
 // in container/cloud environments (like Render) that do not have fully routed IPv6 networks.
@@ -68,6 +69,10 @@ const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
+
+// ?w=240|480|800 serves a smaller copy of a photo (made on first request, then cached);
+// everything else falls through to the originals below
+app.use('/uploads', createVariantMiddleware({ uploadDir }));
 
 // Serve static uploaded files with 1-year immutable caching
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {

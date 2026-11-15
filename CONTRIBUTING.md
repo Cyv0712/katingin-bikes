@@ -98,6 +98,14 @@ INQUIRY_RECEIVER_EMAIL=...
 
 `CORS_ORIGIN` must include the staging frontend origin. Use a different `JWT_SECRET` and admin hash than production.
 
+### Prerendered pages (frontend build)
+
+`npm run build` runs `vite build` and then `scripts/prerender.js`, which fetches `/api/bikes` and writes static HTML for every public page and bike (`dist/bike/<slug>-<id>/index.html`, plus `dist/sitemap.xml`). Crawlers and link previews (Google, Facebook, Viber, Messenger) read those files; the React app takes over in the browser. Page metadata lives in `frontend/src/seo/meta.js` and is shared by the pages and the script. Caddy serves the files (`frontend/Caddyfile`, referenced by `nixpacks.toml`).
+
+- The API must be reachable at build time: `VITE_API_URL` as a **build variable**.
+- Set `SEO_STRICT=1` as a build variable on the production frontend app. A build that cannot fetch the bike list then fails, and Coolify keeps serving the previous deploy, instead of publishing a site with no bike pages. Without it the build only warns.
+- The bike pages are only as fresh as the last build. Set `FRONTEND_DEPLOY_WEBHOOK_URL` (and `FRONTEND_DEPLOY_WEBHOOK_TOKEN`) on the backend so adding, editing, reserving, selling or deleting a bike triggers a batched frontend rebuild (see `backend/.env.example`).
+
 Local development uses `backend/.env` and `frontend/.env` (gitignored). Copy from the `.env.example` files. Admin login is JWT + `ADMIN_PASSWORD_HASH` — there are no `VITE_ADMIN_*` variables.
 
 ## Remaining dashboard setup

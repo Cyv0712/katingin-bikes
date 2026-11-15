@@ -4,6 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { FiFacebook, FiInstagram } from 'react-icons/fi';
 import { Container } from 'react-bootstrap';
 import { brandConfig } from '../data/brandConfig';
+import { showcaseBikes } from '../data/showcase';
 import { contactInfo } from '../data/contactInfo';
 import { openViber, getContactLinks } from '../utils/contactLinks';
 import useBikes from '../hooks/useBikes';
@@ -36,7 +37,7 @@ const Footer = () => {
         <div className="kb-footer-main">
           <div className="d-flex flex-column align-items-start gap-3">
             <div className="kb-brand">
-              <img src="/static_data/Katingin_logo.webp" alt="" width="40" height="40" />
+              <img src="/static_data/Katingin_logo_96.webp" alt="" width="40" height="40" />
               <span className="kb-brand-name">{brandConfig.fullName}</span>
             </div>
             <p className="m-0" style={{ maxWidth: '420px', color: 'var(--ink-muted)' }}>
@@ -70,6 +71,15 @@ const Footer = () => {
             {topBrands.map((brand) => (
               <Link key={brand} to={`/inventory?brand=${encodeURIComponent(brand)}`} className="kb-footer-link">
                 Pre-owned {brand}
+              </Link>
+            ))}
+          </nav>
+
+          <nav aria-label="Popular models" className="kb-footer-links">
+            <span className="kb-footer-title">Popular models</span>
+            {showcaseBikes.map((model) => (
+              <Link key={model.slug} to={`/showcase/${model.slug}`} className="kb-footer-link">
+                {model.brand} {model.model}
               </Link>
             ))}
           </nav>

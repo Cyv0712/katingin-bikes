@@ -5,6 +5,7 @@ const Bike = require('../models/Bike');
 const { persistUploadedImages, deleteBikeImages } = require('../utils/imageStorage');
 const authMiddleware = require('../middleware/auth');
 const { recordRemoval, recordBikeAdded } = require('../utils/recordBikeLead');
+const { scheduleFrontendRebuild } = require('../utils/frontendRebuild');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -82,6 +83,7 @@ router.post('/', authMiddleware, upload.array('images', 20), async (req, res) =>
     // Logged only once the bike (and its images) are fully saved, so a rolled
     // back upload never leaves an "added" entry behind.
     await recordBikeAdded(bike);
+    scheduleFrontendRebuild();
     res.status(201).json(bike);
   } catch (err) {
     // Clear the duplicate submission fingerprint so the user can immediately retry
@@ -127,6 +129,7 @@ router.put('/:id', authMiddleware, upload.array('images', 20), async (req, res) 
       await existing.save();
     }
 
+    scheduleFrontendRebuild();
     res.json(existing);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -150,6 +153,7 @@ router.patch('/:id/reserved', authMiddleware, async (req, res) => {
     );
 
     console.log(`[Inventory] Bike ${isReserved ? 'RESERVED' : 'UNRESERVED'}: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
+    scheduleFrontendRebuild();
     res.json(updatedBike);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -191,6 +195,7 @@ router.patch('/:id/sold', authMiddleware, async (req, res) => {
       { new: true }
     );
     await recordRemoval(bike._id, 'sold');
+    scheduleFrontendRebuild();
     res.json(updatedBike);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -207,6 +212,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     await Bike.findByIdAndDelete(req.params.id);
     await recordRemoval(bike._id, 'deleted');
+    scheduleFrontendRebuild();
     console.log(`[Inventory] Bike DELETED: ${bike.brand} ${bike.model} (ID: ${bike._id})`);
     res.json({ message: 'Bike and all associated images deleted' });
   } catch (err) {

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { brandConfig } from '../data/brandConfig';
 import { preloadBikes } from '../hooks/useBikes';
-import { getBikeImage } from '../utils/format';
+import { bikeImageProps, preloadImage, CARD_SIZES, HERO_TILE_SIZES } from '../utils/format';
 import { pickHomeBikes } from '../utils/homeBikes';
 
 /**
@@ -52,11 +52,17 @@ const loadImage = (src) =>
     if (img.complete) resolve();
   });
 
-// Inventory response first, then the images Home will actually render
+// Inventory response first, then the images Home will actually render, at the
+// size it will render them (same srcset and sizes, so the browser picks the same
+// file and the real <img> finds it cached). The hero tiles are hidden below 768px.
 const loadHomeBikes = () =>
   preloadBikes().then((bikes) => {
     const { heroBikes, featuredBikes } = pickHomeBikes(bikes);
-    return Promise.all([...heroBikes, ...featuredBikes].map((bike) => loadImage(getBikeImage(bike))));
+    const showHero = window.matchMedia('(min-width: 768px)').matches;
+    return Promise.all([
+      ...(showHero ? heroBikes.map((bike) => preloadImage(bikeImageProps(bike, HERO_TILE_SIZES))) : []),
+      ...featuredBikes.map((bike) => preloadImage(bikeImageProps(bike, CARD_SIZES))),
+    ]);
   });
 
 const Word = ({ text, startIndex, className }) => (
@@ -102,7 +108,7 @@ const SplashScreen = ({ onComplete }) => {
     // ── Real loading work ──
     const tasks = [
       loadImage(brandConfig.images.heroBackground),
-      loadImage('/static_data/Katingin_logo.webp'),
+      loadImage('/static_data/Katingin_logo_192.webp'),
       // Wordmark font, so letters never swap mid-animation
       document.fonts?.load('800 1em "Sofia Sans Extra Condensed"').catch(() => {}),
       // Home's code, so no spinner shows when the splash lifts
@@ -160,7 +166,7 @@ const SplashScreen = ({ onComplete }) => {
             />
           </svg>
           <img
-            src="/static_data/Katingin_logo.webp"
+            src="/static_data/Katingin_logo_192.webp"
             alt=""
             className="splash-logo"
             decoding="async"

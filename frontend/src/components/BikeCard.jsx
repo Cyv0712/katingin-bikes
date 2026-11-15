@@ -1,15 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Bookmark, Calendar, Route } from 'lucide-react';
-import { bikeAlt, bikePath, getBikeImage, withPeso, withUnit } from '../utils/format';
+import { bikeAlt, bikePath, bikeImageProps, CARD_SIZES, withPeso, withUnit } from '../utils/format';
 
 /**
  * The bike card used on Home (featured), Inventory and Bike detail
  * ("More bikes"). The whole card is the link; price sits on a brass plate.
+ * `eager` is for cards in the first row, which are on screen at once.
  */
-const BikeCard = ({ bike }) => (
+const BikeCard = ({ bike, eager = false }) => (
   <Link to={bikePath(bike)} className="kb-card moto-card moto-card-link">
     <div className="kb-card-media">
-      <img src={getBikeImage(bike)} alt={bikeAlt(bike)} loading="lazy" />
+      <img {...bikeImageProps(bike, CARD_SIZES)} alt={bikeAlt(bike)} loading={eager ? 'eager' : 'lazy'} decoding="async" />
       {bike.isReserved && (
         <span className="kb-badge kb-badge-reserved kb-card-flag">
           <Bookmark size={14} strokeWidth={2} fill="currentColor" aria-hidden="true" />

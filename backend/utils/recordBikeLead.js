@@ -1,6 +1,7 @@
 const Bike = require('../models/Bike');
 const BikeLead = require('../models/BikeLead');
 const BikeActivity = require('../models/BikeActivity');
+const InquirySource = require('../models/InquirySource');
 
 // Best-effort helpers: they never throw and never log, so a failure here can
 // not change an inquiry or delete response (or leave traces in server logs).
@@ -68,4 +69,20 @@ async function recordBikeAdded(bike) {
   }
 }
 
-module.exports = { recordInquiry, recordRemoval, recordBikeAdded };
+// Counts one inquiry against where the visitor came from. `label` must already be
+// cleaned (see cleanSourceLabel in routes/inquiries.js); anything else is ignored.
+async function recordInquirySource(label) {
+  try {
+    if (typeof label !== 'string' || !/^[a-z0-9._-]{1,40}$/.test(label)) return;
+    const now = new Date();
+    await InquirySource.updateOne(
+      { source: label },
+      { $inc: { count: 1 }, $set: { lastAt: now }, $setOnInsert: { firstAt: now } },
+      { upsert: true }
+    );
+  } catch {
+    // swallowed on purpose
+  }
+}
+
+module.exports = { recordInquiry, recordRemoval, recordBikeAdded, recordInquirySource };

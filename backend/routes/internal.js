@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const router = express.Router();
 const BikeLead = require('../models/BikeLead');
 const BikeActivity = require('../models/BikeActivity');
+const InquirySource = require('../models/InquirySource');
 const { ownerLimiter } = require('../middleware/rateLimiter');
 
 const MIN_KEY_LENGTH = 24;
@@ -45,11 +46,12 @@ router.get('/attribution', ownerLimiter, ownerKeyGuard, async (req, res) => {
       if (to) removedFilter.removedAt.$lte = to;
     }
 
-    const [removed, openLeads, totalLeads, totals] = await Promise.all([
+    const [removed, openLeads, totalLeads, totals, sources] = await Promise.all([
       BikeLead.find(removedFilter).sort({ removedAt: -1 }).lean(),
       BikeLead.countDocuments({ removalType: null }),
       BikeLead.countDocuments({}),
       BikeLead.aggregate([{ $group: { _id: null, total: { $sum: '$inquiryCount' } } }]),
+      InquirySource.find({}).sort({ count: -1, source: 1 }).limit(20).lean(),
     ]);
 
     const byType = { deleted: 0, sold: 0 };
@@ -61,6 +63,8 @@ router.get('/attribution', ownerLimiter, ownerKeyGuard, async (req, res) => {
       openLeads,
       totalLeads,
       totalInquiries: totals[0]?.total || 0,
+      // Inquiries by where the visitor came from, all time (not shaped by from/to)
+      inquiriesBySource: sources.map(({ source, count, lastAt }) => ({ source, count, lastAt })),
       bikes: removed.map(({ brand, model, engineSize, price, inquiryCount, firstInquiryAt, lastInquiryAt, removedAt, removalType }) => ({
         brand, model, engineSize, price, inquiryCount, firstInquiryAt, lastInquiryAt, removedAt, removalType,
         // Prices are stored as display strings like "₱ 1,450,000"

@@ -1,13 +1,11 @@
-import { Helmet } from 'react-helmet-async';
+import Seo from '../seo/Seo';
+import { privacyMeta } from '../seo/meta';
 import { contactInfo } from '../data/contactInfo';
 
 const PrivacyPolicy = () => {
   return (
     <div className="privacy-page">
-      <Helmet>
-        <title>Privacy Policy | Katingin Bikes</title>
-        <meta name="description" content="Privacy Policy for Katingin Bikes. Learn how we collect, use, and protect your data." />
-      </Helmet>
+      <Seo meta={privacyMeta()} />
 
       <div className="container" style={{ maxWidth: '864px' }}>
         <header className="kb-page-head">

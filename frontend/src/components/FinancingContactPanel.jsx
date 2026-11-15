@@ -21,14 +21,29 @@ const FinancingContactPanel = () => {
           </div>
 
           <div className="gap-3">
-            <a href={links.viber} onClick={openViber} target="_blank" rel="noreferrer" className="kb-contact-link">
+            <a
+              href={links.viber}
+              onClick={openViber}
+              target="_blank"
+              rel="noreferrer"
+              className="kb-contact-link"
+              data-umami-event="viber_click"
+              data-umami-event-placement="home"
+            >
               <MessageCircle size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="kb-contact-text">
                 <span className="kb-label">Viber</span>
                 <span className="kb-contact-value kb-num">{contactInfo.viber}</span>
               </span>
             </a>
-            <a href={links.facebook} target="_blank" rel="noreferrer" className="kb-contact-link">
+            <a
+              href={links.messenger}
+              target="_blank"
+              rel="noreferrer"
+              className="kb-contact-link"
+              data-umami-event="messenger_click"
+              data-umami-event-placement="home"
+            >
               <FiFacebook size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="kb-contact-text">
                 <span className="kb-label">Messenger</span>

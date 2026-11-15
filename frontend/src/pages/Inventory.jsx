@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Info, Search, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Seo from '../seo/Seo';
+import { inventoryMeta } from '../seo/meta';
 import SkeletonCard from '../components/SkeletonCard';
 import BikeCard from '../components/BikeCard';
 import BikeFilters from '../components/BikeFilters';
 import useBikes from '../hooks/useBikes';
-import { createSlug } from '../config/slug';
-import { parsePrice, getBikeImage } from '../utils/format';
+import { getContactLinks, openViber } from '../utils/contactLinks';
+import { parsePrice, bikeImageProps, preloadImage, CARD_SIZES } from '../utils/format';
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest listed' },
@@ -112,6 +113,20 @@ const Inventory = () => {
       return next;
     }, { replace: true });
   };
+  // Empty-state Viber link, worded from whatever they were filtering on
+  const wantedLinks = useMemo(() => {
+    const wanted = [
+      filters.brand !== 'All' && filters.brand,
+      filters.type !== 'All' && filters.type,
+      filters.search,
+    ].filter(Boolean).join(' ');
+    return getContactLinks({
+      message: wanted
+        ? `Hi Katingin Bikes, I'm looking for a bike (${wanted}). Do you have one in stock or coming in?`
+        : "Hi Katingin Bikes, I'm looking for a pre-owned bike. What do you have coming in?",
+    });
+  }, [filters]);
+
   const clearAllFilters = () => {
     setSearchParams(new URLSearchParams(), { replace: true });
   };
@@ -168,61 +183,13 @@ const Inventory = () => {
   // so when its cards are added their images are already there.
   useEffect(() => {
     filteredBikes.slice(visibleCount, visibleCount + PAGE_SIZE).forEach((bike) => {
-      const img = new Image();
-      img.src = getBikeImage(bike);
+      preloadImage(bikeImageProps(bike, CARD_SIZES));
     });
   }, [filteredBikes, visibleCount]);
 
-  const itemListSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Pre-Owned Motorcycles for Sale in the Philippines",
-    "description": "Available pre-owned big bikes and motorcycles in Metro Manila, Philippines.",
-    "itemListElement": filteredBikes.slice(0, 30).map((bike, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "name": `${bike.brand} ${bike.model} (${bike.year})`,
-      "url": `https://katinginbikes.com/bike/${createSlug(bike)}-${bike._id}`
-    }))
-  };
-
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://katinginbikes.com/"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Motorcycles Philippines Inventory",
-        "item": "https://katinginbikes.com/inventory"
-      }
-    ]
-  };
-
   return (
     <div className="inventory-page">
-      <Helmet>
-        <title>Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes</title>
-        <meta name="description" content="Browse fresh pre-owned motorcycles and big bikes for sale in the Philippines. Filter by brand (BMW, Ducati, Kawasaki, Yamaha, Honda), price, engine CC, and flexible installment terms." />
-        <meta name="keywords" content="Motorcycles Philippines, Pre-Owned Motorcycles for Sale PH, Second Hand Big Bikes Metro Manila, Used Motorcycles Philippines" />
-        <link rel="canonical" href="https://katinginbikes.com/inventory" />
-        <meta property="og:title" content="Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes" />
-        <meta property="og:description" content="Browse our collection of fresh pre-owned big bikes and motorcycles for sale in the Philippines. 100-point inspection and complete OR/CR papers." />
-        <meta property="og:image" content="https://katinginbikes.com/static_data/Katingin_logo.png" />
-        <meta property="og:url" content="https://katinginbikes.com/inventory" />
-        <script type="application/ld+json">
-          {JSON.stringify(itemListSchema)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(breadcrumbSchema)}
-        </script>
-      </Helmet>
+      <Seo meta={inventoryMeta(filteredBikes)} />
 
       <div className="kb-wide">
         <header className="kb-page-head d-flex flex-column align-items-start gap-3">
@@ -296,7 +263,7 @@ const Inventory = () => {
           ) : filteredBikes.length > 0 ? (
             <>
               <div className="kb-grid">
-                {shownBikes.map((bike) => <BikeCard key={bike._id} bike={bike} />)}
+                {shownBikes.map((bike, i) => <BikeCard key={bike._id} bike={bike} eager={i < 4} />)}
               </div>
               {hasMore && <div ref={sentinelRef} aria-hidden="true" style={{ height: '1px' }} />}
             </>
@@ -304,10 +271,25 @@ const Inventory = () => {
             <div className="moto-card kb-empty">
               <Search size={40} strokeWidth={1.75} className="mb-3" style={{ color: 'var(--ink-subtle)' }} aria-hidden="true" />
               <h2 className="kb-h3 mb-2">No matching bikes</h2>
-              <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>Try adjusting your search or price range.</p>
-              <button type="button" onClick={clearAllFilters} className="moto-btn">
-                Reset all filters
-              </button>
+              <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>
+                Try adjusting your search or price range, or tell us what you are looking for and we will let you know when it comes in.
+              </p>
+              <div className="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <button type="button" onClick={clearAllFilters} className="moto-btn">
+                  Reset all filters
+                </button>
+                <a
+                  href={wantedLinks.viber}
+                  onClick={openViber}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="moto-btn moto-btn-outline"
+                  data-umami-event="viber_click"
+                  data-umami-event-placement="inventory-empty"
+                >
+                  Ask us on Viber
+                </a>
+              </div>
             </div>
           )}
         </section>

@@ -5,8 +5,9 @@ import { ArrowLeft, Check, Zap } from 'lucide-react';
 import { showcaseBikes } from '../data/showcase';
 import { apiUrl } from '../config/api';
 import { findShowcaseInventoryMatch } from '../utils/showcaseStockMatch';
-import { Helmet } from 'react-helmet-async';
-import { createSlug } from '../config/slug';
+import { bikePath } from '../config/slug';
+import Seo from '../seo/Seo';
+import { showcaseMeta } from '../seo/meta';
 
 const ShowcaseDetails = () => {
   const { slug } = useParams();
@@ -62,37 +63,9 @@ const ShowcaseDetails = () => {
     );
   }
 
-  const cleanImage = bike.images && bike.images.length > 0 ? bike.images[0] : '';
-  const absoluteImage = cleanImage.startsWith('http') ? cleanImage : `https://katinginbikes.com${cleanImage}`;
-
-  const schemaData = {
-    "@context": "https://schema.org/",
-    "@type": "Product",
-    "name": `${bike.brand} ${bike.model}`,
-    "image": absoluteImage,
-    "description": bike.description || `Hall of fame showcase page for the legendary ${bike.brand} ${bike.model} at Katingin Bikes.`,
-    "offers": {
-      "@type": "Offer",
-      "url": `https://katinginbikes.com/showcase/${bike.slug}`,
-      "priceCurrency": "PHP",
-      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "itemCondition": "https://schema.org/UsedCondition"
-    }
-  };
-
   return (
     <div className="showcase-page">
-      <Helmet>
-        <title>{`${bike.brand} ${bike.model} | Katingin Bikes Showcase`}</title>
-        <meta name="description" content={`Discover the ${bike.brand} ${bike.model} at Katingin Bikes Hall of Fame. ${bike.tagline || ''}. Specifications, features, and live availability.`} />
-        <meta property="og:title" content={`${bike.brand} ${bike.model} - Showcase Details`} />
-        <meta property="og:description" content={`Curated specs and hall of fame details for ${bike.brand} ${bike.model} at Katingin Bikes.`} />
-        <meta property="og:image" content={absoluteImage} />
-        <meta property="og:url" content={`https://katinginbikes.com/showcase/${bike.slug}`} />
-        <script type="application/ld+json">
-          {JSON.stringify(schemaData)}
-        </script>
-      </Helmet>
+      <Seo meta={showcaseMeta(bike, matchedLiveBike)} />
 
       <div className="container pt-3">
         <Link to="/" className="kb-link">
@@ -166,7 +139,7 @@ const ShowcaseDetails = () => {
                 <p className="mb-4" style={{ color: 'var(--ink-muted)' }}>
                   Great news! We currently have a {bike.model} available in our live inventory. View the actual unit below.
                 </p>
-                <Link to={`/bike/${createSlug(matchedLiveBike)}-${matchedLiveBike._id}`} className="moto-btn moto-btn-lg moto-btn-block">
+                <Link to={bikePath(matchedLiveBike)} className="moto-btn moto-btn-lg moto-btn-block">
                   View live inventory unit
                 </Link>
               </div>

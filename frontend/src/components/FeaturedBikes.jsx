@@ -19,7 +19,7 @@ const FeaturedBikes = ({ bikes, loading }) => {
         <div className="kb-grid">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-            : bikes.map((bike) => <BikeCard key={bike._id} bike={bike} />)}
+            : bikes.map((bike, i) => <BikeCard key={bike._id} bike={bike} eager={i < 4} />)}
         </div>
       </div>
     </section>

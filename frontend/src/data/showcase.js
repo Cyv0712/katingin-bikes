@@ -81,9 +81,9 @@ export const showcaseBikes = [
     model: 'Monster 937',
     searchModel: 'Ducati Monster 937',
     images: [
-      '/static_data/ducatimonster937+_1.jpg',
-      '/static_data/ducatimonster937+_2.jpg',
-      '/static_data/ducatimonster937+_3.jpg'
+      '/static_data/ducatimonster937_1.webp',
+      '/static_data/ducatimonster937_2.webp',
+      '/static_data/ducatimonster937_3.webp'
     ],
     tagline: 'Pure Riding Fun',
     description: 'Lightweight, compact, and packed with electronics. The Monster 937 carries the legendary Ducati spirit with a punchy Testastretta engine and an agile aluminum front frame.',
@@ -100,9 +100,9 @@ export const showcaseBikes = [
     model: 'R 1250 GS Rallye',
     searchModel: 'BMW R 1250 GS Rallye',
     images: [
-      '/static_data/bmwgs_1.jpg',
-      '/static_data/bmwgs_2.jpg',
-      '/static_data/bmwgs_3.jpg'
+      '/static_data/bmwgs_1.webp',
+      '/static_data/bmwgs_2.webp',
+      '/static_data/bmwgs_3.webp'
     ],
     tagline: 'Boundless Adventure, Sporty Style',
     description: 'Ready for any terrain with sporty Rallye styling. Equipped with the powerful Boxer engine featuring ShiftCam technology and premium electronic suspension for cross-country exploration.',

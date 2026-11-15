@@ -478,7 +478,10 @@ const Admin = () => {
   if (!isAuthenticated) {
     return (
       <div className="container d-flex align-items-center justify-content-center" style={{ minHeight: '80vh' }}>
-        <Helmet><title>Katingin Bikes - Admin</title></Helmet>
+        <Helmet>
+          <title>Katingin Bikes - Admin</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="moto-card p-4 p-sm-5" style={{ width: '100%', maxWidth: '420px' }}>
           <div className="text-center mb-4">
             <div className="d-inline-flex p-3 rounded-circle bg-destructive-soft mb-3 text-destructive">
@@ -522,7 +525,10 @@ const Admin = () => {
   // ── Dashboard ──
   return (
     <div className="admin-page" style={{ paddingBottom: '96px' }}>
-      <Helmet><title>Katingin Bikes - Admin</title></Helmet>
+      <Helmet>
+        <title>Katingin Bikes - Admin</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="container">
         {/* Header */}
         <div className="kb-page-head d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
