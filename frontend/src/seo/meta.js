@@ -8,10 +8,18 @@ import { bikePath } from '../config/slug.js';
 import { contactInfo } from '../data/contactInfo.js';
 import { parsePrice, withPeso } from '../utils/price.js';
 
-export const SITE_URL = 'https://katinginbikes.com';
+// The host the site is served on (the bare domain redirects here), so canonicals,
+// the sitemap and shared links all agree with what a visitor actually reaches
+export const SITE_URL = 'https://www.katinginbikes.com';
 export const LOGO_URL = `${SITE_URL}/static_data/Katingin_logo.png`;
 
-const abs = (path) => `${SITE_URL}${path}`;
+const abs = (path) => `${SITE_URL}${path}`; // files and images
+
+// Page URLs end in a slash. Each page is prerendered as a directory (inventory/index.html),
+// and the web server answers /inventory with a redirect to /inventory/. Naming the slash
+// form in canonicals, the sitemap and shared links means crawlers and visitors reach the
+// page directly, with no redirect and no canonical that disagrees with the final URL.
+export const pageUrl = (path) => `${SITE_URL}${path.endsWith('/') ? path : `${path}/`}`;
 
 const dealerSchema = () => ({
   "@context": "https://schema.org",
@@ -39,7 +47,7 @@ export const homeMeta = () => ({
   title: 'Pre-Owned Big Bikes in Metro Manila | Katingin Bikes',
   description: "Looking for premium pre-owned motorcycles in the Philippines? Katingin Bikes is Metro Manila's trusted big bike dealer for 100-point inspected pre-owned motorcycles with complete papers and flexible financing.",
   keywords: 'Motorcycles Philippines, Pre-Owned Big Bikes Philippines, Second Hand Motorcycles Metro Manila, Used Big Bikes PH',
-  canonical: abs('/'),
+  canonical: pageUrl('/'),
   ogDescription: 'Trusted dealer of premium pre-owned big bikes and motorcycles in the Philippines. Complete OR/CR papers, transparent deals, and financing options.',
   ogImage: LOGO_URL,
   jsonLd: [dealerSchema()],
@@ -49,7 +57,7 @@ export const inventoryMeta = (bikes = []) => ({
   title: 'Pre-Owned Motorcycles for Sale in the Philippines | Katingin Bikes',
   description: 'Browse fresh pre-owned motorcycles and big bikes for sale in the Philippines. Filter by brand (BMW, Ducati, Kawasaki, Yamaha, Honda), price, engine CC, and flexible installment terms.',
   keywords: 'Motorcycles Philippines, Pre-Owned Motorcycles for Sale PH, Second Hand Big Bikes Metro Manila, Used Motorcycles Philippines',
-  canonical: abs('/inventory'),
+  canonical: pageUrl('/inventory'),
   ogDescription: 'Browse our collection of fresh pre-owned big bikes and motorcycles for sale in the Philippines. 100-point inspection and complete OR/CR papers.',
   ogImage: LOGO_URL,
   jsonLd: [
@@ -62,15 +70,15 @@ export const inventoryMeta = (bikes = []) => ({
         "@type": "ListItem",
         "position": index + 1,
         "name": `${bike.brand} ${bike.model} (${bike.year})`,
-        "url": abs(bikePath(bike))
+        "url": pageUrl(bikePath(bike))
       }))
     },
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": abs('/') },
-        { "@type": "ListItem", "position": 2, "name": "Motorcycles Philippines Inventory", "item": abs('/inventory') }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": pageUrl('/') },
+        { "@type": "ListItem", "position": 2, "name": "Motorcycles Philippines Inventory", "item": pageUrl('/inventory') }
       ]
     },
   ],
@@ -80,7 +88,7 @@ export const financingMeta = () => ({
   title: 'Big Bike & Motorcycle Financing Philippines | Katingin Bikes',
   description: 'Apply for motorcycle financing and installment options in the Philippines. Easy pre-approval for pre-owned big bikes with low downpayment terms.',
   keywords: 'Motorcycle Financing Philippines, Big Bike Installment Philippines, Used Motorcycle Financing Metro Manila',
-  canonical: abs('/financing'),
+  canonical: pageUrl('/financing'),
   ogDescription: 'Get pre-approved for pre-owned big bike financing in the Philippines. Flexible downpayment and monthly installment plans.',
   ogImage: LOGO_URL,
   jsonLd: [],
@@ -89,7 +97,7 @@ export const financingMeta = () => ({
 export const contactMeta = () => ({
   title: 'Contact Us | Katingin Bikes | Big Bikes Metro Manila',
   description: 'Get in touch with Katingin Bikes. Contact us via Viber, Messenger, or Email to verify pre-owned big bike availability and schedules in Metro Manila.',
-  canonical: abs('/contact'),
+  canonical: pageUrl('/contact'),
   ogDescription: 'Get in touch directly via Viber, Facebook Messenger, or Email to ask about our premium pre-owned big bikes.',
   ogImage: LOGO_URL,
   jsonLd: [],
@@ -98,7 +106,7 @@ export const contactMeta = () => ({
 export const privacyMeta = () => ({
   title: 'Privacy Policy | Katingin Bikes',
   description: 'Privacy Policy for Katingin Bikes. Learn how we collect, use, and protect your data.',
-  canonical: abs('/privacy-policy'),
+  canonical: pageUrl('/privacy-policy'),
   ogImage: LOGO_URL,
   jsonLd: [],
 });
@@ -112,7 +120,7 @@ const flat = (text) => String(text || '').replace(/\s+/g, ' ').trim();
  *   supplies it.
  */
 export const bikeMeta = (bike, imageUrl = (p) => p) => {
-  const canonical = abs(bikePath(bike));
+  const canonical = pageUrl(bikePath(bike));
   const images = (Array.isArray(bike.images) && bike.images.length > 0 ? bike.images : bike.image ? [bike.image] : [])
     .map(imageUrl)
     .filter(Boolean)
@@ -156,7 +164,7 @@ export const bikeMeta = (bike, imageUrl = (p) => p) => {
  *   price of its own, so an Offer is only emitted when there is a live unit.
  */
 export const showcaseMeta = (bike, liveBike = null) => {
-  const canonical = abs(`/showcase/${bike.slug}`);
+  const canonical = pageUrl(`/showcase/${bike.slug}`);
   const first = bike.images && bike.images.length > 0 ? bike.images[0] : '';
   const image = first ? (first.startsWith('http') ? first : abs(first)) : LOGO_URL;
   const livePrice = liveBike ? parsePrice(liveBike.price) : 0;
@@ -177,7 +185,7 @@ export const showcaseMeta = (bike, liveBike = null) => {
       ...(livePrice > 0 && {
         "offers": {
           "@type": "Offer",
-          "url": abs(bikePath(liveBike)),
+          "url": pageUrl(bikePath(liveBike)),
           "priceCurrency": "PHP",
           "price": livePrice,
           "availability": liveBike.isReserved ? "https://schema.org/LimitedAvailability" : "https://schema.org/InStock",

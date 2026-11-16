@@ -6,4 +6,4 @@ Allow: /
 Disallow: /admin
 Disallow: /insights
 
-Sitemap: https://katinginbikes.com/sitemap.xml
+Sitemap: https://www.katinginbikes.com/sitemap.xml

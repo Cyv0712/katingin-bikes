@@ -19,7 +19,7 @@ import { withPeso, withUnit } from '../src/utils/price.js';
 import { bikeSpecs, bikeFinancing } from '../src/utils/bikeFacts.js';
 import { findShowcaseInventoryMatch } from '../src/utils/showcaseStockMatch.js';
 import {
-  SITE_URL, homeMeta, inventoryMeta, financingMeta, contactMeta, privacyMeta, bikeMeta, showcaseMeta,
+  pageUrl, homeMeta, inventoryMeta, financingMeta, contactMeta, privacyMeta, bikeMeta, showcaseMeta,
 } from '../src/seo/meta.js';
 import { esc, buildPage } from './lib/html.js';
 
@@ -191,7 +191,7 @@ const main = async () => {
   const sitemap = [];
   const add = (routePath, meta, body, opts, lastmod) => {
     writePage(routePath, buildPage(template, meta, body, opts));
-    sitemap.push({ loc: `${SITE_URL}${routePath === '/' ? '/' : routePath}`, lastmod });
+    sitemap.push({ loc: pageUrl(routePath), lastmod });
   };
 
   // "/" is also what the server falls back to for any path without its own

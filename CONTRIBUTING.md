@@ -100,7 +100,7 @@ INQUIRY_RECEIVER_EMAIL=...
 
 ### Prerendered pages (frontend build)
 
-`npm run build` runs `vite build` and then `scripts/prerender.js`, which fetches `/api/bikes` and writes static HTML for every public page and bike (`dist/bike/<slug>-<id>/index.html`, plus `dist/sitemap.xml`). Crawlers and link previews (Google, Facebook, Viber, Messenger) read those files; the React app takes over in the browser. Page metadata lives in `frontend/src/seo/meta.js` and is shared by the pages and the script. Caddy serves the files (`frontend/Caddyfile`, referenced by `nixpacks.toml`).
+`npm run build` runs `vite build` and then `scripts/prerender.js`, which fetches `/api/bikes` and writes static HTML for every public page and bike (`dist/bike/<slug>-<id>/index.html`, `dist/inventory/index.html`, and so on, plus `dist/sitemap.xml`). Crawlers and link previews (Google, Facebook, Viber, Messenger) read those files; the React app takes over in the browser. Page metadata lives in `frontend/src/seo/meta.js` and is shared by the pages and the script. The server (nginx, from Coolify's static hosting) serves them as directories: it answers `/inventory` with a redirect to `/inventory/`, so canonical URLs, the sitemap and share links all use the trailing-slash form (`pageUrl()` in `meta.js`). The site is served on `www.katinginbikes.com`; Cloudflare redirects the bare domain to it, and that is the host used in every canonical URL.
 
 - The API must be reachable at build time: `VITE_API_URL` as a **build variable**.
 - Set `SEO_STRICT=1` as a build variable on the production frontend app. A build that cannot fetch the bike list then fails, and Coolify keeps serving the previous deploy, instead of publishing a site with no bike pages. Without it the build only warns.

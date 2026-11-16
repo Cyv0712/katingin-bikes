@@ -1,6 +1,6 @@
 import { contactInfo } from '../data/contactInfo';
 import { bikePath } from '../config/slug';
-import { SITE_URL } from '../seo/meta';
+import { pageUrl } from '../seo/meta';
 import { withPeso } from './price';
 
 const isMobileDevice = () =>
@@ -12,7 +12,7 @@ export const GENERAL_MESSAGE = "Hi Katingin Bikes, I'd like to ask about your pr
 /** Opening message for a chat about one unit, with a link back to its page. */
 export const bikeInquiryMessage = (bike) => {
   const name = [bike.year, bike.brand, bike.model].filter(Boolean).join(' ');
-  return `Hi Katingin Bikes, I'm interested in the ${name} (${withPeso(bike.price)}). ${SITE_URL}${bikePath(bike)}`;
+  return `Hi Katingin Bikes, I'm interested in the ${name} (${withPeso(bike.price)}). ${pageUrl(bikePath(bike))}`;
 };
 
 // "https://www.facebook.com/katinginbikess/" -> "katinginbikess"
