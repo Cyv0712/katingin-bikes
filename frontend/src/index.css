@@ -670,7 +670,12 @@ select.moto-input {
   border-bottom: 1px solid var(--line);
 }
 
+/* Same width and side margin as the Inventory page (.kb-wide), so the logo and
+   buttons line up with its content edges on every page. */
 .moto-nav .container {
+  max-width: 1440px;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
   min-height: var(--nav-height);
   gap: var(--space-5);
 }
