@@ -79,15 +79,18 @@ router.get('/attribution', ownerLimiter, ownerKeyGuard, async (req, res) => {
   }
 });
 
-// GET /api/internal/activity?limit=<1-200, default 50>&from=<ISO>&to=<ISO>
+// GET /api/internal/activity?limit=<1-200, default 50>&offset=<rows to skip, default 0>&from=<ISO>&to=<ISO>
 // Newest-first log of bikes added to the site, with the exact timestamp.
-// Counts are over the whole log; from/to/limit only shape the returned list.
+// total/last24h/last7d/last30d/firstAt are over the whole log; from/to/limit/offset
+// shape the returned list, and `matching` is how many rows from/to match (for paging).
 router.get('/activity', ownerLimiter, ownerKeyGuard, async (req, res) => {
   try {
     const from = parseDate(req.query.from);
     const to = parseDate(req.query.to);
     const parsedLimit = Number.parseInt(req.query.limit, 10);
     const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 200) : 50;
+    const parsedOffset = Number.parseInt(req.query.offset, 10);
+    const offset = Number.isFinite(parsedOffset) ? Math.min(Math.max(parsedOffset, 0), 1000000) : 0;
 
     const filter = { event: 'added' };
     if (from || to) {
@@ -98,9 +101,12 @@ router.get('/activity', ownerLimiter, ownerKeyGuard, async (req, res) => {
 
     const now = Date.now();
     const since = (days) => new Date(now - days * 86400000);
-    const [events, total, last24h, last7d, last30d] = await Promise.all([
-      BikeActivity.find(filter).sort({ occurredAt: -1 }).limit(limit).lean(),
+    const [events, matching, total, oldest, last24h, last7d, last30d] = await Promise.all([
+      // _id breaks ties so rows never repeat or vanish between pages
+      BikeActivity.find(filter).sort({ occurredAt: -1, _id: -1 }).skip(offset).limit(limit).lean(),
+      BikeActivity.countDocuments(filter),
       BikeActivity.countDocuments({ event: 'added' }),
+      BikeActivity.findOne({ event: 'added' }).sort({ occurredAt: 1 }).select('occurredAt').lean(),
       BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(1) } }),
       BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(7) } }),
       BikeActivity.countDocuments({ event: 'added', occurredAt: { $gte: since(30) } }),
@@ -108,6 +114,8 @@ router.get('/activity', ownerLimiter, ownerKeyGuard, async (req, res) => {
 
     res.json({
       total,
+      matching,
+      firstAt: oldest ? oldest.occurredAt : null,
       last24h,
       last7d,
       last30d,

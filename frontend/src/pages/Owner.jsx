@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Row, Col, Form, Table, Spinner } from 'react-bootstrap';
 import {
   Lock, Eye, EyeOff, LogOut, TrendingUp, Copy, Check, RefreshCw, ArrowUp, ArrowDown, Info,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { apiUrl } from '../config/api';
 
@@ -21,27 +22,22 @@ const clearKey = () => {
   try { sessionStorage.removeItem(KEY_STORAGE); } catch { /* storage unavailable */ }
 };
 
+// The "bikes added" list is fetched separately (and only once the key is
+// accepted, so a wrong key costs one failed attempt, not two). It follows the
+// selected period and is paged by the server.
 async function requestReport(key) {
   try {
-    const headers = { 'x-owner-key': key };
-    const res = await fetch(apiUrl('/api/internal/attribution'), { headers });
-    if (res.ok) {
-      const data = await res.json();
-      // Only asked once the key is accepted, so a wrong key costs one failed
-      // attempt, not two. A failure here just hides the section.
-      let activity = null;
-      try {
-        const act = await fetch(apiUrl('/api/internal/activity?limit=50'), { headers });
-        if (act.ok) activity = await act.json();
-      } catch { /* section stays hidden */ }
-      return { data, activity };
-    }
+    const res = await fetch(apiUrl('/api/internal/attribution'), { headers: { 'x-owner-key': key } });
+    if (res.ok) return { data: await res.json() };
     if (res.status === 404) return { error: 'That key did not work. After several wrong tries, wait 15 minutes.', badKey: true };
     return { error: 'Something went wrong. Please try again.' };
   } catch {
     return { error: 'Could not reach the server.' };
   }
 }
+
+const PAGE_SIZE = 10;
+const MAX_MONTHS = 36;
 
 const PERIODS = [
   { id: 'this-month', label: 'This month', offset: 0, span: 1 },
@@ -50,6 +46,9 @@ const PERIODS = [
   { id: 'year', label: 'This year', year: true },
   { id: 'all', label: 'All time' },
 ];
+
+// A named month ("October 2026") keeps its capitals; presets read as a phrase.
+const periodText = (p) => (p.month ? p.label : p.label.toLowerCase());
 
 function windowFor(period, now) {
   if (period.id === 'all') return null;
@@ -125,6 +124,41 @@ function StatTile({ label, value, sub, delta }) {
   );
 }
 
+function Pager({ page, total, onPage, label }) {
+  if (total <= PAGE_SIZE) return null;
+  const pageCount = Math.ceil(total / PAGE_SIZE);
+  const first = page * PAGE_SIZE + 1;
+  const last = Math.min(total, (page + 1) * PAGE_SIZE);
+  return (
+    <nav
+      aria-label={label}
+      className="d-flex flex-wrap justify-content-between align-items-center gap-2 px-4 py-3"
+      style={{ borderTop: '1px solid var(--line)' }}
+    >
+      <span className="kb-caption" aria-live="polite">Showing {first}–{last} of {total}</span>
+      <div className="d-flex align-items-center gap-2">
+        <button
+          type="button"
+          className="moto-btn moto-btn-outline moto-btn-sm"
+          onClick={() => onPage(page - 1)}
+          disabled={page <= 0}
+        >
+          <ChevronLeft size={16} strokeWidth={1.75} aria-hidden="true" /> Previous
+        </button>
+        <span className="kb-caption">Page {page + 1} of {pageCount}</span>
+        <button
+          type="button"
+          className="moto-btn moto-btn-outline moto-btn-sm"
+          onClick={() => onPage(page + 1)}
+          disabled={page >= pageCount - 1}
+        >
+          Next <ChevronRight size={16} strokeWidth={1.75} aria-hidden="true" />
+        </button>
+      </div>
+    </nav>
+  );
+}
+
 function niceScale(max) {
   const top = Math.max(1, max);
   const step = top <= 4 ? 1 : Math.ceil(top / 4);
@@ -190,10 +224,13 @@ function Owner() {
   const [input, setInput] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [data, setData] = useState(null);
-  const [activity, setActivity] = useState(null);
+  // { key, json } for the last "bikes added" request; json is null if it failed.
+  const [activityState, setActivityState] = useState(null);
   const [loading, setLoading] = useState(Boolean(initialKey));
   const [error, setError] = useState('');
   const [periodId, setPeriodId] = useState('this-month');
+  const [salesPage, setSalesPage] = useState(0);
+  const [activityPage, setActivityPage] = useState(0);
   const [tableView, setTableView] = useState(false);
   const [copied, setCopied] = useState(false);
   const [now] = useState(() => new Date());
@@ -206,7 +243,6 @@ function Owner() {
       if (!live) return;
       if (r.data) {
         setData(r.data);
-        setActivity(r.activity);
       } else {
         // Only a rejected key is forgotten; a network blip keeps the session.
         if (r.badKey) {
@@ -231,7 +267,6 @@ function Owner() {
       saveKey(candidate);
       setOwnerKey(candidate);
       setData(r.data);
-      setActivity(r.activity);
       setInput('');
     } else {
       setError(r.error);
@@ -245,7 +280,6 @@ function Owner() {
     const r = await requestReport(ownerKey);
     if (r.data) {
       setData(r.data);
-      setActivity(r.activity);
       setError('');
     } else {
       setError(r.error);
@@ -257,17 +291,74 @@ function Owner() {
     clearKey();
     setOwnerKey('');
     setData(null);
-    setActivity(null);
+    setActivityState(null);
+    setPeriodId('this-month');
+    setSalesPage(0);
+    setActivityPage(0);
     setError('');
   };
 
-  const period = PERIODS.find((p) => p.id === periodId);
-  const win = useMemo(() => windowFor(period, now), [period, now]);
+  const handlePeriodChange = (id) => {
+    setPeriodId(id);
+    setSalesPage(0);
+    setActivityPage(0);
+  };
 
   const bikes = useMemo(
     () => (data?.bikes ?? []).map((b) => ({ ...b, t: new Date(b.removedAt) })),
     [data]
   );
+
+  const activity = activityState?.json ?? null;
+
+  // One entry per calendar month, newest first, back to the first removal or
+  // the first logged bike (whichever is older), capped at MAX_MONTHS.
+  const firstAddedAt = activity?.firstAt ?? null;
+  const monthPeriods = useMemo(() => {
+    const stamps = bikes.map((b) => b.t.getTime());
+    if (firstAddedAt) stamps.push(new Date(firstAddedAt).getTime());
+    const valid = stamps.filter(Number.isFinite);
+    const earliest = valid.length ? new Date(Math.min(...valid)) : now;
+    const spanned = (now.getFullYear() - earliest.getFullYear()) * 12 + now.getMonth() - earliest.getMonth() + 1;
+    const count = Math.min(MAX_MONTHS, Math.max(1, spanned));
+    return Array.from({ length: count }, (_, i) => {
+      const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      return {
+        id: `month-${start.getFullYear()}-${start.getMonth()}`,
+        label: start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        offset: -i,
+        span: 1,
+        month: true,
+      };
+    });
+  }, [bikes, firstAddedAt, now]);
+
+  const period = PERIODS.find((p) => p.id === periodId)
+    ?? monthPeriods.find((p) => p.id === periodId)
+    ?? PERIODS[0];
+  const win = useMemo(() => windowFor(period, now), [period, now]);
+
+  // "Bikes added" for the selected period, one page at a time. Re-fetched when
+  // the period or page changes, or when the report is refreshed.
+  const activityKey = `${period.id}:${activityPage}`;
+  useEffect(() => {
+    if (!data || !ownerKey) return undefined;
+    let live = true;
+    const params = new URLSearchParams({
+      limit: String(PAGE_SIZE),
+      offset: String(activityPage * PAGE_SIZE),
+    });
+    if (win) {
+      params.set('from', win.start.toISOString());
+      params.set('to', win.end.toISOString());
+    }
+    fetch(apiUrl(`/api/internal/activity?${params}`), { headers: { 'x-owner-key': ownerKey } })
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null)
+      .then((json) => { if (live) setActivityState({ key: activityKey, json }); });
+    return () => { live = false; };
+  }, [data, ownerKey, win, activityPage, activityKey]);
+  const activityLoading = activityState?.key !== activityKey;
 
   const current = useMemo(() => (win ? inRange(bikes, win.start, win.end) : bikes), [bikes, win]);
   const previous = useMemo(() => (win ? inRange(bikes, win.prevStart, win.prevEnd) : null), [bikes, win]);
@@ -290,7 +381,11 @@ function Owner() {
 
   const leadRate = data && data.totalLeads > 0 ? Math.round((data.helpedSold / data.totalLeads) * 100) : null;
 
-  const summaryText = `Katingin Bikes website: ${plural(cur.count, 'inquiry-assisted sale')}, ${peso(cur.revenue)} in listed value (${period.label.toLowerCase()}).`;
+  const salesPageCount = Math.max(1, Math.ceil(current.length / PAGE_SIZE));
+  const salesPageShown = Math.min(salesPage, salesPageCount - 1);
+  const pagedSales = current.slice(salesPageShown * PAGE_SIZE, (salesPageShown + 1) * PAGE_SIZE);
+
+  const summaryText = `Katingin Bikes website: ${plural(cur.count, 'inquiry-assisted sale')}, ${peso(cur.revenue)} in listed value (${periodText(period)}).`;
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(summaryText);
@@ -370,10 +465,13 @@ function Owner() {
               aria-label="Period"
               className="moto-input"
               style={{ width: 'auto', minHeight: '40px' }}
-              value={periodId}
-              onChange={(e) => setPeriodId(e.target.value)}
+              value={period.id}
+              onChange={(e) => handlePeriodChange(e.target.value)}
             >
               {PERIODS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+              <optgroup label="Pick a month">
+                {monthPeriods.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+              </optgroup>
             </Form.Select>
             <button onClick={handleRefresh} className="moto-btn moto-btn-outline moto-btn-sm" disabled={loading}>
               <RefreshCw size={16} strokeWidth={1.75} aria-hidden="true" /> Refresh
@@ -389,7 +487,7 @@ function Owner() {
         <div className="moto-card p-4 p-md-5 mb-3">
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
             <div>
-              <div className="kb-label mb-2" style={{ color: 'var(--ink-muted)' }}>Sales value influenced · {period.label.toLowerCase()}</div>
+              <div className="kb-label mb-2" style={{ color: 'var(--ink-muted)' }}>Sales value influenced · {periodText(period)}</div>
               <div className="owner-hero-value">{peso(cur.revenue)}</div>
               <div className="mt-3 d-flex flex-column gap-1">
                 {prev && (
@@ -508,7 +606,7 @@ function Owner() {
         )}
 
         {/* Bikes list */}
-        <h2 className="kb-h4 mb-3">Bikes helped sell · {period.label.toLowerCase()}</h2>
+        <h2 className="kb-h4 mb-3">Bikes helped sell · {periodText(period)}</h2>
         <div className="moto-card overflow-hidden p-0 mb-4">
           <Table responsive className="mb-0 align-middle">
             <thead>
@@ -529,7 +627,7 @@ function Owner() {
                   </td>
                 </tr>
               ) : (
-                current.map((b) => (
+                pagedSales.map((b) => (
                   <tr key={`${b.brand}-${b.model}-${b.removedAt}`}>
                     <td className="py-3 ps-4 fw-semibold">{[b.brand, b.model, b.engineSize].filter(Boolean).join(' ')}</td>
                     <td className="py-3 kb-num">{b.price || '—'}</td>
@@ -542,19 +640,24 @@ function Owner() {
               )}
             </tbody>
           </Table>
+          <Pager page={salesPageShown} total={current.length} onPage={setSalesPage} label="Bikes helped sell pages" />
         </div>
 
         {/* Recently added bikes */}
         {activity && (
           <>
-            <h2 className="kb-h4 mb-3">Bikes added</h2>
+            <h2 className="kb-h4 mb-3">Bikes added · {periodText(period)}</h2>
             <Row className="g-3 mb-3">
               <Col xs={6} lg={3}><StatTile label="Last 24 hours" value={activity.last24h} /></Col>
               <Col xs={6} lg={3}><StatTile label="Last 7 days" value={activity.last7d} /></Col>
               <Col xs={6} lg={3}><StatTile label="Last 30 days" value={activity.last30d} /></Col>
               <Col xs={6} lg={3}><StatTile label="Since tracking began" value={activity.total} /></Col>
             </Row>
-            <div className="moto-card overflow-hidden p-0 mb-4">
+            <div
+              className="moto-card overflow-hidden p-0 mb-4"
+              style={activityLoading ? { opacity: 0.55 } : undefined}
+              aria-busy={activityLoading}
+            >
               <Table responsive className="mb-0 align-middle">
                 <thead>
                   <tr>
@@ -567,7 +670,9 @@ function Owner() {
                   {activity.events.length === 0 ? (
                     <tr>
                       <td colSpan={3} className="text-center py-5" style={{ color: 'var(--ink-muted)' }}>
-                        No bikes added since tracking began.
+                        {activity.total === 0
+                          ? 'No bikes added since tracking began.'
+                          : 'No bikes added in this period.'}
                       </td>
                     </tr>
                   ) : (
@@ -583,9 +688,15 @@ function Owner() {
                   )}
                 </tbody>
               </Table>
+              <Pager page={activityPage} total={activity.matching} onPage={setActivityPage} label="Bikes added pages" />
             </div>
-            <p className="kb-caption mb-4">Shows the 50 most recent. Only bikes added after tracking was switched on are logged.</p>
+            <p className="kb-caption mb-4">
+              {plural(activity.matching, 'bike')} in this period. Only bikes added after tracking was switched on are logged.
+            </p>
           </>
+        )}
+        {!activity && !activityLoading && (
+          <p className="kb-caption mb-4" role="alert">Could not load the bikes added list. Try Refresh.</p>
         )}
 
         {/* How it is measured */}
