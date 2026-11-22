@@ -191,8 +191,55 @@ describe('GET /api/internal/activity', () => {
     assert.equal(ignored.events.length, 5);
   });
 
+  it('pages through events with offset and reports how many match from/to', async () => {
+    const day = 86400000;
+    const now = Date.now();
+    await BikeActivity.create(
+      Array.from({ length: 5 }, (_, i) => ({
+        bikeId: new mongoose.Types.ObjectId(), event: 'added', brand: 'X', model: `m${i}`,
+        occurredAt: new Date(now - i * day),
+      }))
+    );
+
+    const page1 = await (await getActivity('?limit=2&offset=0')).json();
+    const page2 = await (await getActivity('?limit=2&offset=2')).json();
+    const page3 = await (await getActivity('?limit=2&offset=4')).json();
+    assert.deepEqual(page1.events.map((e) => e.model), ['m0', 'm1']);
+    assert.deepEqual(page2.events.map((e) => e.model), ['m2', 'm3']);
+    assert.deepEqual(page3.events.map((e) => e.model), ['m4']);
+    assert.equal(page1.matching, 5);
+    assert.equal((await (await getActivity('?limit=2&offset=99')).json()).events.length, 0);
+    assert.equal((await (await getActivity('?offset=-5')).json()).events.length, 5, 'negative offset falls back to 0');
+    assert.equal((await (await getActivity('?offset=abc')).json()).events.length, 5);
+
+    // A month-style window: matching follows from/to, total and firstAt do not
+    const from = new Date(now - 2.5 * day).toISOString();
+    const to = new Date(now - 0.5 * day).toISOString();
+    const windowed = await (await getActivity(`?from=${from}&to=${to}&limit=1&offset=1`)).json();
+    assert.equal(windowed.matching, 2);
+    assert.deepEqual(windowed.events.map((e) => e.model), ['m2']);
+    assert.equal(windowed.total, 5);
+    assert.equal(new Date(windowed.firstAt).getTime(), now - 4 * day);
+  });
+
+  it('keeps a stable order across pages when timestamps tie', async () => {
+    const at = new Date();
+    await BikeActivity.create(
+      Array.from({ length: 6 }, (_, i) => ({
+        bikeId: new mongoose.Types.ObjectId(), event: 'added', brand: 'T', model: `t${i}`, occurredAt: at,
+      }))
+    );
+    const seen = [];
+    for (let offset = 0; offset < 6; offset += 2) {
+      seen.push(...(await (await getActivity(`?limit=2&offset=${offset}`)).json()).events.map((e) => e.model));
+    }
+    assert.equal(new Set(seen).size, 6);
+  });
+
   it('returns an empty report when nothing has been logged', async () => {
     const body = await (await getActivity()).json();
-    assert.deepEqual(body, { total: 0, last24h: 0, last7d: 0, last30d: 0, events: [] });
+    assert.deepEqual(body, {
+      total: 0, matching: 0, firstAt: null, last24h: 0, last7d: 0, last30d: 0, events: [],
+    });
   });
 });
