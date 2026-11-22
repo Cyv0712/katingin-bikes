@@ -53,5 +53,7 @@ export const buildPage = (template, meta, bodyHtml, headOptions) => {
   return template
     .replace(STATIC_META_RE, '')
     .replace(TITLE_RE, () => renderHeadTags(meta, headOptions).trim())
-    .replace(ROOT, () => `<div id="root">${bodyHtml}</div>`);
+    // data-prerender: hidden by index.html's inline CSS when JS runs, so visitors don't
+    // see the plain link list flash before the app mounts (crawlers read the raw HTML)
+    .replace(ROOT, () => `<div id="root"><div data-prerender>${bodyHtml}</div></div>`);
 };

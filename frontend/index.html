@@ -25,6 +25,11 @@
     href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Sofia+Sans+Extra+Condensed:wght@700;800&display=swap"
     rel="stylesheet" />
   <title data-static-seo>Katingin Bikes</title>
+  <!-- Prerendered pages carry a plain text copy of their content for crawlers and
+       link previews. With JS on it is hidden, so it doesn't flash before the app
+       mounts; with JS off it stays visible. -->
+  <style>html.js [data-prerender]{display:none}</style>
+  <script>document.documentElement.className += ' js';</script>
   <!-- Umami Analytics -->
   <script>
     // Skipped on /insights so that page leaves no trace in analytics.
